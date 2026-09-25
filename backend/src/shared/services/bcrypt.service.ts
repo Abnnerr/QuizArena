@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt'
 
 export class BcryptService {
-    async hash(senha: string): Promise<string> {
-        return bcrypt.hash(senha, 10)
+    async hash(password: string): Promise<string> {
+        return bcrypt.hash(password, 10)
     }
-    async compare(senha: string, hash: string): Promise<boolean> {
-        return bcrypt.compare(senha, hash)
+    async compare(password: string, hash: string): Promise<boolean> {
+        return bcrypt.compare(password, hash)
     }
 }

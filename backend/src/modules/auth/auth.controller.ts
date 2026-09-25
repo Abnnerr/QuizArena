@@ -15,6 +15,7 @@ export class AuthController implements IAuthController {
         this.register = this.register.bind(this)
         this.login = this.login.bind(this)
         this.forgot = this.forgot.bind(this)
+        this.reset = this.reset.bind(this)
     }
 
     async register(req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -33,12 +34,18 @@ export class AuthController implements IAuthController {
         try {
             const result = await this.service.login(req.body)
 
-            return HttpResponse.success(res, 201, 'Usuario registrado', result)
+            res.cookie('access_token', result.token, {
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: process.env["NODE_MODE"] === 'production',
+                maxAge: 60 * 1000 * 60
+            })
+            return HttpResponse.success(res, 200, 'Usuario logado', result)
         } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }
-            return HttpResponse.warning(res, 500, 'Error ao registrar Usuario')
+            return HttpResponse.warning(res, 500, 'Error ao logar Usuario')
         }
     }
     async forgot(req: Request<{}, {}, ForgotDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -46,7 +53,7 @@ export class AuthController implements IAuthController {
 
             await this.service.forgot(req.body.email)
 
-            return HttpResponse.success(res, 201, 'Usuario registrado')
+            return HttpResponse.success(res, 200, 'Usuario registrado')
         } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
@@ -55,17 +62,17 @@ export class AuthController implements IAuthController {
         }
     }
 
-    async reset(req: Request<TokenDTO, {}, ResetDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
+    async reset(req: Request<{ token: string }, {}, ResetDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
 
             await this.service.reset(req.params.token, req.body.password)
 
-            return HttpResponse.success(res, 201, 'Usuario registrado')
+            return HttpResponse.success(res, 200, 'Conta recuperada')
         } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }
-            return HttpResponse.warning(res, 500, 'Error ao registrar Usuario')
+            return HttpResponse.warning(res, 500, 'Error ao recuperar conta')
         }
     }
     async me(req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {

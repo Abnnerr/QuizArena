@@ -24,11 +24,11 @@ export class AuthService {
 
             this.domain.ensureRegister(dados)
 
-            const senha = await this.bcrypt.hash(dados.password)
+            const password = await this.bcrypt.hash(dados.password)
 
-            const newDados = {
+            const newDados: RegisterDTO = {
                 ...dados,
-                senha
+                password
             }
             const result = await this.repo.register(newDados)
 
@@ -59,7 +59,7 @@ export class AuthService {
             if (!result) {
                 throw new AppError(401, 'E-mail ou senha inválidos')
             }
-            const compare = await this.bcrypt.compare(dados.senha, result.user_password)
+            const compare = await this.bcrypt.compare(dados.password, result.user_password)
 
             if (!compare) {
                 throw new AppError(401, 'E-mail ou senha inválidos')
@@ -100,7 +100,7 @@ export class AuthService {
             try {
                 await enviarEmail(result.user_email,
                     'Recuperar conta',
-                    html.forgot(result.user_username, `http://localhost:9000/${token}`)
+                    html.forgot(result.user_username, `http://localhost:9000/reset-password/${token}`)
                 )
             } catch (error) {
 
@@ -114,10 +114,11 @@ export class AuthService {
     }
     async reset(token: string, password: string): Promise<void> {
         try {
+            
             const id = this.jwt.verify(token).id
             const hash = await this.bcrypt.hash(password)
             const result = await this.repo.reset(id, hash)
-
+            
             if (!result) {
                 throw new AppError(400, 'falha ao recupar conta')
             }

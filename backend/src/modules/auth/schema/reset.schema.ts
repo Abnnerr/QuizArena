@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const resetschema = z.object({
+export const resetSchema = z.object({
     password: z.string()
         .min(8)
         .regex(/[A-Z]/, "A senha deve conter uma letra maiúscula")
@@ -9,4 +9,4 @@ export const resetschema = z.object({
         .regex(/[^A-Za-z0-9]/, "A senha deve ter pelo menos um caractere especial")
 })
 
-export type ResetDTO = z.infer<typeof resetschema>
+export type ResetDTO = z.infer<typeof resetSchema>

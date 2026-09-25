@@ -7,14 +7,20 @@ import type { AuthPayload } from "../types/generic.js";
 export class AuthMiddleware {
     static async validate(req: Request, res: Response, next: NextFunction) {
         try {
-            const [bearer, token] = req.headers.authorization?.split(" ") ?? [];
 
-            if (bearer !== "Bearer" || !token) {
+            const cookie = req.headers.cookie?.split('; ')
+                .find(item => item.startsWith('access_token='))?.split('=')[1]
+
+            const [bearer, authoToken] = req.headers.authorization?.split(" ") ?? [];
+
+            const token = bearer === 'Bearer' ? authoToken : cookie ? cookie : false
+
+            if (!token) {
                 throw new AppError(401, "Token de autenticação não enviado");
             }
 
             const verify = new JwtService().verify(token) as AuthPayload;
-            
+
             const user = await new AuthRepository().login(undefined, verify.id);
 
             if (!user) {

@@ -6,6 +6,7 @@ import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 import { loginSchema } from "./schema/login.schema.js";
 import { forgotSchema } from "./schema/forgot.schema.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
+import { resetSchema} from "./schema/reset.schema.js";
 
 
 const router = Router()
@@ -27,8 +28,8 @@ router.post('/forgot-password',
 )
 router.post('/reset-password/:token',
     RateLimit.limit(4, 3),
-    ZodMiddleware.validate(forgotSchema, 'body'),
-    authController.forgot
+    ZodMiddleware.validate(resetSchema, 'body'),
+    authController.reset
 )
 
 router.get('/me', RateLimit.limit(4, 3), AuthMiddleware.validate, authController.me)
