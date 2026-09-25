@@ -1,0 +1,30 @@
+services:
+  backend:
+    image: backend
+    container_name: backend-container
+    build:
+      context: ./backend
+    ports:
+      - "9000:9000"
+
+  frontend:
+    image: frontend
+    container_name: frontend-container
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
