@@ -1,2 +1,8 @@
 node_modules
 /src/generated/prisma
+.agents
+.claude
+.windsurf
+**/.env
+**/.env.*
+!.env.example

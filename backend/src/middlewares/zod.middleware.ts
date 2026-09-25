@@ -21,6 +21,7 @@ export class ZodMiddleware {
                 }
                 req.validatedParams = verify.data
             }
+            next()
         }
     }
 }

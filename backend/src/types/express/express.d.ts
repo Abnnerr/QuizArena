@@ -3,8 +3,9 @@ declare global {
         export interface Request {   
             validatedParams?: any
             user?: {
-                id: number,
-                role: string
+                id: string,
+                role: string,
+                permissions: string[]
             }
         
 

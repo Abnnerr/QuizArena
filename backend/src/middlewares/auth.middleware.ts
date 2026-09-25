@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../error/AppError.js";
 import { JwtService } from "../shared/services/jwt.service.js";
-import type { AuthPayload } from "../types/generic.js";
 import { AuthRepository } from "../modules/auth/auth.repository.js";
+import type { AuthPayload } from "../types/generic.js";
 
 export class AuthMiddleware {
     static async validate(req: Request, res: Response, next: NextFunction) {
@@ -14,6 +14,7 @@ export class AuthMiddleware {
             }
 
             const verify = new JwtService().verify(token) as AuthPayload;
+            
             const user = await new AuthRepository().login(undefined, verify.id);
 
             if (!user) {

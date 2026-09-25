@@ -5,17 +5,53 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-
 model Users {
-  user_id Int @id @default(autoincrement())
-  user_name String
-  user_email String @unique
-  user_senha String
+  user_id       String @id @default(uuid())
+  user_username String
+  user_email    String @unique
+  user_password    String
+
+  role_id Int
+
+  Role Role @relation(fields: [role_id], references: [role_id])
+}
+
+model Role {
+  role_id   Int    @id @default(autoincrement())
+  role_name Roles
+
+  users           Users[]
+  rolePermissions RolePermission[]
+}
+
+model Permissions {
+  permission_id   Int    @id @default(autoincrement())
+  permission_name String
+
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  role_id      Int
+  permissin_id Int
+
+  role       Role        @relation(fields: [role_id], references: [role_id])
+  permission Permissions @relation(fields: [permissin_id], references: [permission_id])
+
+  @@id([role_id, permissin_id])
+}
+
+
+
+
+enum Roles {
+  user
+  admin
+  host
 }

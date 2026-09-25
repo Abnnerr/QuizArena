@@ -1,0 +1,8 @@
+{
+  "name": "quizarena",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

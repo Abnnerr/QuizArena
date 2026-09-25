@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node src/app/server.ts"
+    "dev": "tsx --watch --env-file=.env  src/app/server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.9.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
@@ -20,14 +21,18 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.24.4",
-    "prisma": "^7.9.1",
+    "pg": "^8.23.0",
+    "resend": "^6.29.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.2",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }

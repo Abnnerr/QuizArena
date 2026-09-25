@@ -1,9 +1,6 @@
 import z from "zod";
 
-export const registerSchema = z.object({
-    userName: z.string().min(3),
-    email: z.email(),
-    role: z.union([z.literal(1), z.literal(2)]),
+export const resetschema = z.object({
     password: z.string()
         .min(8)
         .regex(/[A-Z]/, "A senha deve conter uma letra maiúscula")
@@ -12,4 +9,4 @@ export const registerSchema = z.object({
         .regex(/[^A-Za-z0-9]/, "A senha deve ter pelo menos um caractere especial")
 })
 
-export type RegisterDTO = z.infer<typeof registerSchema>
+export type ResetDTO = z.infer<typeof resetschema>

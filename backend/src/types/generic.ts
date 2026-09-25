@@ -12,6 +12,7 @@ export type ResponseDTO = z.infer<typeof responseSchema>
 
 
 export interface AuthPayload {
-    id: number,
-    role: string
+    id: string,
+    role: string,
+    permissions: string[]
 }
