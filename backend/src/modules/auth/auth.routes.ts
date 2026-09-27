@@ -6,7 +6,7 @@ import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 import { loginSchema } from "./schema/login.schema.js";
 import { forgotSchema } from "./schema/forgot.schema.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
-import { resetSchema} from "./schema/reset.schema.js";
+import { resetSchema } from "./schema/reset.schema.js";
 
 
 const router = Router()
@@ -32,6 +32,10 @@ router.post('/reset-password/:token',
     authController.reset
 )
 
-router.get('/me', RateLimit.limit(4, 3), AuthMiddleware.validate, authController.me)
+router.get('/me',
+    RateLimit.limit(4, 3),
+    AuthMiddleware.validate,
+    authController.me
+)
 
 export default router

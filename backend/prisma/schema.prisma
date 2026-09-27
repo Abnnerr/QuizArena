@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,42 +8,156 @@ datasource db {
 
 model Users {
   user_id       String @id @default(uuid())
-  user_username String
   user_email    String @unique
-  user_password    String
+  user_username String
+  user_password String
 
   role_id Int
 
   Role Role @relation(fields: [role_id], references: [role_id])
+
+  userRooms   UserRoom[]
+  answers     Answers[]
+  powerupUses PowerupUse[]
 }
 
 model Role {
-  role_id   Int    @id @default(autoincrement())
-  role_name Roles
-
-  users           Users[]
+  role_id         Int              @id @default(autoincrement())
+  role_name       Roles
   rolePermissions RolePermission[]
+  users           Users[]
 }
 
 model Permissions {
-  permission_id   Int    @id @default(autoincrement())
+  permission_id   Int              @id @default(autoincrement())
   permission_name String
-
   rolePermissions RolePermission[]
 }
 
 model RolePermission {
   role_id      Int
   permissin_id Int
-
-  role       Role        @relation(fields: [role_id], references: [role_id])
-  permission Permissions @relation(fields: [permissin_id], references: [permission_id])
+  permission   Permissions @relation(fields: [permissin_id], references: [permission_id])
+  role         Role        @relation(fields: [role_id], references: [role_id])
 
   @@id([role_id, permissin_id])
 }
 
+model Rooms {
+  room_id Int @id @default(autoincrement())
 
+  status RoomStatus @default(LOBBY)
 
+  max_players Int @default(20)
+
+  time_limit Int
+
+  mode GameMode @default(NORMAL)
+
+  is_test Boolean @default(false)
+
+  userRooms   UserRoom[]
+  rounds      Round[]
+  powerupUses PowerupUse[]
+}
+
+model UserRoom {
+  user_id String
+  room_id Int
+
+  score Int @default(0)
+
+  is_host Boolean @default(false)
+
+  users Users @relation(fields: [user_id], references: [user_id])
+  rooms Rooms @relation(fields: [room_id], references: [room_id])
+
+  @@id([user_id, room_id])
+}
+
+model Questions {
+  question_id   Int     @id @default(autoincrement())
+  question_text String
+  active        Boolean @default(true)
+
+  alternatives Alternatives[]
+  rounds       Round[]
+}
+
+model Alternatives {
+  alternative_id   Int     @id @default(autoincrement())
+  alternative_text String
+  is_correct       Boolean
+
+  question_id Int
+
+  question Questions @relation(fields: [question_id], references: [question_id])
+  answers  Answers[]
+}
+
+model Round {
+  round_id Int @id @default(autoincrement())
+
+  room_id     Int
+  question_id Int
+
+  opened_at DateTime  @default(now())
+  closed_at DateTime?
+
+  rooms     Rooms     @relation(fields: [room_id], references: [room_id])
+  questions Questions @relation(fields: [question_id], references: [question_id])
+
+  answers Answers[]
+}
+
+model Answers {
+  answer_id Int @id @default(autoincrement())
+
+  user_id        String
+  round_id       Int
+  alternative_id Int
+
+  points Int @default(0)
+
+  answered_at DateTime @default(now())
+
+  users        Users        @relation(fields: [user_id], references: [user_id])
+  rounds       Round        @relation(fields: [round_id], references: [round_id])
+  alternatives Alternatives @relation(fields: [alternative_id], references: [alternative_id])
+
+  @@unique([user_id, round_id])
+}
+
+model PowerupUse {
+  powerup_use_id Int @id @default(autoincrement())
+
+  user_id String
+  room_id Int
+
+  powerup_type PowerupType
+
+  used_at DateTime @default(now())
+
+  users Users @relation(fields: [user_id], references: [user_id])
+  rooms Rooms @relation(fields: [room_id], references: [room_id])
+
+  @@unique([user_id, room_id, powerup_type])
+}
+
+enum RoomStatus {
+  LOBBY
+  LIVE
+  FINISHED
+}
+
+enum GameMode {
+  NORMAL
+  HARDCORE
+}
+
+enum PowerupType {
+  FIFTY_FIFTY
+}
 
 enum Roles {
   user

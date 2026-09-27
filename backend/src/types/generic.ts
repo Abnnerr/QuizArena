@@ -11,7 +11,7 @@ export const responseSchema = z.object({
 export type ResponseDTO = z.infer<typeof responseSchema>
 
 
-export interface AuthPayload {
+export type AuthPayload = {
     id: string,
     role: string,
     permissions: string[]

@@ -7,7 +7,6 @@ import type { IAuthController } from "./contracts/auth.controller.contract.js";
 import type { IAuthService } from "./contracts/auth.service.contract.js";
 import type { LoginDTO } from "./schema/login.schema.js";
 import type { ForgotDTO } from "./schema/forgot.schema.js";
-import type { TokenDTO } from "./dto/auth.dto.js";
 import type { ResetDTO } from "./schema/reset.schema.js";
 
 export class AuthController implements IAuthController {
@@ -16,6 +15,7 @@ export class AuthController implements IAuthController {
         this.login = this.login.bind(this)
         this.forgot = this.forgot.bind(this)
         this.reset = this.reset.bind(this)
+        this.me = this.reset.bind(this)
     }
 
     async register(req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -78,8 +78,9 @@ export class AuthController implements IAuthController {
     async me(req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
 
+            const result = await this.service.me(req.user!)
 
-            return HttpResponse.success(res, 201, 'Usuario registrado')
+            return HttpResponse.success(res, 201, 'Usuario registrado', result)
         } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)

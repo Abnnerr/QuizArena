@@ -1,12 +1,12 @@
-import type { Prisma } from "@prisma/client";
+import type { $Enums, Prisma } from "@prisma/client";
 
 
 
-export interface TokenDTO  {
+export type TokenDTO = {
     token: string
 }
 
-export interface LoginResponse {
+export type LoginResponse = {
     user: {
         role_name: string;
         permissions: string[];
@@ -17,17 +17,35 @@ export interface LoginResponse {
     token: string
 }
 
+export type UserResponse = {
+    role_name: $Enums.Roles;
+    permissions: string[];
+    user_id: string;
+    user_email: string;
+    user_username: string;
+
+}
 
 export type UserWithRole = Prisma.UsersGetPayload<{
-    include: {
+    select: {
+        user_id: true,
+        user_email: true,
+        user_username: true,
+        user_password: true,
+
         Role: {
-            include: {
+            select: {
+                role_name: true,
                 rolePermissions: {
-                    include: {
-                        permission: true;
-                    };
-                };
-            };
-        };
-    };
+                    select: {
+                        permission: {
+                            select: {
+                                permission_name: true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }>;

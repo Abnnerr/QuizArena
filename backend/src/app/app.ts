@@ -4,7 +4,7 @@ import routes from "./routes.js"
 import helmet from 'helmet'
 const app = express()
 
-app.use(express.json())
+app.use(express.json({ limit: '100kb', strict: true}))
 app.use(helmet())
 app.use(cors({
     origin: '',

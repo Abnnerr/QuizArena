@@ -1,14 +1,15 @@
-import type { Users } from "@prisma/client";
+import { Roles, type Users } from "@prisma/client";
 import { AppError } from "../../error/AppError.js";
 import type { BcryptService } from "../../shared/services/bcrypt.service.js";
 import type { JwtService } from "../../shared/services/jwt.service.js";
 import type { AuthRepository } from "./auth.repository.js";
 import type { LoginDTO } from "./schema/login.schema.js";
 import type { RegisterDTO } from "./schema/register.schema.js";
-import type { LoginResponse } from "./dto/auth.dto.js";
+import type { LoginResponse, UserResponse } from "./dto/auth.dto.js";
 import type { AuthDomain } from "./domain/auth.domain.js";
 import { enviarEmail } from "../../shared/utils/email.js";
 import { html } from "./templates/auth.templates.js";
+import type { AuthPayload } from "../../types/generic.js";
 
 export class AuthService {
     constructor(
@@ -54,7 +55,7 @@ export class AuthService {
     }
     async login(dados: LoginDTO): Promise<LoginResponse> {
         try {
-            const result = await this.repo.login(dados.email)
+            const result = await this.repo.findUser(dados.email)
 
             if (!result) {
                 throw new AppError(401, 'E-mail ou senha inválidos')
@@ -64,7 +65,7 @@ export class AuthService {
             if (!compare) {
                 throw new AppError(401, 'E-mail ou senha inválidos')
             }
-            const { user_password: _, Role: __, role_id: ___, ...rest } = result
+            const { user_password: _, Role: __, ...rest } = result
 
             const permissions = result.Role.rolePermissions.map(item => item.permission.permission_name)
 
@@ -90,7 +91,7 @@ export class AuthService {
 
     async forgot(email: string): Promise<void> {
         try {
-            const result = await this.repo.login(email)
+            const result = await this.repo.findUser(email)
 
             if (!result) {
                 throw new AppError(404, 'usuario nao encontrado')
@@ -114,11 +115,11 @@ export class AuthService {
     }
     async reset(token: string, password: string): Promise<void> {
         try {
-            
+
             const id = this.jwt.verify(token).id
             const hash = await this.bcrypt.hash(password)
             const result = await this.repo.reset(id, hash)
-            
+
             if (!result) {
                 throw new AppError(400, 'falha ao recupar conta')
             }
@@ -132,6 +133,29 @@ export class AuthService {
             } catch (error) {
                 throw error
             }
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao registrar usuario')
+        }
+    }
+    async me(user: AuthPayload): Promise<UserResponse> {
+        try {
+
+            const result = await this.repo.findUser(user.id)
+
+            if (!user) {
+                throw new AppError(404, 'usuario nao encontrado')
+            }
+            const { user_password: _, Role: __, ...rest } = result
+            const userLimpo = {
+                ...rest,
+                role_name: result.Role.role_name,
+                permissions: result.Role.rolePermissions.map(item => item.permission.permission_name)
+            }
+
+            return userLimpo
         } catch (error) {
             if (error instanceof AppError) {
                 throw error

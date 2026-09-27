@@ -4,7 +4,7 @@ import type { RegisterDTO } from "../schema/register.schema.js";
 import type { LoginDTO } from "../schema/login.schema.js";
 import type { ForgotDTO } from "../schema/forgot.schema.js";
 
-export interface IAuthController {
+export type IAuthController  = {
     register: (req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
     login: (req: Request<{}, {}, LoginDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
     forgot: (req: Request<{}, {}, ForgotDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
