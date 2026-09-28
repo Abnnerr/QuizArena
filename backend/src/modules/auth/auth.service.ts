@@ -24,6 +24,7 @@ export class AuthService {
         try {
 
             this.domain.ensureRegister(dados)
+            this.domain.ensurePassword(dados.password)
 
             const password = await this.bcrypt.hash(dados.password)
 
@@ -69,7 +70,7 @@ export class AuthService {
 
             const permissions = result.Role.rolePermissions.map(item => item.permission.permission_name)
 
-            const user = {
+            const user: UserResponse = {
                 ...rest,
                 role_name: result.Role.role_name,
                 permissions
@@ -115,6 +116,7 @@ export class AuthService {
     }
     async reset(token: string, password: string): Promise<void> {
         try {
+            this.domain.ensurePassword(password)
 
             const id = this.jwt.verify(token).id
             const hash = await this.bcrypt.hash(password)
@@ -149,7 +151,7 @@ export class AuthService {
                 throw new AppError(404, 'usuario nao encontrado')
             }
             const { user_password: _, Role: __, ...rest } = result
-            const userLimpo = {
+            const userLimpo: UserResponse = {
                 ...rest,
                 role_name: result.Role.role_name,
                 permissions: result.Role.rolePermissions.map(item => item.permission.permission_name)

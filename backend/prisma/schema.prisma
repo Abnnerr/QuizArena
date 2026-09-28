@@ -44,21 +44,31 @@ model RolePermission {
 }
 
 model Rooms {
-  room_id Int @id @default(autoincrement())
-
-  status RoomStatus @default(LOBBY)
+  room_id     Int        @id @default(autoincrement())
+  room_name   String
+  room_status RoomStatus @default(LOBBY)
+  room_mode   GameMode   @default(NORMAL)
 
   max_players Int @default(20)
 
   time_limit Int
 
-  mode GameMode @default(NORMAL)
+  userRooms     UserRoom[]
+  rounds        Round[]
+  powerupUses   PowerupUse[]
+  roomQuestions RoomQuestion[]
+}
 
-  is_test Boolean @default(false)
+model RoomQuestion {
+  room_id     Int
+  question_id Int
+  position    Int
 
-  userRooms   UserRoom[]
-  rounds      Round[]
-  powerupUses PowerupUse[]
+  room     Rooms     @relation(fields: [room_id], references: [room_id])
+  question Questions @relation(fields: [question_id], references: [question_id])
+
+  @@id([room_id, question_id])
+  @@unique([room_id, position])
 }
 
 model UserRoom {
@@ -80,8 +90,9 @@ model Questions {
   question_text String
   active        Boolean @default(true)
 
-  alternatives Alternatives[]
-  rounds       Round[]
+  alternatives  Alternatives[]
+  rounds        Round[]
+  roomQuestions RoomQuestion[]
 }
 
 model Alternatives {

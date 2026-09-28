@@ -10,4 +10,11 @@ export class AuthDomain {
             throw new AppError(400, 'userName e senha não podem ser iguais')
         }
     }
+    ensurePassword(password: string) {
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+            throw new AppError(400, 'A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.');
+        }
+    }
 }

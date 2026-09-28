@@ -21,7 +21,7 @@ export class AuthMiddleware {
 
             const verify = new JwtService().verify(token) as AuthPayload;
 
-            const user = await new AuthRepository().login(undefined, verify.id);
+            const user = await new AuthRepository().findUser(undefined, verify.id);
 
             if (!user) {
                 throw new AppError(401, "Usuário não encontrado");
