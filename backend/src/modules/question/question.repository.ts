@@ -36,12 +36,12 @@ export class QuestionRepository {
             throw error
         }
     }
-    async findQuestion(roomId: number): Promise<RoomQuestion | null> {
+    async findQuestion(roomId: number, position: number): Promise<RoomQuestion | null> {
         try {
             return await prisma.roomQuestion.findFirst({
                 where: {
                     room_id: roomId,
-                    position: 1
+                    position: position
                 }
             })
         } catch (error) {

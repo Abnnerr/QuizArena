@@ -1,4 +1,6 @@
+import { io } from "../../app/server.js";
 import { AppError } from "../../error/AppError.js";
+import type { SocketService } from "../../shared/services/socket.service.js";
 import type { AuthPayload } from "../../types/generic.js";
 import type { QuestionRepository } from "../question/question.repository.js";
 import type { RoundRepository } from "../round/round.repository.js";
@@ -10,7 +12,8 @@ export class RoomService implements IRoomService {
     constructor(
         private readonly repo: IRoomRepository,
         private readonly repoQuestion: QuestionRepository,
-        private readonly repoRound: RoundRepository
+        private readonly repoRound: RoundRepository,
+        private readonly socket: SocketService
     ) { }
 
     async create(user: AuthPayload, dados: RoomCreateDTO): Promise<void> {
@@ -97,11 +100,20 @@ export class RoomService implements IRoomService {
                 throw new AppError(409, "É necessário ter pelo menos 4 perguntas")
             }
 
+            const question = await this.repoQuestion.findQuestion(room.room_id, 1)
+
+            const round = await this.repoRound.createRound(room.room_id, question?.question_id!)
+
             await this.repo.update(room.room_id, "LIVE")
 
-            const question = await this.repoQuestion.findQuestion(room.room_id)
+            const currentRound = await this.repoRound.findById(round.round_id)
 
-            await this.repoRound.create(room.room_id, question?.question_id!)
+
+            this.socket.roundStarted(room.room_id, {
+                roundId: currentRound?.round_id,
+                question: currentRound?.questions
+            })
+
 
         } catch (error) {
             if (error instanceof AppError) {
