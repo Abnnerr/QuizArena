@@ -5,5 +5,4 @@ const repo = new QuestionRepository()
 const service = new QuestionService(repo)
 
 
-
 export default service
