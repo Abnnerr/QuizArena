@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router';
 import { BiLock, BiUser } from 'react-icons/bi';
 import { BsArrowRight, BsEye, BsEyeSlash } from 'react-icons/bs';
-import { GiSparkles } from 'react-icons/gi';
 
 const LoginPage: React.FC = () => {
     const [userName, setUserName] = useState('');
@@ -12,7 +11,7 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Lógica de login aqui
+
         console.log({ userName, password });
     };
 
@@ -23,7 +22,6 @@ const LoginPage: React.FC = () => {
             </Helmet>
 
             <div className="min-h-screen bg-[#13092E] text-white flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden select-none font-['Nunito',sans-serif]">
-                {/* Elementos visuais de fundo */}
                 <div className="absolute top-12 -left-12 w-48 h-48 bg-[#E21B3C]/20 rounded-3xl rotate-12 blur-2xl pointer-events-none" />
                 <div className="absolute bottom-10 -right-12 w-60 h-60 bg-[#1368CE]/20 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-1/3 right-10 w-36 h-36 bg-[#D89E00]/15 rotate-45 rounded-2xl blur-2xl pointer-events-none" />
@@ -44,7 +42,6 @@ const LoginPage: React.FC = () => {
                     <div className="bg-[#1E1145]/80 backdrop-blur-2xl border-2 border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] relative">
                         <form onSubmit={handleSubmit} className="space-y-4">
 
-                            {/* Campo: Nome de Usuário */}
                             <div>
                                 <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
                                     Nome de Usuário
@@ -64,7 +61,6 @@ const LoginPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Campo: Senha */}
                             <div>
                                 <div className="flex items-center justify-between mb-1.5">
                                     <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300">
@@ -92,8 +88,6 @@ const LoginPage: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-
-                            {/* Botão Principal 3D Estilo Kahoot */}
                             <button
                                 type="submit"
                                 className="w-full mt-2 bg-[#26890C] hover:bg-[#2cb20d] text-white font-black py-3.5 rounded-2xl shadow-[0_5px_0_0_#1a5c08] active:shadow-none active:translate-y-1 transition-all duration-150 flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
@@ -102,8 +96,6 @@ const LoginPage: React.FC = () => {
                                 <BsArrowRight className="w-5 h-5" />
                             </button>
                         </form>
-
-                        {/* Link para Cadastro */}
                         <div className="mt-6 text-center text-xs font-bold text-zinc-400">
                             Ainda não tem uma conta?{' '}
                             <Link
