@@ -15,14 +15,14 @@ export class AuthController implements IAuthController {
         this.login = this.login.bind(this)
         this.forgot = this.forgot.bind(this)
         this.reset = this.reset.bind(this)
-        this.me = this.reset.bind(this)
+        this.me = this.me.bind(this)
     }
 
     async register(req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             await this.service.register(req.body)
 
-            return HttpResponse.success(res, 201, 'Usuario registrado')
+            return HttpResponse.success(res, 201, 'Olhe sua caixa de Emails')
         } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
@@ -80,12 +80,12 @@ export class AuthController implements IAuthController {
 
             const result = await this.service.me(req.user!)
 
-            return HttpResponse.success(res, 201, 'Usuario registrado', result)
+            return HttpResponse.success(res, 200, 'usuario encontrado', result)
         } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }
-            return HttpResponse.warning(res, 500, 'Error ao registrar Usuario')
+            return HttpResponse.warning(res, 500, 'erro ao encontrar usuario')
         }
     }
 }

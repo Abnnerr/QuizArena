@@ -9,7 +9,7 @@ datasource db {
 model Users {
   user_id       String       @id @default(uuid())
   user_email    String       @unique
-  user_username String
+  user_username String       @unique
   role_id       Int
   user_password String
   answers       Answers[]

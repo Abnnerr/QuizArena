@@ -12,28 +12,28 @@ import { resetSchema } from "./schema/reset.schema.js";
 const router = Router()
 
 router.post('/register',
-    RateLimit.limit(4, 3),
+    // RateLimit.limit(4, 3),
     ZodMiddleware.validate(registerSchema, 'body'),
     authController.register
 )
 router.post('/login',
-    RateLimit.limit(4, 3),
+    // RateLimit.limit(4, 3),
     ZodMiddleware.validate(loginSchema, 'body'),
     authController.login
 )
 router.post('/forgot-password',
-    RateLimit.limit(4, 3),
+    // RateLimit.limit(4, 3),
     ZodMiddleware.validate(forgotSchema, 'body'),
     authController.forgot
 )
 router.post('/reset-password/:token',
-    RateLimit.limit(4, 3),
+    // RateLimit.limit(4, 3),
     ZodMiddleware.validate(resetSchema, 'body'),
     authController.reset
 )
 
 router.get('/me',
-    RateLimit.limit(4, 3),
+    RateLimit.limit(50, 3),
     AuthMiddleware.validate,
     authController.me
 )

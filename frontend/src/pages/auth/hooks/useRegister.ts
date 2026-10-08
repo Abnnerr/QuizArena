@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 
 import { useNavigate } from "react-router";
-import { AXIOS } from "../../../service";
-
+import { useAuth } from "../../../contexts/hooks/useAuth";
 
 
 export function useRegister() {
     const navigate = useNavigate()
-
+    const { register } = useAuth()
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const [userName, setUserName] = useState<string>('');
@@ -33,8 +32,9 @@ export function useRegister() {
             }
             console.log(dados);
 
-            const { data } = await AXIOS.post('/api/auth/register', dados)
-            if (data.type === 'Success') {
+            const response = await register(dados)
+
+            if (response.type === 'Success') {
                 navigate('/auth/login', { replace: false })
             }
         } catch (error: any) {

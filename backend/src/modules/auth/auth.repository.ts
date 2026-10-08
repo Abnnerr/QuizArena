@@ -19,9 +19,9 @@ export class AuthRepository implements IAuthRepository {
             throw error
         }
     }
-    async findUser(email?: string, id?: string): Promise<UserWithRole> {
+    async findUser(userName?: string, email?: string, id?: string): Promise<UserWithRole> {
         try {
-            const where = email ? { user_email: email } : { user_id: id! }
+            const where = userName ? { user_username: userName } : email ? { user_email: email} : { user_id: id! }
 
             return await prisma.users.findUniqueOrThrow({
                 where,

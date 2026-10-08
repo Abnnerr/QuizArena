@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router';
 import { BiLock, BiUser } from 'react-icons/bi';
 import { BsArrowRight, BsEye, BsEyeSlash } from 'react-icons/bs';
+import { useLogin } from '../hooks/useLogin';
 
 const LoginPage: React.FC = () => {
-    const [userName, setUserName] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        console.log({ userName, password });
-    };
+    const {
+        userName,
+        password,
+        showPassword,
+        setUserName,
+        setPassword,
+        setShowPassword,
+        handleSubmit
+    } = useLogin()
 
     return (
         <>
             <Helmet>
-                <title>QuizArena ● Login</title>
+                <title>QuizArena • Login</title>
             </Helmet>
 
             <div className="min-h-screen bg-[#13092E] text-white flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden select-none font-['Nunito',sans-serif]">
@@ -29,7 +31,7 @@ const LoginPage: React.FC = () => {
 
                 <div className="w-full max-w-md relative z-10">
                     <div className="text-center mb-6">
-                        <div className="inline-flex items-center gap-2 bg-[#26890C] text-white font-extrabold px-4 py-1.5 rounded-full text-xs tracking-wider uppercase shadow-[0_4px_0_0_#1e6a09] mb-4">
+                        <div className="inline-flex items-center gap-2 bg-[#D89E00] text-white font-extrabold px-4 py-1.5 rounded-full text-xs tracking-wider uppercase shadow-[0_4px_0_0_#997000] mb-4">
                             Login
                         </div>
 
@@ -87,6 +89,12 @@ const LoginPage: React.FC = () => {
                                         {showPassword ? <BsEyeSlash className="w-5 h-5" /> : <BsEye className="w-5 h-5" />}
                                     </button>
                                 </div>
+                                <Link
+                                    to="/auth/forgot-password"
+                                    className="text-cyan-400 hover:text-cyan-300 font-extrabold underline underline-offset-4 transition-colors"
+                                >
+                                    esqueceu a senha?
+                                </Link>
                             </div>
                             <button
                                 type="submit"

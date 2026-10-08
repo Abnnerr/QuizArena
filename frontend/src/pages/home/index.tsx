@@ -26,13 +26,11 @@ const HomePage: React.FC = () => {
 
             <div className="min-h-screen bg-[#13092E] text-white flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden select-none font-['Nunito',sans-serif]">
 
-                {/* Elementos visuais de fundo */}
                 <div className="absolute top-12 -left-12 w-56 h-56 bg-[#E21B3C]/20 rounded-3xl rotate-12 blur-3xl pointer-events-none" />
                 <div className="absolute bottom-10 -right-12 w-72 h-72 bg-[#1368CE]/20 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-1/3 right-10 w-44 h-44 bg-[#D89E00]/15 rotate-45 rounded-2xl blur-3xl pointer-events-none" />
                 <div className="absolute bottom-12 left-10 w-52 h-52 bg-[#26890C]/15 -rotate-12 rounded-full blur-3xl pointer-events-none" />
-
-                {/* Header Superior - Links de Auth */}
+                
                 <header className="absolute top-6 right-6 z-20 flex items-center gap-3">
                     <Link
                         to="/auth/login"
@@ -49,24 +47,12 @@ const HomePage: React.FC = () => {
                 </header>
 
                 <div className="w-full max-w-md relative z-10 my-auto">
-
-                    {/* Logo & Cabeçalho Kahoot Style */}
-                    <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 bg-[#26890C] text-white font-extrabold px-4 py-1.5 rounded-full text-xs tracking-wider uppercase shadow-[0_4px_0_0_#1e6a09] mb-4">
-                            Batalha de Quizzes
-                        </div>
-
-                        <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-white flex items-center justify-center gap-2 drop-shadow-md">
-                            <span className="bg-[#E21B3C] px-3.5 py-1 rounded-2xl -rotate-2 shadow-[0_6px_0_0_#A0132B]">Quiz</span>
-                            <span className="bg-[#1368CE] px-3.5 py-1 rounded-2xl rotate-2 shadow-[0_6px_0_0_#0E4B94]">Arena</span>
-                        </h1>
-
+                    <div className="text-center mb-8 items-center flex flex-col">
+                           <img src="/favicon-quiz.png" alt="" className='h-20 w-20' />
                         <p className="text-zinc-300 text-sm sm:text-base font-semibold mt-4">
                             Digite o PIN ou nome da sala para entrar na partida!
                         </p>
                     </div>
-
-                    {/* Card Principal de Entrada na Sala */}
                     <div className="bg-[#1E1145]/80 backdrop-blur-2xl border-2 border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] relative">
                         <form onSubmit={handleJoinRoom} className="space-y-4">
 
@@ -89,8 +75,6 @@ const HomePage: React.FC = () => {
                                     />
                                 </div>
                             </div>
-
-                            {/* Botão Entrar na Sala */}
                             <button
                                 type="submit"
                                 disabled={!roomCode.trim()}
@@ -102,12 +86,10 @@ const HomePage: React.FC = () => {
                             </button>
                         </form>
                     </div>
-
-                    {/* Footer Informativo */}
                     <div className="mt-8 text-center text-xs font-bold text-zinc-400">
                         Quer criar seu próprio Quiz?{' '}
                         <Link
-                            to="/auth/login"
+                            to="/auth/register"
                             className="text-amber-400 hover:text-amber-300 font-extrabold underline underline-offset-4 transition-colors"
                         >
                             Crie uma conta de Host

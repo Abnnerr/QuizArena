@@ -56,7 +56,7 @@ export class AuthService {
     }
     async login(dados: LoginDTO): Promise<LoginResponse> {
         try {
-            const result = await this.repo.findUser(dados.email)
+            const result = await this.repo.findUser(dados.userName)
 
             if (!result) {
                 throw new AppError(401, 'E-mail ou senha inválidos')
@@ -92,7 +92,7 @@ export class AuthService {
 
     async forgot(email: string): Promise<void> {
         try {
-            const result = await this.repo.findUser(email)
+            const result = await this.repo.findUser(undefined, email)
 
             if (!result) {
                 throw new AppError(404, 'usuario nao encontrado')
@@ -102,7 +102,7 @@ export class AuthService {
             try {
                 await enviarEmail(result.user_email,
                     'Recuperar conta',
-                    html.forgot(result.user_username, `http://localhost:9000/reset-password/${token}`)
+                    html.forgot(result.user_username, `http://localhost:5173/auth/reset-password/${token}`)
                 )
             } catch (error) {
 
@@ -145,7 +145,7 @@ export class AuthService {
     async me(user: AuthPayload): Promise<UserResponse> {
         try {
 
-            const result = await this.repo.findUser(user.id)
+            const result = await this.repo.findUser(undefined, undefined, user.id)
 
             if (!user) {
                 throw new AppError(404, 'usuario nao encontrado')
