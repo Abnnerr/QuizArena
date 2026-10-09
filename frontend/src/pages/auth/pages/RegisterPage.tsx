@@ -4,7 +4,6 @@ import { Link } from 'react-router';
 import { useRegister } from '../hooks/useRegister';
 import { BiLock, BiMailSend, BiUser } from 'react-icons/bi';
 import { BsArrowRight, BsEye, BsEyeSlash } from 'react-icons/bs';
-import { RoleSelector } from '../components/RoleSelector';
 import { AuthInput } from '../components/ui/AuthInput';
 import { PasswordRequirements } from '../components/PasswordRequeriments';
 
@@ -14,8 +13,6 @@ const RegisterPage: React.FC = () => {
         setUserName,
         email,
         setEmail,
-        role,
-        setRole,
         password,
         setPassword,
         showPassword,
@@ -62,7 +59,7 @@ const RegisterPage: React.FC = () => {
                     </div>
                     <div className="bg-[#1E1145]/80 backdrop-blur-2xl border-2 border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] relative">
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <RoleSelector role={role} setRole={setRole} />
+                            {/* <RoleSelector role={role} setRole={setRole} /> */}
                             <AuthInput
                                 label="Nome de Usuário"
                                 icon={<BiUser className="w-5 h-5" />}

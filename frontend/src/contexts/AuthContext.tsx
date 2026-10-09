@@ -13,6 +13,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             try {
                 const { data } = await AXIOS.get('/auth/me')
                 if (data.type === 'Success') {
+                    console.log(data);
+                    
                     setUser(data.data)
                     setLogado(true)
                 }
