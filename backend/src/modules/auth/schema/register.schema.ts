@@ -3,7 +3,6 @@ import z from "zod";
 export const registerSchema = z.object({
     userName: z.string().min(3),
     email: z.email(),
-    role: z.union([z.literal(1), z.literal(2)]),
     password: z.string()
         .min(8)
         .regex(/[A-Z]/, "A senha deve conter uma letra maiúscula")

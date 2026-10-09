@@ -33,7 +33,7 @@ export class AuthController implements IAuthController {
     async login(req: Request<{}, {}, LoginDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             const result = await this.service.login(req.body)
-
+            
             res.cookie('access_token', result.token, {
                 httpOnly: true,
                 sameSite: 'lax',

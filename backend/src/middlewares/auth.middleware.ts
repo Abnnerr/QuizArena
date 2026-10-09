@@ -8,8 +8,8 @@ export class AuthMiddleware {
     static async validate(req: Request, res: Response, next: NextFunction) {
         try {
 
-            const cookie = req.headers.cookie?.split('; ')
-                .find(item => item.startsWith('access_token='))?.split('=')[1]
+            const cookie = req.cookies?.access_token
+            // console.log(cookie);
 
             const [bearer, authoToken] = req.headers.authorization?.split(" ") ?? [];
 
@@ -21,7 +21,9 @@ export class AuthMiddleware {
 
             const verify = new JwtService().verify(token) as AuthPayload;
 
-            const user = await new AuthRepository().findUser(undefined, verify.id);
+            // console.log(verify);
+            
+            const user = await new AuthRepository().findUser(undefined, undefined, verify.id);
 
             if (!user) {
                 throw new AppError(401, "Usuário não encontrado");

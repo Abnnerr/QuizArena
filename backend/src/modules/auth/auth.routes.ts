@@ -33,7 +33,7 @@ router.post('/reset-password/:token',
 )
 
 router.get('/me',
-    RateLimit.limit(50, 3),
+    // RateLimit.limit(50, 3),
     AuthMiddleware.validate,
     authController.me
 )

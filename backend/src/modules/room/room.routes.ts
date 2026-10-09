@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
-import { PolicyMiddleware } from "../../middlewares/permission.middleware.js";
+import { PolicyMiddleware } from "../../middlewares/policy.middleware.js";
 import { ZodMiddleware } from "../../middlewares/zod.middleware.js";
 import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 import roomController from "../../containers/room.container.js";
@@ -9,8 +9,8 @@ import { joinSchema } from "./schema/roomJoin.schema.js";
 
 const router = Router()
 
-router.post('/',
-    RateLimit.limit(4, 3),
+router.post('/create',
+    // RateLimit.limit(4, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission('ROOM_CREATE', 'admin', 'host'),
     ZodMiddleware.validate(roomCreateSchema, 'body'),
@@ -18,7 +18,6 @@ router.post('/',
 )
 router.post('/join',
     RateLimit.limit(6, 1),
-    AuthMiddleware.validate,
     ZodMiddleware.validate(joinSchema, 'body'),
     roomController.join,
 )
