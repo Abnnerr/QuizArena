@@ -18,6 +18,13 @@ model Users {
   Role          Role         @relation(fields: [role_id], references: [role_id])
 }
 
+model Players {
+  player_id   String     @id @default(uuid())
+  player_name String
+  answers     Answers[]
+  userRooms   UserRoom[]
+}
+
 model Role {
   role_id         Int              @id @default(autoincrement())
   role_name       Roles
@@ -70,7 +77,7 @@ model UserRoom {
   score     Int      @default(0)
   is_host   Boolean  @default(false)
   player_id String?
-  Players   Players? @relation(fields: [player_id], references: [player_id])
+  players   Players? @relation(fields: [player_id], references: [player_id])
   rooms     Rooms    @relation(fields: [room_id], references: [room_id])
   users     Users    @relation(fields: [user_id], references: [user_id])
 
@@ -115,7 +122,7 @@ model Answers {
   answered_at      DateTime     @default(now())
   playersPlayer_id String?
   alternatives     Alternatives @relation(fields: [alternative_id], references: [alternative_id])
-  Players          Players?     @relation(fields: [playersPlayer_id], references: [player_id])
+  players          Players?     @relation(fields: [playersPlayer_id], references: [player_id])
   rounds           Round        @relation(fields: [round_id], references: [round_id])
   users            Users        @relation(fields: [user_id], references: [user_id])
 
@@ -132,13 +139,6 @@ model PowerupUse {
   users          Users       @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, room_id, powerup_type])
-}
-
-model Players {
-  player_id   String     @id
-  player_name String
-  Answers     Answers[]
-  UserRoom    UserRoom[]
 }
 
 enum RoomStatus {

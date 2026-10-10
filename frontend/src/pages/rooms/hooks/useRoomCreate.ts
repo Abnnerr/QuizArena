@@ -1,133 +1,266 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import type { ResponseDTO } from '../../../contexts/types/authTypes';
-import { AXIOS } from '../../../service';
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { AXIOS } from "../../../service";
+import { useNavigate } from "react-router";
+
+export interface AlternativeDTO {
+    text: string;
+    isCorrect: boolean;
+}
+
+export interface QuestionDTO {
+    text: string;
+    alternatives: AlternativeDTO[];
+}
+
+export interface RoomCreateDTO {
+    name: string;
+    maxPlayers: number;
+    timeLimit: number;
+    mode: "NORMAL" | "HARDCORE";
+    questions: QuestionDTO[];
+}
+
+const createEmptyAlternative = (): AlternativeDTO => ({
+    text: "",
+    isCorrect: false,
+});
+
+const createEmptyQuestion = (): QuestionDTO => ({
+    text: "",
+    alternatives: [
+        { text: "", isCorrect: true },
+        createEmptyAlternative(),
+    ],
+});
 
 export const useRoomCreate = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
+    const [name, setName] = useState("");
+    const [maxPlayers, setMaxPlayers] = useState(4);
+    const [timeLimit, setTimeLimit] = useState(1);
+    const [mode, setMode] = useState<"NORMAL" | "HARDCORE">(
+        "NORMAL"
+    );
 
-    const [name, setName] = useState<string>('');
-    const [maxPlayers, setMaxPlayers] = useState<number>(4);
-    const [timeLimit, setTimeLimit] = useState<number>(5);
-    const [mode, setMode] = useState<'NORMAL' | 'HARDCORE'>('NORMAL');
-    const [questions, setQuestions] = useState([
-        {
-            text: '',
-            alternatives: [
-                { text: '', isCorrect: true },
-                { text: '', isCorrect: false },
-            ],
-        },
+    const [questions, setQuestions] = useState<QuestionDTO[]>([
+        createEmptyQuestion(),
     ]);
 
-    const [loading, setLoading] = useState<boolean>(false);
-    const [feedback, setFeedback] = useState<ResponseDTO | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    // Gerenciamento dinâmico de perguntas
-    const addQuestion = () => {
-        setQuestions([
-            ...questions,
-            {
-                text: '',
-                alternatives: [
-                    { text: '', isCorrect: true },
-                    { text: '', isCorrect: false },
-                ],
-            },
+    const handleAddQuestion = () => {
+        setQuestions((prev) => [
+            ...prev,
+            createEmptyQuestion(),
         ]);
     };
 
-    const removeQuestion = (qIndex: number) => {
-        if (questions.length <= 1) return;
-        setQuestions(questions.filter((_, idx) => idx !== qIndex));
-    };
-
-    const updateQuestionText = (qIndex: number, text: string) => {
-        const updated = [...questions];
-        updated[qIndex].text = text;
-        setQuestions(updated);
-    };
-
-    // Gerenciamento de alternativas
-    const addAlternative = (qIndex: number) => {
-        const updated = [...questions];
-        if (updated[qIndex].alternatives.length >= 5) return;
-        updated[qIndex].alternatives.push({ text: '', isCorrect: false });
-        setQuestions(updated);
-    };
-
-    const removeAlternative = (qIndex: number, aIndex: number) => {
-        const updated = [...questions];
-        if (updated[qIndex].alternatives.length <= 2) return;
-        updated[qIndex].alternatives = updated[qIndex].alternatives.filter((_, idx) => idx !== aIndex);
-        setQuestions(updated);
-    };
-
-    const updateAlternativeText = (qIndex: number, aIndex: number, text: string) => {
-        const updated = [...questions];
-        updated[qIndex].alternatives[aIndex].text = text;
-        setQuestions(updated);
-    };
-
-    const setCorrectAlternative = (qIndex: number, aIndex: number) => {
-        const updated = [...questions];
-        updated[qIndex].alternatives = updated[qIndex].alternatives.map((alt, idx) => ({
-            ...alt,
-            isCorrect: idx === aIndex,
-        }));
-        setQuestions(updated);
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setFeedback(null);
-
-        const roomData = {
-            name,
-            maxPlayers: Number(maxPlayers),
-            timeLimit: Number(timeLimit),
-            mode,
-            questions,
-        };
-
-
-        const hasInvalidQuestion = questions.some(
-            (q) => !q.text.trim() || q.alternatives.some((a) => !a.text.trim()) || !q.alternatives.some((a) => a.isCorrect)
+    const handleRemoveQuestion = (qIndex: number) => {
+        setQuestions((prev) =>
+            prev.filter((_, index) => index !== qIndex)
         );
+    };
 
-        if (hasInvalidQuestion) {
-            setFeedback({
-                type: 'Warning',
-                message: 'Preencha o texto de todas as perguntas e alternativas e selecione a resposta correta.',
-            });
+    const handleQuestionChange = (
+        qIndex: number,
+        text: string
+    ) => {
+        setQuestions((prev) =>
+            prev.map((question, index) =>
+                index === qIndex
+                    ? { ...question, text }
+                    : question
+            )
+        );
+    };
+
+    const handleAddAlternative = (qIndex: number) => {
+        setQuestions((prev) =>
+            prev.map((question, index) =>
+                index === qIndex
+                    ? {
+                        ...question,
+                        alternatives: [
+                            ...question.alternatives,
+                            createEmptyAlternative(),
+                        ],
+                    }
+                    : question
+            )
+        );
+    };
+
+    const handleRemoveAlternative = (
+        qIndex: number,
+        aIndex: number
+    ) => {
+        setQuestions((prev) =>
+            prev.map((question, index) => {
+                if (index !== qIndex) return question;
+
+                const alternatives = question.alternatives.filter(
+                    (_, altIndex) => altIndex !== aIndex
+                );
+
+                if (
+                    alternatives.length > 0 &&
+                    !alternatives.some((alt) => alt.isCorrect)
+                ) {
+                    alternatives[0] = {
+                        ...alternatives[0],
+                        isCorrect: true,
+                    };
+                }
+
+                return { ...question, alternatives };
+            })
+        );
+    };
+
+    const handleAlternativeChange = (
+        qIndex: number,
+        aIndex: number,
+        text: string
+    ) => {
+        setQuestions((prev) =>
+            prev.map((question, index) =>
+                index === qIndex
+                    ? {
+                        ...question,
+                        alternatives: question.alternatives.map(
+                            (alternative, altIndex) =>
+                                altIndex === aIndex
+                                    ? { ...alternative, text }
+                                    : alternative
+                        ),
+                    }
+                    : question
+            )
+        );
+    };
+
+    const handleSetCorrectAlternative = (
+        qIndex: number,
+        aIndex: number
+    ) => {
+        setQuestions((prev) =>
+            prev.map((question, index) =>
+                index === qIndex
+                    ? {
+                        ...question,
+                        alternatives: question.alternatives.map(
+                            (alternative, altIndex) => ({
+                                ...alternative,
+                                isCorrect: altIndex === aIndex,
+                            })
+                        ),
+                    }
+                    : question
+            )
+        );
+    };
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setError(null);
+
+        if (!name.trim()) {
+            setError("Informe o nome da sala.");
             return;
         }
 
-        setLoading(true);
+        if (
+            !Number.isInteger(maxPlayers) ||
+            maxPlayers < 2 ||
+            maxPlayers > 20
+        ) {
+            setError("O número de jogadores deve ser entre 2 e 20.");
+            return;
+        }
+
+        if (
+            !Number.isInteger(timeLimit) ||
+            timeLimit < 1 ||
+            timeLimit > 15
+        ) {
+            setError("O tempo por questão deve ser entre 1 e 15 minutos.");
+            return;
+        }
+
+        if (questions.length === 0) {
+            setError("Adicione pelo menos uma pergunta.");
+            return;
+        }
+
+        for (let i = 0; i < questions.length; i++) {
+            const question = questions[i];
+
+            if (!question.text.trim()) {
+                setError(`Preencha o enunciado da pergunta ${i + 1}.`);
+                return;
+            }
+
+            if (question.alternatives.length < 2) {
+                setError(
+                    `A pergunta ${i + 1} precisa de pelo menos 2 alternativas.`
+                );
+                return;
+            }
+
+            if (
+                question.alternatives.some((alt) => !alt.text.trim())
+            ) {
+                setError(
+                    `Preencha todas as alternativas da pergunta ${i + 1}.`
+                );
+                return;
+            }
+
+            const correctCount = question.alternatives.filter(
+                (alt) => alt.isCorrect
+            ).length;
+
+            if (correctCount !== 1) {
+                setError(
+                    `Marque exatamente uma alternativa correta na pergunta ${i + 1}.`
+                );
+                return;
+            }
+        }
+
+        const payload: RoomCreateDTO = {
+            name: name.trim(),
+            maxPlayers,
+            timeLimit,
+            mode,
+            questions: questions.map((question) => ({
+                text: question.text.trim(),
+                alternatives: question.alternatives.map(
+                    (alternative) => ({
+                        text: alternative.text.trim(),
+                        isCorrect: alternative.isCorrect,
+                    })
+                ),
+            })),
+        };
 
         try {
-            const { data } = await AXIOS.post<ResponseDTO>('/rooms', roomData);
+            setLoading(true);
 
-            if (data.type === 'Success') {
-                setFeedback({
-                    type: 'Success',
-                    message: data.message || 'Sala criada com sucesso! Redirecionando...',
-                });
+            const { data } = await AXIOS.post("/room/create", payload);
 
-                setTimeout(() => {
-                    navigate('/arena');
-                }, 1500);
-            } else {
-                setFeedback({
-                    type: 'Warning',
-                    message: data.message || 'Não foi possível criar a sala.',
-                });
+            if (data.type === "Success") {
+                navigate('/room/lobby')
             }
-        } catch (error: any) {
-            setFeedback({
-                type: 'Warning',
-                message: error.response?.data?.message || 'Erro de conexão ao criar a sala.',
-            });
+        } catch (err: any) {
+            console.error("Erro ao criar sala:", err);
+
+            setError(
+                err?.response?.data?.message ??
+                "Não foi possível criar a sala. Tente novamente."
+            );
         } finally {
             setLoading(false);
         }
@@ -143,15 +276,15 @@ export const useRoomCreate = () => {
         mode,
         setMode,
         questions,
-        addQuestion,
-        removeQuestion,
-        updateQuestionText,
-        addAlternative,
-        removeAlternative,
-        updateAlternativeText,
-        setCorrectAlternative,
         loading,
-        feedback,
+        error,
+        handleAddQuestion,
+        handleRemoveQuestion,
+        handleQuestionChange,
+        handleAddAlternative,
+        handleRemoveAlternative,
+        handleAlternativeChange,
+        handleSetCorrectAlternative,
         handleSubmit,
     };
 };

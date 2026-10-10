@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
                                         required
                                         value={userName}
                                         onChange={(e) => setUserName(e.target.value)}
-                                        placeholder="Ex: MestreDosGames"
+                                        placeholder="Ex: Gilberto"
                                         className="w-full bg-black/40 border-2 border-white/10 rounded-2xl pl-11 pr-4 py-3 text-white font-semibold placeholder-zinc-500 focus:outline-none focus:border-[#1368CE] focus:bg-black/60 transition-all text-sm"
                                     />
                                 </div>

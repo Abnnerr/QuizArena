@@ -12,7 +12,7 @@ export class AuthRepository implements IAuthRepository {
                     user_email: dados.email,
                     user_username: dados.userName,
                     user_password: dados.password,
-                    role_id: dados.role
+                    role_id: 3
                 }
             })
         } catch (error) {
@@ -21,7 +21,7 @@ export class AuthRepository implements IAuthRepository {
     }
     async findUser(userName?: string, email?: string, id?: string): Promise<UserWithRole> {
         try {
-            const where = userName ? { user_username: userName } : email ? { user_email: email} : { user_id: id! }
+            const where = userName ? { user_username: userName } : email ? { user_email: email } : { user_id: id! }
 
             return await prisma.users.findUniqueOrThrow({
                 where,

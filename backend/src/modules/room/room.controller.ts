@@ -36,7 +36,7 @@ export class RoomController implements IRoomController {
             return HttpResponse.warning(res, 500, 'Erro ao entrar na sala')
         }
     }
-    async start(req: Request<{id: string}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+    async start(req: Request<{ id: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             await this.service.start(req.user!, Number(req.params.id))
             return HttpResponse.success(res, 201, 'partida da sala começou')
@@ -47,4 +47,5 @@ export class RoomController implements IRoomController {
             return HttpResponse.warning(res, 500, 'Erro ao começar na partida')
         }
     }
+
 }

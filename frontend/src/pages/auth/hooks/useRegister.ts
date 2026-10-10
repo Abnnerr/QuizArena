@@ -11,7 +11,6 @@ export function useRegister() {
 
     const [userName, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
-    const [role, setRole] = useState<number>(1);
     const [password, setPassword] = useState<string>('');
 
     const hasMinLength = password.length >= 8;
@@ -27,7 +26,6 @@ export function useRegister() {
             const dados = {
                 userName,
                 email,
-                role,
                 password
             }
             console.log(dados);
@@ -50,14 +48,12 @@ export function useRegister() {
         hasSpecial,
         userName,
         email,
-        role,
         password,
         showPassword,
 
         setShowPassword,
         setUserName,
         setEmail,
-        setRole,
         setPassword,
         handleSubmit,
     }
