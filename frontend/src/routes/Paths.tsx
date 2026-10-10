@@ -1,9 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import HomePage from "../pages/home";
+import HomePage from "../pages/home/HomePage";
 import LoginPage from "../pages/auth/pages/LoginPage";
 import RegisterPage from "../pages/auth/pages/RegisterPage";
 import ForgotPage from "../pages/auth/pages/ForgotPage";
 import ResetPage from "../pages/auth/pages/ResetPage";
+import RoomCreatePage from "../pages/rooms/pages/roomCreatePage";
 
 const Paths = () => {
     return (
@@ -14,6 +15,9 @@ const Paths = () => {
                     <Route path="register" element={<RegisterPage />} />
                     <Route path="forgot-password" element={<ForgotPage />} />
                     <Route path="reset-password/:token" element={<ResetPage />} />
+                </Route>
+                <Route path="/room">
+                    <Route path="create" element={<RoomCreatePage />} />
                 </Route>
                 <Route index element={<HomePage />} />
             </Routes>

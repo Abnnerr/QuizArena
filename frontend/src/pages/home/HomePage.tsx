@@ -4,18 +4,24 @@ import { Link, useNavigate } from 'react-router';
 import { BiHash } from 'react-icons/bi';
 import { BsArrowRight } from 'react-icons/bs';
 import { FaGamepad } from 'react-icons/fa';
-import { GiSparkles } from 'react-icons/gi';
+import { AXIOS } from '../../service';
 
 const HomePage: React.FC = () => {
     const [roomCode, setRoomCode] = useState('');
     const navigate = useNavigate();
 
-    const handleJoinRoom = (e: React.FormEvent) => {
+    async function handleJoinRoom(e: React.FormEvent) {
         e.preventDefault();
         if (!roomCode.trim()) return;
 
-        // Redireciona para a sala (ajuste a rota conforme sua estrutura)
-        navigate(`/room/${roomCode.trim().toUpperCase()}`);
+        try {
+            const { data } = await AXIOS.post('/room/join', { name: roomCode })
+            if (data.type === 'Success') {
+                navigate(`/room/${roomCode.trim().toUpperCase()}`);
+            }
+        } catch (error) {
+            
+        }
     };
 
     return (
@@ -30,7 +36,7 @@ const HomePage: React.FC = () => {
                 <div className="absolute bottom-10 -right-12 w-72 h-72 bg-[#1368CE]/20 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-1/3 right-10 w-44 h-44 bg-[#D89E00]/15 rotate-45 rounded-2xl blur-3xl pointer-events-none" />
                 <div className="absolute bottom-12 left-10 w-52 h-52 bg-[#26890C]/15 -rotate-12 rounded-full blur-3xl pointer-events-none" />
-                
+
                 <header className="absolute top-6 right-6 z-20 flex items-center gap-3">
                     <Link
                         to="/auth/login"
@@ -48,7 +54,7 @@ const HomePage: React.FC = () => {
 
                 <div className="w-full max-w-md relative z-10 my-auto">
                     <div className="text-center mb-8 items-center flex flex-col">
-                           <img src="/favicon-quiz.png" alt="" className='h-20 w-20' />
+                        <img src="/favicon-quiz.png" alt="" className='h-20 w-20' />
                         <p className="text-zinc-300 text-sm sm:text-base font-semibold mt-4">
                             Digite o PIN ou nome da sala para entrar na partida!
                         </p>
