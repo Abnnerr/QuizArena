@@ -8,6 +8,9 @@ import HomeLayout from "../layouts/HomeLayout";
 import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
 import RoomLobbyPage from "../pages/rooms/pages/RoomLobbyPage";
 import NotFoundPage from "../shared/pages/NotFound";
+import PlayerNamePage from "../pages/rooms/pages/PlayerNamePage";
+import RoomStartPage from "../pages/rooms/pages/RoomStartPage";
+import RoomLivePage from "../pages/rooms/pages/RoomLivePage";
 
 const Paths = () => {
     return (
@@ -24,7 +27,10 @@ const Paths = () => {
                 </Route>
                 <Route path="/room">
                     <Route path="create" element={<RoomCreatePage />} />
-                    <Route path="lobby" element={<RoomLobbyPage />} />
+                    <Route path="player/username/:roomName" element={<PlayerNamePage />} />
+                    <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />
+                    <Route path=":roomCode/start" element={<RoomStartPage />} />
+                    <Route path=":roomCode/live" element={<RoomLivePage />} />
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>

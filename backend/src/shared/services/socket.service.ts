@@ -1,7 +1,24 @@
 import { io } from "../../app/server.js";
 
 export class SocketService {
-    roundStarted(roomId: number, data: any) {
-        io.to(`room:${roomId}`).emit("round_started", data)
+    
+
+    lobby(roomCode: string, player_id: string, player_name: string) {
+        io.to(`room:${roomCode}`).emit("room:join", {
+            player_id,
+            player_name,
+        });
+    }
+    playerReady(roomCode: string, player_id: string, is_ready: boolean) {
+        io.to(`room:${roomCode}`).emit("player:ready", {
+            player_id,
+            is_ready,
+        });
+    }
+    roundStarted(roomCode: string, data?: unknown) {
+        io.to(`room:${roomCode}`).emit("room:start");
+    }
+    findQuestion(roomCode: string, data: any) {
+        io.to(`room:${roomCode}`).emit("round:start", data)
     }
 }

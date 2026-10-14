@@ -36,6 +36,7 @@ export class QuestionRepository {
             throw error
         }
     }
+  
     async findQuestion(roomId: number, position: number): Promise<RoomQuestion | null> {
         try {
             return await prisma.roomQuestion.findFirst({

@@ -3,3 +3,31 @@
 body {
     font-family: 'Nunito', sans-serif;
 }
+
+
+@keyframes countdown-pop {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+
+    15% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(1.6);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+.countdown-number {
+    animation: countdown-pop 1s ease-in forwards;
+    will-change: transform, opacity;
+}

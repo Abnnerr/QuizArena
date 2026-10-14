@@ -25,7 +25,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }, [])
 
 
-    async function register(dados: { userName: string; email: string; role: number; password: string }): Promise<ResponseDTO> {
+    async function register(dados: { userName: string; email: string; password: string }): Promise<ResponseDTO> {
         try {
             const { data } = await AXIOS.post<ResponseDTO>('/auth/register', dados);
 

@@ -12,7 +12,7 @@ export class AuthRepository implements IAuthRepository {
                     user_email: dados.email,
                     user_username: dados.userName,
                     user_password: dados.password,
-                    role_id: 3
+                    role_id: 2
                 }
             })
         } catch (error) {

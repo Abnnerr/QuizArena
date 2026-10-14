@@ -22,22 +22,23 @@ export class AuthService {
 
     async register(dados: RegisterDTO): Promise<void> {
         try {
-
+            console.log(dados);
+            
             this.domain.ensureRegister(dados)
             this.domain.ensurePassword(dados.password)
 
             const password = await this.bcrypt.hash(dados.password)
-
+            
             const newDados: RegisterDTO = {
                 ...dados,
                 password
             }
             const result = await this.repo.register(newDados)
-
+            
             if (!result) {
                 throw new AppError(409, 'Não foi possível realizar o cadastro')
             }
-
+            console.log('erro ao cadastrar usuario')
             try {
                 await enviarEmail(
                     result.user_email,

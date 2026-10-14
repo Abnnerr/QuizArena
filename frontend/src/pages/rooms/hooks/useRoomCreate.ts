@@ -252,7 +252,7 @@ export const useRoomCreate = () => {
             const { data } = await AXIOS.post("/room/create", payload);
 
             if (data.type === "Success") {
-                navigate('/room/lobby')
+                navigate(`/room/${data.data}/lobby`)
             }
         } catch (err: any) {
             console.error("Erro ao criar sala:", err);

@@ -23,11 +23,11 @@ export class AuthController implements IAuthController {
             await this.service.register(req.body)
 
             return HttpResponse.success(res, 201, 'Olhe sua caixa de Emails')
-        } catch (error) {
+        } catch (error: any) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }
-            return HttpResponse.warning(res, 500, 'Error ao registrar Usuario')
+            return HttpResponse.warning(res, 500, 'Error ao registrar Usuario', error.message)
         }
     }
     async login(req: Request<{}, {}, LoginDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {

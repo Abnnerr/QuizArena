@@ -14,10 +14,10 @@ export class RoundRepository {
             throw error
         }
     }
-    async findById(roundId: number) {
-        return await prisma.round.findUnique({
+    async findById(roomId: number) {
+        return await prisma.round.findFirst({
             where: {
-                round_id: roundId
+                room_id: roomId
             },
             include: {
                 questions: {
@@ -32,5 +32,18 @@ export class RoundRepository {
                 }
             }
         })
+    }
+
+    async findByQuestion(roomId: number, questionId: number) {
+        try {
+            return await prisma.round.findFirst({
+                where: {
+                    room_id: roomId,
+                    question_id: questionId
+                }
+            })
+        } catch (error) {
+            throw error
+        }
     }
 }
