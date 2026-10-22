@@ -1,7 +1,6 @@
-import { Socket } from "socket.io";
-import { prisma } from "../../db/index.js";
-import { SocketService } from "../services/socket.service.js";
+
 import { io } from "../../app/server.js";
+import { prisma } from "../../db/index.js";
 
 export function lobbyClear() {
     const interval = setInterval(async () => {

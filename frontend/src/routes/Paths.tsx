@@ -11,12 +11,15 @@ import NotFoundPage from "../shared/pages/NotFound";
 import PlayerNamePage from "../pages/rooms/pages/PlayerNamePage";
 import RoomStartPage from "../pages/rooms/pages/RoomStartPage";
 import RoomLivePage from "../pages/rooms/pages/RoomLivePage";
+import AuthLayout from "../layouts/AuthLayout";
+import RoomLayout from "../layouts/RoomLayout";
+
 
 const Paths = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/auth" >
+                <Route path="/auth" element={<AuthLayout />} >
                     <Route path="login" element={<LoginPage />} />
                     <Route path="register" element={<RegisterPage />} />
                     <Route path="forgot-password" element={<ForgotPage />} />
@@ -25,7 +28,7 @@ const Paths = () => {
                 <Route element={<HomeLayout />}>
                     <Route index element={<HomePage />} />
                 </Route>
-                <Route path="/room">
+                <Route path="/room" element={<RoomLayout />}>
                     <Route path="create" element={<RoomCreatePage />} />
                     <Route path="player/username/:roomName" element={<PlayerNamePage />} />
                     <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />

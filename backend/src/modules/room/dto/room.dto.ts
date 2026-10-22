@@ -10,3 +10,15 @@ export type RoomWithPlayers = Prisma.RoomsGetPayload<{
     };
   };
 }>;
+
+export type FindQuestion = {
+
+  round_id: number,
+  question: {
+    question_id: number,
+    question_text: string,
+    alternatives: [],
+  },
+  time_limit: number,
+
+}

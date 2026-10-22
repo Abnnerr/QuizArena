@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AXIOS } from "../../../service";
 import { socket } from "../../../service/socket";
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 export interface LobbyPlayer {
     player_id: string
@@ -104,7 +104,7 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
         void fetchRoom();
         const joinRoom = () => socket.emit("room:join", roomCode);
         const handleUpdate = () => void fetchRoom();
-        const startRoom = () => void navigate(`/room/${roomCode}/live`);
+        const startRoom = () => void navigate(`/room/${roomCode}/start`);
         const returnHome = ({ playerId }: { playerId: string }) => {
             if (playerId !== player?.player_id) return
             clearPlayer()

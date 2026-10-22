@@ -9,7 +9,6 @@ import type { RoomWithPlayers } from "./dto/room.dto.js";
 
 export class RoomRepository implements IRoomRepository {
     async create(userId: string, dados: RoomCreateDTO, ids: number[]): Promise<Rooms> {
-
         return await prisma.$transaction(async (tx) => {
             const room = await tx.rooms.create({
                 data: {
@@ -36,7 +35,6 @@ export class RoomRepository implements IRoomRepository {
             return room;
         })
     }
-
     async findByRoom(name?: string, roomCode?: string, id?: number): Promise<RoomWithPlayers> {
         try {
             const where: Prisma.RoomsWhereInput = name ? { room_name: name } : roomCode ? { room_code: roomCode } : { room_id: id! }

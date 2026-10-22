@@ -1,13 +1,28 @@
 import type { Round } from "@prisma/client"
 import { prisma } from "../../db/index.js"
+import type { RoundWithQuestion } from "./dto/round.dto.js"
 
 export class RoundRepository {
-    async createRound(roomId: number, questionId: number): Promise<Round> {
+    async createRound(roomId: number, questionId: number): Promise<RoundWithQuestion> {
         try {
             return await prisma.round.create({
                 data: {
                     room_id: roomId,
                     question_id: questionId
+                },
+                include: {
+                    questions: {
+                        select: {
+                            question_id: true,
+                            question_text: true,
+                            alternatives: {
+                                select: {
+                                    alternative_id: true,
+                                    alternative_text: true
+                                }
+                            }
+                        }
+                    }
                 }
             })
         } catch (error) {
@@ -17,29 +32,38 @@ export class RoundRepository {
     async findById(roomId: number) {
         return await prisma.round.findFirst({
             where: {
-                room_id: roomId
+                room_id: roomId,
+                closed_at: null,
             },
             include: {
+                rooms: {
+                    select: {
+                        time_limit: true
+                    }
+                },
                 questions: {
-                    include: {
+                    select: {
+                        question_id: true,
+                        question_text: true,
                         alternatives: {
                             select: {
                                 alternative_id: true,
-                                alternative_text: true
-                            }
-                        }
-                    }
-                }
-            }
-        })
+                                alternative_text: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
     }
-
-    async findByQuestion(roomId: number, questionId: number) {
+    async updateRound(roundId: number) {
         try {
-            return await prisma.round.findFirst({
+            await prisma.round.update({
                 where: {
-                    room_id: roomId,
-                    question_id: questionId
+                    round_id: roundId
+                },
+                data: {
+                    closed_at: new Date()
                 }
             })
         } catch (error) {

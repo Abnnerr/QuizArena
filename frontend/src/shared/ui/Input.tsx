@@ -7,7 +7,7 @@ interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     rightElement?: React.ReactNode;
 }
 
-export const AuthInput: React.FC<AuthInputProps> = ({ label, icon, rightElement, ...props }) => {
+export const Input: React.FC<AuthInputProps> = ({ label, icon, rightElement, ...props }) => {
     return (
         <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
@@ -19,7 +19,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({ label, icon, rightElement,
                 </div>
                 <input
                     {...props}
-                    className="w-full bg-black/40 border-2 border-white/10 rounded-2xl pl-11 pr-11 py-3 text-white font-semibold placeholder-zinc-500 focus:outline-none focus:border-[#1368CE] focus:bg-black/60 transition-all text-sm"
+                    className="w-full bg-[#F7F7F7] border-2 border-[#E5E5E5] border-b-4 rounded-2xl pl-12 pr-12 py-3.5 text-[#4B4B4B] font-black text-base sm:text-lg placeholder:text-[#CECECE] focus:outline-none focus:border-[#1CB0F6] focus:bg-white focus:border-b-4 transition-all"
                 />
                 {rightElement && (
                     <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center">

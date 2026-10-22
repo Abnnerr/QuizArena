@@ -1,5 +1,6 @@
 import AuthProvider from "./contexts/AuthContext"
 import PlayerProvider from "./contexts/PlayerContext"
+import RoomProvider from "./contexts/RoomContext"
 import Paths from "./routes/Paths"
 
 function App() {
@@ -7,7 +8,9 @@ function App() {
     <>
       <PlayerProvider>
         <AuthProvider>
-          <Paths />
+          <RoomProvider>
+            <Paths />
+          </RoomProvider>
         </AuthProvider>
       </PlayerProvider>
 

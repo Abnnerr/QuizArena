@@ -10,6 +10,8 @@ import { readySchema } from "./schema/roomReady.schema.js";
 
 const router = Router()
 
+
+//Criar a Sala e as questoes
 router.post('/create',
     // RateLimit.limit(4, 3),
     AuthMiddleware.validate,
@@ -17,26 +19,36 @@ router.post('/create',
     ZodMiddleware.validate(roomCreateSchema, 'body'),
     roomController.create
 )
+
+//Criar o player na RoomPlayer
 router.post('/join/:name',
     RateLimit.limit(6, 1),
     ZodMiddleware.validate(joinSchema, 'body'),
     roomController.join,
 )
 
+
+//Econtrar a sala e trazer todos os player dela
 router.get('/:name',
-    // RateLimit.limit(4, 3),
     roomController.findRoom
 )
-router.patch('/:id/:roomId/ready',
-    // RateLimit.limit(4, 3),
-    ZodMiddleware.validate(readySchema, 'body'),
-    roomController.ready
-)
 
+//Iniciar a Sala
 router.get('/:id/start',
     RateLimit.limit(4, 3),
     // PolicyMiddleware.ensureRolePermission('ROOM_START', 'admin', 'host'),
     AuthMiddleware.validate,
     roomController.start
+)
+
+//Buscar primeiro round
+router.get('/:name/round', 
+    roomController.findRound
+)
+
+router.patch('/:id/:roomId/ready',
+    // RateLimit.limit(4, 3),
+    ZodMiddleware.validate(readySchema, 'body'),
+    roomController.ready
 )
 export default router

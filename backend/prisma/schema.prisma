@@ -56,7 +56,7 @@ model Rooms {
   room_name    String
   host_user_id String
   max_players  Int        @default(20)
-  time_limit   Int
+  time_limit   Int        @default(20)
   room_mode    GameMode   @default(NORMAL)
   room_status  RoomStatus @default(LOBBY)
 
@@ -121,7 +121,7 @@ model Round {
 
   rooms     Rooms     @relation(fields: [room_id], references: [room_id])
   questions Questions @relation(fields: [question_id], references: [question_id])
-  answers  Answers[]
+  answers   Answers[]
 }
 
 model Answers {

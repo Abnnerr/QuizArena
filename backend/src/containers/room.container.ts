@@ -9,7 +9,7 @@ import playerService from "./player.container.js";
 
 const repo = new RoomRepository()
 const repoQuestion = new QuestionRepository()
-const repoRound = new RoundRepository()
+export const repoRound = new RoundRepository()
 const socket = new SocketService()
 export const service = new RoomService(repo, repoQuestion, playerService, repoRound, socket)
 const roomController = new RoomController(service)

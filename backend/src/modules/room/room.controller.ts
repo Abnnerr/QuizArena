@@ -15,6 +15,7 @@ export class RoomController implements IRoomController {
         this.join = this.join.bind(this)
         this.ready = this.ready.bind(this)
         this.start = this.start.bind(this)
+        this.findRound = this.findRound.bind(this)
     }
 
     async create(req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -73,6 +74,18 @@ export class RoomController implements IRoomController {
                 return HttpResponse.warning(res, error.status, error.message)
             }
             return HttpResponse.warning(res, 500, 'Erro ao começar na partida')
+        }
+    }
+    async findRound(req: Request<{ name: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+            const result = await this.service.findRound(req.params.name)
+            
+            return HttpResponse.success(res, 200, 'Round Encontrado', result)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, 'Erro ao  encontrar round na partida')
         }
     }
 
