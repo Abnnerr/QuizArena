@@ -10,4 +10,6 @@ export type IRoomController = {
     join: (req: Request<{ name: string }, {}, JoinDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
     ready: (req: Request<{ id: string, roomId: string }, {}, ReadyDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
     start: (req: Request<{ id: string }, {}, {}, {}>, res: Response<ResponseDTO>) => Promise<Response>
+    findRound: (req: Request<{ name: string }, {}, {}, {}>, res: Response<ResponseDTO>) => Promise<Response>
+    
 }

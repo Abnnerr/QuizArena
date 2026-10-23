@@ -10,6 +10,7 @@ import {
 } from "react-icons/bs";
 import { socket } from "../../../service/socket";
 import { AXIOS } from "../../../service";
+import PodioPage from "./PodioPage";
 
 const QUESTION_TIME = 20;
 
@@ -58,7 +59,16 @@ const RoomLivePage = () => {
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
         if (event.key === "Enter" && timeLeft <= 0) {
-            return 
+
+            console.log(roomCode, round, position);
+
+            socket.emit("round:finished", {
+                roomCode,
+                round_id: round,
+                position
+            })
+
+            navigate(`/${roomCode}/podio`)
         }
     };
 
@@ -143,7 +153,9 @@ const RoomLivePage = () => {
         if (!question || answered || loading) {
             return;
         }
-
+        if (timeLeft <= 0) {
+            setPosition(prev => prev + 1)
+        }
         const timer = window.setTimeout(() => {
             setTimeLeft((previous) => Math.max(0, previous - 1));
         }, 1000);

@@ -46,6 +46,9 @@ router.get('/:name/round',
     roomController.findRound
 )
 
+router.get('/:name/podium',
+    roomController.findPodium
+)
 router.patch('/:id/:roomId/ready',
     // RateLimit.limit(4, 3),
     ZodMiddleware.validate(readySchema, 'body'),

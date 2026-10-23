@@ -24,6 +24,17 @@ export class PlayerRepository {
             throw error
         }
     }
+    async findPlayers(roomId: number) {
+        try {
+            return await prisma.roomPlayer.findMany({
+                where: {
+                    room_id: roomId
+                }
+            })
+        } catch (error) {
+            throw error
+        }
+    }
     async delete(id: string) {
         try {
             await prisma.players.delete({
