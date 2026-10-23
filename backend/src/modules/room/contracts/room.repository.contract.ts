@@ -12,4 +12,5 @@ export type IRoomRepository = {
     findPlayer: (id: string, roomId: number) => Promise<RoomPlayer | null>
     // countQuestions: (id: number) => Promise<number>
     roomUpdate: (id: number, status: string) => Promise<void>
+    findAlternative: (iquestionId: number, alternativeId: number) => Promise<any>
 }

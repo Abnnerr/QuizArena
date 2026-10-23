@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
     socket.on("round:finished", async ({ roomCode, round_id, position }) => {
         try {
             console.log(roomCode, round_id);
-            
+
             await repoRound.updateRound(round_id)
 
             await service.createRound(roomCode, position)
@@ -52,7 +52,15 @@ io.on("connection", (socket) => {
             console.error("Erro ao sair da sala:", error);
         }
     });
+    socket.on("answer:submit", async ({ roomCode, playerId, roundId, alternativeId }) => {
+        try {
+            // console.log(roomCode, playerId, roundId, alternativeId);
+            await service.createAnswer(roomCode, roundId, playerId, alternativeId)
 
+        } catch (error) {
+
+        }
+    })
     socket.on("disconnect", (reason) => {
         console.log("Usuário desconectado:", socket.id);
         console.log("Motivo:", reason);

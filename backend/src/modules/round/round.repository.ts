@@ -29,10 +29,12 @@ export class RoundRepository {
             throw error
         }
     }
-    async findById(roomId: number) {
+    async findById(roomId?: number, roundId?: number) {
+
         return await prisma.round.findFirst({
             where: {
-                room_id: roomId,
+                ...(roomId && { room_id: roomId! }),
+                ...(roundId && { round_id: roundId! }),
                 closed_at: null,
             },
             include: {

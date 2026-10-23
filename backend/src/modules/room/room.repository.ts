@@ -155,4 +155,19 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
+    async findAlternative(questionId: number, alternativeId: number) {
+        try {
+            return await prisma.alternatives.findFirst({
+                where: {
+                    question_id: questionId,
+                    alternative_id: alternativeId
+                },
+                select: {
+                    is_correct: true
+                }
+            })
+        } catch (error) {
+            throw error
+        }
+    }
 }

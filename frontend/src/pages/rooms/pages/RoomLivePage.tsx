@@ -11,6 +11,7 @@ import {
 import { socket } from "../../../service/socket";
 import { AXIOS } from "../../../service";
 import PodioPage from "./PodioPage";
+import { usePlayer } from "../../../contexts/hooks/usePlayer";
 
 const QUESTION_TIME = 20;
 
@@ -46,8 +47,8 @@ type Question = {
 
 const RoomLivePage = () => {
     const { roomCode } = useParams<{ roomCode: string }>();
-
     const navigate = useNavigate()
+    const { player } = usePlayer()
     const [position, setPosition] = useState(1);
     const [round, setRound] = useState<any>(null);
     const [question, setQuestion] = useState<Question | null>(null);
@@ -150,7 +151,7 @@ const RoomLivePage = () => {
     }, [roomCode]);
 
     useEffect(() => {
-        if (!question || answered || loading) {
+        if (!question || loading) {
             return;
         }
         if (timeLeft <= 0) {
@@ -169,11 +170,12 @@ const RoomLivePage = () => {
         setSelectedAnswer(answerId);
         setAnswered(true);
 
-        // socket.emit("answer:submit", {
-        //   roomCode,
-        //   questionId: question.id,
-        //   answerId,
-        // });
+        socket.emit("answer:submit", {
+            roomCode,
+            playerId: player?.player_id,
+            roundId: round,
+            alternativeId: answerId,
+        });
     };
 
     const progress = (timeLeft / QUESTION_TIME) * 100;

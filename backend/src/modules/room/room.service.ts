@@ -9,6 +9,7 @@ import type { IRoomRepository } from "./contracts/room.repository.contract.js";
 import type { IRoomService } from "./contracts/room.service.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
 import type { FindQuestion } from "./dto/room.dto.js";
+import type { AnswerRepository } from "../answers/answers.repository.js";
 
 export class RoomService implements IRoomService {
     constructor(
@@ -16,6 +17,7 @@ export class RoomService implements IRoomService {
         private readonly repoQuestion: QuestionRepository,
         private readonly playerService: PlayerService,
         private readonly repoRound: RoundRepository,
+        private readonly repoAnswer: AnswerRepository,
         private readonly socket: SocketService
     ) { }
 
@@ -207,6 +209,63 @@ export class RoomService implements IRoomService {
                 throw error
             }
             throw new AppError(500, 'Erro ao encontrar round')
+        }
+    }
+    async createAnswer(roomCode: string, roundId: number, playerId: string, alternativeId: number) {
+        try {
+
+            console.log(roomCode, roundId, playerId, alternativeId);
+
+            const room = await this.repo.findByRoom(undefined, roomCode);
+
+            if (!room) {
+                throw new Error("Sala não encontrada");
+            }
+
+            const round = await this.repoRound.findById(undefined, roundId);
+
+            if (!round) {
+                throw new Error("Rodada não encontrada");
+            }
+
+            const alternative = await this.repo.findAlternative(
+                round.question_id,
+                alternativeId
+            );
+
+            if (!alternative) {
+                throw new Error("Alternativa não encontrada");
+            }
+
+
+            let scores = 0;
+
+            if (alternative.is_correct) {
+                const answeredAt = new Date();
+
+                const elapsedSeconds = (answeredAt.getTime() - round.opened_at.getTime()) / 1000;
+
+                const timeLimit = room.time_limit;
+                const remainingSeconds = Math.max(
+                    0,
+                    Math.min(timeLimit, timeLimit - elapsedSeconds)
+                );
+
+                if (room.room_mode === "NORMAL") {
+                    scores = Math.ceil(900 * remainingSeconds / timeLimit);
+                } else if (room.room_mode === "HARDCORE") {
+                    scores = Math.ceil(500 * remainingSeconds / timeLimit);
+                }
+
+            }
+            await this.repoAnswer.createAnswer(roundId, playerId, alternativeId, scores)
+            await this.playerService.updatePlayerScore(room.room_id!, playerId, scores)
+            return {
+                scores,
+                isCorrect: alternative.is_correct,
+            };
+        } catch (error) {
+            throw error;
         }
     }
 }

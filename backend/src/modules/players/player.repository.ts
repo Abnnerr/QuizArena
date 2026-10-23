@@ -13,7 +13,7 @@ export class PlayerRepository {
             throw error
         }
     }
-    async findPlayer(name: string): Promise<Players | null> {
+    async findPlayer(name: string, id?: string): Promise<Players | null> {
         try {
             return await prisma.players.findUnique({
                 where: {
@@ -24,11 +24,46 @@ export class PlayerRepository {
             throw error
         }
     }
+
     async findPlayers(roomId: number) {
         try {
             return await prisma.roomPlayer.findMany({
                 where: {
-                    room_id: roomId
+                    room_id: roomId,
+                },
+                orderBy: {
+                    score: 'desc'
+                }
+            })
+        } catch (error) {
+            throw error
+        }
+    }
+    async playerScore(player_id: string) {
+        try {
+            return await prisma.roomPlayer.findFirst({
+                where: {
+                    player_id
+                }, select: {
+                    score: true
+                }
+            })
+        } catch (error) {
+
+        }
+    }
+    async updatePlayerScore(roomId: number, playerId: string, score: number) {
+        try {
+            await prisma.roomPlayer.update({
+                where: {
+                    room_id_player_id: {
+                        player_id: playerId,
+                        room_id: roomId
+                    }
+
+                },
+                data: {
+                    score
                 }
             })
         } catch (error) {

@@ -20,7 +20,6 @@ const PodioPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Busca o pódio/resultado final da sala
     useEffect(() => {
         const fetchPodium = async () => {
             try {

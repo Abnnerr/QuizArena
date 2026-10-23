@@ -1,3 +1,4 @@
+import { AnswerRepository } from "../modules/answers/answers.repository.js";
 import { PlayerService } from "../modules/players/player.service.js";
 import { QuestionRepository } from "../modules/question/question.repository.js";
 import { RoomController } from "../modules/room/room.controller.js";
@@ -10,8 +11,9 @@ import playerService from "./player.container.js";
 const repo = new RoomRepository()
 const repoQuestion = new QuestionRepository()
 export const repoRound = new RoundRepository()
+const repoAnswer = new AnswerRepository()
 const socket = new SocketService()
-export const service = new RoomService(repo, repoQuestion, playerService, repoRound, socket)
+export const service = new RoomService(repo, repoQuestion, playerService, repoRound, repoAnswer, socket)
 const roomController = new RoomController(service)
 
 
