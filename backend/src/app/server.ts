@@ -3,7 +3,7 @@ import app from "./app.js";
 import http from "node:http"
 import { lobbyClear } from "../shared/utils/clearLobby.js";
 import { Server } from "socket.io";
-import { repoRound, service } from "../containers/room.container.js";
+import { roomService } from "../containers/roomPlayer.container.js";
 
 
 const PORT = process.env.PORT
@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
     socket.on("player:leave", async ({ roomCode, playerId }) => {
         try {
 
-            await service.leave(playerId, roomCode)
+            await roomService.leaveRoom(playerId, roomCode)
 
             socket.leave(`room:${roomCode}`);
 
@@ -40,22 +40,10 @@ io.on("connection", (socket) => {
             console.error("Erro ao sair da sala:", error);
         }
     });
-    socket.on("round:finished", async ({ roomCode, round_id, position }) => {
-        try {
-            console.log(roomCode, round_id);
-
-            await repoRound.updateRound(round_id)
-
-            await service.createRound(roomCode, position)
-            io.to(`room:${roomCode}`).emit("question:started");
-        } catch (error) {
-            console.error("Erro ao sair da sala:", error);
-        }
-    });
     socket.on("answer:submit", async ({ roomCode, playerId, roundId, alternativeId }) => {
         try {
             // console.log(roomCode, playerId, roundId, alternativeId);
-            await service.createAnswer(roomCode, roundId, playerId, alternativeId)
+            await roomService.createAnswer(roomCode, roundId, playerId, alternativeId)
 
         } catch (error) {
 

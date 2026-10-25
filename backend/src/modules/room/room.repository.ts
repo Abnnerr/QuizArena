@@ -8,12 +8,13 @@ import { randomBytes } from "node:crypto";
 import type { RoomWithPlayers } from "./dto/room.dto.js";
 
 export class RoomRepository implements IRoomRepository {
-    async create(userId: string, dados: RoomCreateDTO, ids: number[]): Promise<Rooms> {
+    async createRoom(userId: string, dados: RoomCreateDTO, ids: number[]): Promise<Rooms> {
         return await prisma.$transaction(async (tx) => {
             const room = await tx.rooms.create({
                 data: {
                     room_name: dados.name,
                     room_code: randomBytes(4).toString("hex").toUpperCase(),
+                    room_mode: dados.mode,
                     max_players: dados.maxPlayers,
                     time_limit: dados.timeLimit,
                     host: {
@@ -35,10 +36,12 @@ export class RoomRepository implements IRoomRepository {
             return room;
         })
     }
-    async findByRoom(name?: string, roomCode?: string, id?: number): Promise<RoomWithPlayers> {
+    async findByRoom(name?: string, roomCode?: string, id?: number): Promise<RoomWithPlayers | null> {
         try {
+            console.log(name);
+
             const where: Prisma.RoomsWhereInput = name ? { room_name: name } : roomCode ? { room_code: roomCode } : { room_id: id! }
-            return await prisma.rooms.findFirstOrThrow({
+            return await prisma.rooms.findFirst({
                 where,
                 include: {
                     roomPlayers: {
@@ -81,33 +84,8 @@ export class RoomRepository implements IRoomRepository {
         } catch (error) {
             throw error
         }
-    }
-    async countPlayers(id: number): Promise<number> {
-        try {
-            return await prisma.roomPlayer.count({
-                where: {
-                    room_id: id
-                }
-            })
-        } catch (error) {
-            console.log(error);
-            throw error
-        }
-    }
-    async findPlayer(id: string, roomId: number): Promise<RoomPlayer | null> {
-        try {
-            return await prisma.roomPlayer.findUnique({
-                where: {
-                    room_id_player_id: {
-                        player_id: id,
-                        room_id: roomId
-                    }
-                }
-            })
-        } catch (error) {
-            throw error
-        }
-    }
+    } 
+   
     async countQuestions(id: number): Promise<number> {
         try {
             return prisma.roomQuestion.count({
@@ -117,26 +95,6 @@ export class RoomRepository implements IRoomRepository {
             })
         } catch (error) {
             console.log(error);
-            throw error
-        }
-    }
-
-    async readyPlayer(id: string, roomId: number, ready: boolean): Promise<any> {
-        try {
-            return await prisma.roomPlayer.update({
-                where: {
-                    room_id_player_id: {
-                        player_id: id,
-                        room_id: roomId
-                    }
-                },
-                data: {
-                    ready
-                }
-            })
-        } catch (error) {
-            console.log(error);
-
             throw error
         }
     }

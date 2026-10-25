@@ -3,17 +3,17 @@ import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { PolicyMiddleware } from "../../middlewares/policy.middleware.js";
 import { ZodMiddleware } from "../../middlewares/zod.middleware.js";
 import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
-import roomController from "../../containers/room.container.js";
 import { roomCreateSchema } from "./schema/roomCreate.schema.js";
 import { joinSchema } from "./schema/roomJoin.schema.js";
-import { readySchema } from "./schema/roomReady.schema.js";
+import { roomController } from "../../containers/roomPlayer.container.js";
+
 
 const router = Router()
 
 
 //Criar a Sala e as questoes
 router.post('/create',
-    // RateLimit.limit(4, 3),
+    RateLimit.limit(4, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission('ROOM_CREATE', 'admin', 'host'),
     ZodMiddleware.validate(roomCreateSchema, 'body'),
@@ -41,17 +41,10 @@ router.get('/:id/start',
     roomController.start
 )
 
-//Buscar primeiro round
-router.get('/:name/round', 
-    roomController.findRound
-)
+
 
 router.get('/:name/podium',
     roomController.findPodium
 )
-router.patch('/:id/:roomId/ready',
-    // RateLimit.limit(4, 3),
-    ZodMiddleware.validate(readySchema, 'body'),
-    roomController.ready
-)
+
 export default router

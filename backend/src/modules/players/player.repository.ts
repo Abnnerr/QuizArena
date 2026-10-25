@@ -1,12 +1,41 @@
-import type { Players } from "@prisma/client";
+import type { Players, RoomPlayer } from "@prisma/client";
 import { prisma } from "../../db/index.js";
 
 export class PlayerRepository {
+
+    async countPlayers(id: number): Promise<number> {
+        try {
+            return await prisma.roomPlayer.count({
+                where: {
+                    room_id: id
+                }
+            })
+        } catch (error) {
+            console.log(error);
+            throw error
+        }
+    }
+
     async create(name: string): Promise<Players> {
         try {
             return await prisma.players.create({
                 data: {
                     player_name: name
+                }
+            })
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async findPlayerRoom(id: string, roomId: number): Promise<RoomPlayer | null> {
+        try {
+            return await prisma.roomPlayer.findUnique({
+                where: {
+                    room_id_player_id: {
+                        player_id: id,
+                        room_id: roomId
+                    }
                 }
             })
         } catch (error) {
@@ -36,6 +65,25 @@ export class PlayerRepository {
                 }
             })
         } catch (error) {
+            throw error
+        }
+    }
+    async readyPlayer(id: string, roomId: number, ready: boolean): Promise<any> {
+        try {
+            return await prisma.roomPlayer.update({
+                where: {
+                    room_id_player_id: {
+                        player_id: id,
+                        room_id: roomId
+                    }
+                },
+                data: {
+                    ready
+                }
+            })
+        } catch (error) {
+            console.log(error);
+
             throw error
         }
     }
@@ -70,7 +118,7 @@ export class PlayerRepository {
             throw error
         }
     }
-    async delete(id: string) {
+    async deletePlayer(id: string) {
         try {
             await prisma.players.delete({
                 where: {

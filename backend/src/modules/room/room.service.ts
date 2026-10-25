@@ -8,35 +8,37 @@ import type { RoundRepository } from "../round/round.repository.js";
 import type { IRoomRepository } from "./contracts/room.repository.contract.js";
 import type { IRoomService } from "./contracts/room.service.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
-import type { FindQuestion } from "./dto/room.dto.js";
 import type { AnswerRepository } from "../answers/answers.repository.js";
+import type { QuestionService } from "../question/question.service.js";
 
 export class RoomService implements IRoomService {
+
+    private playerService!: PlayerService;
+
     constructor(
         private readonly repo: IRoomRepository,
-        private readonly repoQuestion: QuestionRepository,
-        private readonly playerService: PlayerService,
+        private readonly serviceQuestion: QuestionService,
         private readonly repoRound: RoundRepository,
         private readonly repoAnswer: AnswerRepository,
         private readonly socket: SocketService
     ) { }
 
+
+    setPlayerService(playerService: PlayerService) {
+        this.playerService = playerService;
+    }
+
     //Cria a sala
-    async create(user: AuthPayload, dados: RoomCreateDTO): Promise<string> {
+    async createRoom(user: AuthPayload, dados: RoomCreateDTO): Promise<string> {
         try {
             const room = await this.repo.findByRoom(dados.name)
-
             if (room) {
                 throw new AppError(409, 'Já existe uma sala com esse nome')
             }
-
-            if (dados.questions.length > 4) {
-                throw new AppError(409, 'Já existe uma sala com esse nome')
-            }
-            const idQuestions = await this.repoQuestion.create(dados)
-
-            const roomcreate = await this.repo.create(user.id, dados, idQuestions)
-
+            const idQuestions = await this.serviceQuestion.createQuestions(dados.questions)
+            const roomcreate = await this.repo.createRoom(user.id, dados, idQuestions)
+            console.log(idQuestions);
+            console.log(roomcreate);
             return roomcreate.room_code
         } catch (error) {
             if (error instanceof AppError) {
@@ -45,7 +47,6 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro ao criar sala')
         }
     }
-
     //encontra a sala
     async findRoom(code: string): Promise<Rooms> {
         try {
@@ -61,35 +62,24 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro ao criar sala')
         }
     }
-
     //player entra
-    async join(roomCode: string, userName: string): Promise<any> {
+    async joinRoom(roomCode: string, userName: string): Promise<any> {
         try {
             const room = await this.repo.findByRoom(undefined, roomCode)
-
             if (!room) {
                 throw new AppError(404, 'sala nao encontrada')
             }
             if (room.room_status !== 'LOBBY') {
                 throw new AppError(400, "A sala não está aberta");
             }
-
-            const countPLayer = await this.repo.countPlayers(room?.room_id!)
-
+            const countPLayer = await this.playerService.countPlayers(room?.room_id!)
             if (countPLayer >= room?.max_players) {
                 throw new AppError(400, 'sala esta cheia')
             }
-
             const player = await this.playerService.createPlayer(userName)
-            const find = await this.repo.findPlayer(player.player_id, room?.room_id!)
-
-            if (find) {
-                throw new AppError(400, 'player ja esta na sala')
-            }
+            await this.playerService.findPlayerRoom(player.player_id, room?.room_id!)
             await this.repo.joinRoom(player.player_id, room.room_id)
-
             this.socket.lobby(room.room_code, player.player_id, player.player_name)
-
             return {
                 player_id: player.player_id,
                 player_name: player.player_name
@@ -100,33 +90,14 @@ export class RoomService implements IRoomService {
             }
             throw new AppError(500, 'Erro entrar na sala')
         }
-
-
     }
-
     //Player sai da sala
-    async leave(id: string, roomCode: string): Promise<void> {
+    async leaveRoom(id: string, roomCode: string): Promise<void> {
         try {
             const room = await this.repo.findByRoom(undefined, roomCode)
             await this.repo.leaveRoom(id, room?.room_id!)
             await this.playerService.deletePlayer(id)
-
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro entrar na sala')
-        }
-    }
-
-    //player fica pronto ou nao
-    async ready(id: string, roomId: string, ready: boolean): Promise<void> {
-        try {
-
-            const player = await this.repo.readyPlayer(id, Number(roomId), ready)
-            const room = await this.repo.findByRoom(undefined, undefined, Number(roomId))
-
-            this.socket.playerReady(room?.room_code!, player.player_id, player.ready)
+            this.socket.leaveRoom(room?.room_code!)
         } catch (error) {
             if (error instanceof AppError) {
                 throw error
@@ -139,7 +110,7 @@ export class RoomService implements IRoomService {
     async start(user: AuthPayload, id: number): Promise<void> {
         try {
             const room = await this.repo.findByRoom(undefined, undefined, id)
-            const countPlayers = await this.repo.countPlayers(id)
+            const countPlayers = await this.playerService.countPlayers(id)
             if (!room) {
                 throw new AppError(404, 'sala nao encontrado')
             }
@@ -149,123 +120,15 @@ export class RoomService implements IRoomService {
             if (countPlayers < 2) {
                 throw new AppError(400, 'quantidade de jogadores nescessario 2')
             }
-
-            const question = await this.repoQuestion.findQuestion(room.room_id, 1)
-
+            const question = await this.serviceQuestion.findQuestion(room.room_id, 1)
             await this.repoRound.createRound(room.room_id, question?.question_id!)
-
             await this.repo.roomUpdate(room.room_id, "LIVE")
-
             this.socket.roundStarted(room.room_code)
-
         } catch (error) {
             if (error instanceof AppError) {
                 throw error
             }
             throw new AppError(500, 'Erro entrar na sala')
-        }
-    }
-    async findRound(roomCode: string): Promise<any> {
-        try {
-            const room = await this.repo.findByRoom(undefined, roomCode)
-            const round = await this.repoRound.findById(room?.room_id!)
-
-            return {
-                round_id: round?.round_id,
-                round_opened: round?.opened_at,
-                question_id: round?.questions.question_id,
-                question_text: round?.questions.question_text,
-                alternatives: round?.questions.alternatives,
-                time_limit: round?.rooms.time_limit
-            }
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro ao encontrar round')
-        }
-    }
-
-    async roundFinished() {
-        try {
-
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro ao encontrar round')
-        }
-    }
-    async createRound(roomCode: string, position: number): Promise<any> {
-        try {
-            const room = await this.repo.findByRoom(undefined, roomCode)
-            const question = await this.repoQuestion.findQuestion(room?.room_id!, position)
-            await this.repoRound.createRound(room?.room_id!, question.question_id)
-            const round = await this.repoRound.findById(room?.room_id!)
-
-            this.socket.findQuestion(room?.room_code!, round)
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro ao encontrar round')
-        }
-    }
-    async createAnswer(roomCode: string, roundId: number, playerId: string, alternativeId: number) {
-        try {
-
-            console.log(roomCode, roundId, playerId, alternativeId);
-
-            const room = await this.repo.findByRoom(undefined, roomCode);
-
-            if (!room) {
-                throw new Error("Sala não encontrada");
-            }
-
-            const round = await this.repoRound.findById(undefined, roundId);
-
-            if (!round) {
-                throw new Error("Rodada não encontrada");
-            }
-
-            const alternative = await this.repo.findAlternative(
-                round.question_id,
-                alternativeId
-            );
-
-            if (!alternative) {
-                throw new Error("Alternativa não encontrada");
-            }
-
-
-            let scores = 0;
-
-            if (alternative.is_correct) {
-                const answeredAt = new Date();
-
-                const elapsedSeconds = (answeredAt.getTime() - round.opened_at.getTime()) / 1000;
-
-                const timeLimit = room.time_limit;
-                const remainingSeconds = Math.max(
-                    0,
-                    Math.min(timeLimit, timeLimit - elapsedSeconds)
-                );
-
-                if (room.room_mode === "NORMAL") {
-                    scores = Math.ceil(900 * remainingSeconds / timeLimit);
-                } else if (room.room_mode === "HARDCORE") {
-                    scores = Math.ceil(500 * remainingSeconds / timeLimit);
-                }
-
-            }
-            await this.repoAnswer.createAnswer(roundId, playerId, alternativeId, scores)
-            await this.playerService.updatePlayerScore(room.room_id!, playerId, scores)
-            return {
-                scores,
-                isCorrect: alternative.is_correct,
-            };
-        } catch (error) {
-            throw error;
         }
     }
 }

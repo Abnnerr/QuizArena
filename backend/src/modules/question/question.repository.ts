@@ -4,19 +4,17 @@ import type { QuestionCreateDTO } from "./dto/question.dto.js"
 
 
 export class QuestionRepository {
-    async create(dados: QuestionCreateDTO): Promise<number[]> {
+    async create(dados: QuestionCreateDTO[]): Promise<number[]> {
         try {
-            console.log('chegou no question repo');
-
             return await prisma.$transaction(async (tx) => {
 
                 const createdQuestions = await tx.questions.createManyAndReturn({
-                    data: dados.questions.map((question) => ({
+                    data: dados.map((question) => ({
                         question_text: question.text
                     }))
                 })
 
-                const alternatives = dados.questions.flatMap((question, index) => question.alternatives.map((alternative) => ({
+                const alternatives = dados.flatMap((question, index) => question.alternatives.map((alternative) => ({
                     question_id: createdQuestions[index]!.question_id,
 
                     alternative_text: alternative.text,

@@ -16,9 +16,15 @@ export class SocketService {
             is_ready,
         });
     }
+    // player sai do lobby e atualiza a pagina
+    leaveRoom(roomCode: string) {
+        io.to(`room:${roomCode}`).emit("room:leave")
+    }
+    
     roundStarted(roomCode: string) {
         io.to(`room:${roomCode}`).emit("room:start");
     }
+
     findQuestion(roomCode: string, data: any) {
         io.to(`room:${roomCode}`).emit("question:started", data);
     }
