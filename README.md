@@ -2,7 +2,7 @@
 
 ## Estrutura do Projeto
 
-Projeto desenvolvido com **TypeScript e Programação Orientada a Objetos (POO)**.
+Projeto desenvolvido com TypeScript e Programação Orientada a Objetos (POO).
 
 - `frontend/` — Interface da aplicação.
 - `backend/` — API, regras de negócio e acesso ao banco de dados.
@@ -20,11 +20,40 @@ Projeto desenvolvido com **TypeScript e Programação Orientada a Objetos (POO)*
 
 ## Rotas da API
 
-| Rota | Responsabilidade |
-|---|---|
-| `/api/auth` | Autenticação |
-| `/api/room` | Gerenciamento das salas |
-| `/api/player` | Gerenciamento dos jogadores |
-| `/api/round` | Gerenciamento das rodadas |
-| `/api/answer` | Respostas dos jogadores |
+### Auth — `/api/auth`
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/register` | Registrar usuário |
+| POST | `/login` | Autenticar usuário |
+| POST | `/forgot-password` | Solicitar recuperação de senha |
+| POST | `/reset-password/:token` | Redefinir senha usando o token |
+| GET | `/me` | Obter dados do usuário autenticado |
+
+### Room — `/api/room`
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/create` | Criar sala e selecionar questões |
+| POST | `/join/:name` | Entrar em uma sala como jogador |
+| GET | `/:name` | Buscar sala e seus jogadores |
+| GET | `/:id/start` | Iniciar a sala |
+| GET | `/:name/podium` | Buscar o pódio da sala |
+
+### Player — `/api/player`
+
+| Método | Rota | Descrição |
+|---|---|---|
+| PATCH | `/:playerId/:roomCode/ready` | Alterar o estado de prontidão do jogador |
+
+### Round — `/api/round`
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/:roomCode/findRound` | Buscar a rodada atual |
+| POST | `/:roomCode/roundFinished` | Finalizar a rodada e atualizar o jogo |
+
+### Answer — `/api/answer`
+
+As rotas de respostas ainda não foram fornecidas.
 
