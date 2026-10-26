@@ -25,7 +25,11 @@ export class SocketService {
         io.to(`room:${roomCode}`).emit("room:start");
     }
 
-    findQuestion(roomCode: string, data: any) {
-        io.to(`room:${roomCode}`).emit("question:started", data);
+    findQuestion(roomCode: string) {
+        io.to(`room:${roomCode}`).emit("question:started");
+    }
+
+    roomFinished(roomCode: string) {
+        io.to(`room:${roomCode}`).emit('room:finished')
     }
 }

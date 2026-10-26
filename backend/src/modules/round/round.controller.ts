@@ -27,7 +27,7 @@ export class RoundController {
     }
     async roundFinished(req: Request<{ roomCode: string }, {}, FinishedDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
-            await this.service.roundFinished(req.params.roomCode, req.body.round_id, req.body.position)
+            await this.service.roundFinished(req.params.roomCode, req.body.round_id)
             return HttpResponse.success(res, 201, "Round terminado e novo criado")
         } catch (error) {
             if (error instanceof AppError) {

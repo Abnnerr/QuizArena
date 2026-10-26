@@ -1,4 +1,4 @@
-import { AnswerRepository } from "../modules/answers/answers.repository.js";
+import { AnswerRepository } from "../modules/answers/answer.repository.js";
 import { PlayerController } from "../modules/players/player.controller.js";
 import { PlayerRepository } from "../modules/players/player.repository.js";
 import { PlayerService } from "../modules/players/player.service.js";

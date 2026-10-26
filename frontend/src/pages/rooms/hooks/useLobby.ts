@@ -101,6 +101,8 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
     useEffect(() => {
         if (!roomCode) return;
 
+        sessionStorage.removeItem('position')
+
         void fetchRoom();
         const joinRoom = () => socket.emit("room:join", roomCode);
         const handleUpdate = () => void fetchRoom();
@@ -139,7 +141,7 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
         try {
             setError(null);
             if (ready) {
-                const { data } = await AXIOS.patch(`/room/${player.player_id}/${room.room_id}/ready`, {
+                const { data } = await AXIOS.patch(`/player/${player.player_id}/${roomCode}/ready`, {
                     ready: false
                 });
                 if (data.type !== "Success") {
@@ -149,7 +151,7 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
 
                 return true
             }
-            const { data } = await AXIOS.patch(`/room/${player.player_id}/${room.room_id}/ready`, {
+            const { data } = await AXIOS.patch(`/player/${player.player_id}/${roomCode}/ready`, {
                 ready: true
             });
             if (data.type !== "Success") {
@@ -213,6 +215,7 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
         fetchRoom,
         toggleReady,
         startRoom,
-        toggleLeave
+        toggleLeave,
+       
     };
 };

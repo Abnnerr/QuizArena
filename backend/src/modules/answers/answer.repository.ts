@@ -4,7 +4,7 @@ export class AnswerRepository {
     async createAnswer(roundId: number, playerId: string, alternativeId: number, points: number) {
         try {
 
-            console.log('repo answer', roundId, playerId, alternativeId, points);
+            console.log('repo answer:', roundId, playerId, alternativeId, points);
             
             await prisma.answers.create({
                 data: {
@@ -15,7 +15,7 @@ export class AnswerRepository {
                 }
             })
         } catch (error) {
-
+            throw error
         }
     }
 }

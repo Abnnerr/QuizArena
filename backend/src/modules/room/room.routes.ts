@@ -43,8 +43,9 @@ router.get('/:id/start',
 
 
 
-router.get('/:name/podium',
-    roomController.findPodium
-)
+//limpar Room/players/roomplayers/answers/round
+router.delete('/:roomCode/:roundId/limpar', 
+    roomController.limparRoom
+) 
 
 export default router

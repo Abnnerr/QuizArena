@@ -84,8 +84,8 @@ export class RoomRepository implements IRoomRepository {
         } catch (error) {
             throw error
         }
-    } 
-   
+    }
+
     async countQuestions(id: number): Promise<number> {
         try {
             return prisma.roomQuestion.count({
@@ -98,14 +98,20 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
-    async roomUpdate(id: number, status: string): Promise<void> {
+    async roomUpdate(id: number, status?: string): Promise<any> {
         try {
-            await prisma.rooms.update({
+            const room =await prisma.rooms.findFirst({
+                where: {
+                    room_id: id
+                }
+            })
+            return await prisma.rooms.update({
                 where: {
                     room_id: id
                 },
                 data: {
-                    room_status: status as RoomStatus
+                    room_status: status as RoomStatus,
+                    position: room?.position! + 1
                 }
             })
         } catch (error) {
@@ -124,6 +130,57 @@ export class RoomRepository implements IRoomRepository {
                     is_correct: true
                 }
             })
+        } catch (error) {
+            throw error
+        }
+    }
+    async limparRoom(roomId: number, roundId: number): Promise<void> {
+        try {
+            const roundIds = await prisma.round.findMany({
+                where: {
+                    room_id: roomId
+                },
+                select: {
+                    round_id: true
+                }
+            })
+            await prisma.$transaction([
+                prisma.answers.deleteMany({
+                    where: {
+                        round_id: {
+                            in: roundIds.map(item => item.round_id),
+                        }
+                    },
+                }),
+                prisma.roomPlayer.deleteMany({
+                    where: {
+                        room_id: roomId,
+                    },
+                }),
+                prisma.players.deleteMany({
+                    where: {
+                        roomPlayers: {
+                            some: {
+                                room_id: roomId,
+                            },
+                        },
+                    },
+                }),
+                prisma.round.deleteMany({
+                    where: {
+                        room_id: roomId,
+                    },
+                }),
+                prisma.rooms.update({
+                    where: {
+                        room_id: roomId
+                    },
+                    data: {
+                        room_status: "LOBBY",
+                        position: 0
+                    }
+                })
+            ]);
         } catch (error) {
             throw error
         }

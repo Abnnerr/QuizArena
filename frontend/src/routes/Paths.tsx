@@ -12,7 +12,8 @@ import RoomStartPage from "../pages/rooms/pages/RoomStartPage";
 import RoomLivePage from "../pages/rooms/pages/RoomLivePage";
 import AuthLayout from "../layouts/AuthLayout";
 import RoomLayout from "../layouts/RoomLayout";
-import RoomCreatePage from "../pages/rooms/pages/roomCreatePage";
+import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
+import RankingPage from "../pages/rooms/pages/RankingPage";
 import PodioPage from "../pages/rooms/pages/PodioPage";
 
 
@@ -35,8 +36,9 @@ const Paths = () => {
                     <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />
                     <Route path=":roomCode/start" element={<RoomStartPage />} />
                     <Route path=":roomCode/live" element={<RoomLivePage />} />
-                    <Route path=":roomCode/podio" element={<PodioPage />} />
                 </Route>
+                <Route path="/:roomCode/:round/ranking" element={<RankingPage />} />
+                <Route path="/:roomCode/:round/podio" element={<PodioPage />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </BrowserRouter>

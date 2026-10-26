@@ -13,7 +13,7 @@ export class RoomController implements IRoomController {
         this.findRoom = this.findRoom.bind(this)
         this.join = this.join.bind(this)
         this.start = this.start.bind(this)
-        this.findPodium = this.findPodium.bind(this)
+        this.limparRoom = this.limparRoom.bind(this)
     }
 
     async create(req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -62,16 +62,16 @@ export class RoomController implements IRoomController {
             return HttpResponse.warning(res, 500, 'Erro ao começar na partida')
         }
     }
-  
-    async findPodium(req: Request<{ name: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+
+    async limparRoom(req: Request<{ roomCode: string, roundId: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
-            const result = ''
-            return HttpResponse.success(res, 200, 'players encontrados',)
-        } catch (error: any) {
+            await this.service.limparRoom(req.params.roomCode, Number(req.params.roundId))
+            return HttpResponse.success(res, 200, 'Sala limpa')
+        } catch (error) {
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }
-            return HttpResponse.warning(res, 500, error.message)
+            return HttpResponse.warning(res, 500, 'Erro ao começar na partida')
         }
     }
 }

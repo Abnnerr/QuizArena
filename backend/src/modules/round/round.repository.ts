@@ -1,4 +1,4 @@
-import type { Round } from "@prisma/client"
+
 import { prisma } from "../../db/index.js"
 import type { RoundWithQuestion } from "./dto/round.dto.js"
 
@@ -40,7 +40,13 @@ export class RoundRepository {
             include: {
                 rooms: {
                     select: {
-                        time_limit: true
+                        time_limit: true,
+                        position: true,
+                        _count: {
+                            select: {
+                                roomQuestions: true,
+                            },
+                        },
                     }
                 },
                 questions: {
@@ -72,4 +78,5 @@ export class RoundRepository {
             throw error
         }
     }
+
 }

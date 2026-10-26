@@ -67,6 +67,8 @@ export class PlayerService {
     //player fica pronto ou nao
     async readyPlayer(playerId: string, roomCode: string, ready: boolean): Promise<void> {
         try {
+            console.log(playerId, roomCode, ready);
+            
             const room = await this.roomService.findRoom(roomCode)
 
             const isReady = await this.repo.readyPlayer(playerId, room.room_id, ready)
@@ -96,6 +98,20 @@ export class PlayerService {
     async deletePlayer(id: string) {
         try {
             await this.repo.deletePlayer(id)
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao criar player')
+        }
+    }
+
+    async findPodium(code: string) {
+        try {
+            const room = await this.roomService.findRoom(code)
+            const players = await this.repo.findPlayers(room.room_id)
+
+            return players
         } catch (error) {
             if (error instanceof AppError) {
                 throw error

@@ -40,15 +40,6 @@ io.on("connection", (socket) => {
             console.error("Erro ao sair da sala:", error);
         }
     });
-    socket.on("answer:submit", async ({ roomCode, playerId, roundId, alternativeId }) => {
-        try {
-            // console.log(roomCode, playerId, roundId, alternativeId);
-            await roomService.createAnswer(roomCode, roundId, playerId, alternativeId)
-
-        } catch (error) {
-
-        }
-    })
     socket.on("disconnect", (reason) => {
         console.log("Usuário desconectado:", socket.id);
         console.log("Motivo:", reason);

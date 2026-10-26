@@ -9,4 +9,6 @@ export type IRoomService = {
     joinRoom: (roomName: string, userName: string) => Promise<any>
     leaveRoom: (id: string, roomCode: string) => Promise<void>
     start: (user: AuthPayload, id: number) => Promise<void>
+    limparRoom: (roomCode: string, roundId: number) => Promise<void>
+    updateRoomPosition: (roomCode: string) => Promise<any>
 }

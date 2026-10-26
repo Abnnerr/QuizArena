@@ -8,7 +8,7 @@ import type { RoundRepository } from "../round/round.repository.js";
 import type { IRoomRepository } from "./contracts/room.repository.contract.js";
 import type { IRoomService } from "./contracts/room.service.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
-import type { AnswerRepository } from "../answers/answers.repository.js";
+import type { AnswerRepository } from "../answers/answer.repository.js";
 import type { QuestionService } from "../question/question.service.js";
 
 export class RoomService implements IRoomService {
@@ -123,12 +123,57 @@ export class RoomService implements IRoomService {
             const question = await this.serviceQuestion.findQuestion(room.room_id, 1)
             await this.repoRound.createRound(room.room_id, question?.question_id!)
             await this.repo.roomUpdate(room.room_id, "LIVE")
+
             this.socket.roundStarted(room.room_code)
         } catch (error) {
             if (error instanceof AppError) {
                 throw error
             }
             throw new AppError(500, 'Erro entrar na sala')
+        }
+    }
+    async updateRoomPosition(roomCode: string) {
+        try {
+            const room = await this.repo.findByRoom(undefined, roomCode)
+
+            return await this.repo.roomUpdate(room?.room_id!)
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro entrar na sala')
+        }
+    }
+    async findAlternatives(questionId: number, alternativeId: number) {
+        try {
+            const alternatives = await this.repo.findAlternative(questionId, alternativeId)
+            return alternatives
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao buscar alternatives')
+        }
+    }
+
+    async limparRoom(roomCode: string, roundId: number): Promise<void> {
+        try {
+            console.log(roomCode, roundId);
+
+            const room = await this.repo.findByRoom(undefined, roomCode)
+
+            console.log(room);
+
+            await this.repo.limparRoom(room?.room_id!, roundId)
+
+            this.socket.roomFinished(roomCode)
+        } catch (error) {
+            console.log(error);
+
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao limpar room')
         }
     }
 }

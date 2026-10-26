@@ -8,6 +8,7 @@ import type { ReadyDTO } from "./schema/playerReady.schema.js"
 export class PlayerController {
     constructor(private readonly service: PlayerService) {
         this.ready = this.ready.bind(this)
+        this.findPodium = this.findPodium.bind(this)
     }
 
     async ready(req: Request<{ playerId: string, roomCode: string }, {}, ReadyDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -19,6 +20,17 @@ export class PlayerController {
                 return HttpResponse.warning(res, error.status, error.message)
             }
             return HttpResponse.warning(res, 500, 'Erro ao player ficar pronto')
+        }
+    }
+    async findPodium(req: Request<{ roomCode: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+            const result = await this.service.findPodium(req.params.roomCode)
+            return HttpResponse.success(res, 200, 'players encontrados', result)
+        } catch (error: any) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, error.message)
         }
     }
 }

@@ -6,11 +6,14 @@ import { playerController } from "../../containers/roomPlayer.container.js";
 const router = Router()
 
 
+router.get('/:roomCode/podium',
+    playerController.findPodium
+)
+
 //player ready
 router.patch('/:playerId/:roomCode/ready',
     // RateLimit.limit(4, 3),
     ZodMiddleware.validate(readySchema, 'body'),
     playerController.ready
 )
-
 export default router

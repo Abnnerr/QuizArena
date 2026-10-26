@@ -59,6 +59,7 @@ model Rooms {
   time_limit   Int        @default(20)
   room_mode    GameMode   @default(NORMAL)
   room_status  RoomStatus @default(LOBBY)
+  position     Int        @default(0)
 
   host          Users          @relation(fields: [host_user_id], references: [user_id])
   roomPlayers   RoomPlayer[]

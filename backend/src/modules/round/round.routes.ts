@@ -7,13 +7,13 @@ import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 const router = Router()
 
 
-//Buscar primeiro round
+//Buscar a round em aberto
 router.get('/:roomCode/findRound',
     roundController.findRound
 )
 // termina a round, atualiza e cria um novo
 router.post('/:roomCode/roundFinished',
-    RateLimit.limit(4, 2),
+    RateLimit.limit(10, 2),
     ZodMiddleware.validate(finishedSchema, 'body'),
     roundController.roundFinished
 )

@@ -60,6 +60,13 @@ export class PlayerRepository {
                 where: {
                     room_id: roomId,
                 },
+                include: {
+                    players: {
+                        select: {
+                            player_name: true
+                        }
+                    }
+                },
                 orderBy: {
                     score: 'desc'
                 }
