@@ -8,7 +8,7 @@ export class AuthMiddleware {
     static async validate(req: Request, _res: Response , next: NextFunction) {
         try {
 
-            const cookie = req.cookies?.["access_token"]
+            const cookie = req.cookies["access_token"]
             // console.log(cookie);
 
             const [bearer, authoToken] = req.headers.authorization?.split(" ") ?? [];
