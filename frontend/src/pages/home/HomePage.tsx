@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { BiHash } from 'react-icons/bi';
 import { BsArrowRight } from 'react-icons/bs';
 import { FaGamepad } from 'react-icons/fa';

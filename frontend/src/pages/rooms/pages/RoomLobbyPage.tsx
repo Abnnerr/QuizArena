@@ -11,7 +11,7 @@ import { usePlayer } from "../../../contexts/hooks/usePlayer";
 const RoomLobbyPage = () => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [isMuted, setIsMuted] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [, setIsPlaying] = useState(false);
     const { user } = useAuth();
     const { player } = usePlayer()
     const navigate = useNavigate();
@@ -52,11 +52,11 @@ const RoomLobbyPage = () => {
             });
     }, []);
 
-    const toggleMute = () => {
-        if (!audioRef.current) return;
-        audioRef.current.muted = !isMuted;
-        setIsMuted(!isMuted);
-    };
+    // const toggleMute = () => {
+    //     if (!audioRef.current) return;
+    //     audioRef.current.muted = !isMuted;
+    //     setIsMuted(!isMuted);
+    // };
     const handleCopyCode = async () => {
         if (!roomCode) return;
 

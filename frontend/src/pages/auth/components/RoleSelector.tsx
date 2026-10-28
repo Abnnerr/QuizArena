@@ -1,4 +1,4 @@
-// src/pages/auth/components/RoleSelector.tsx
+
 import React from 'react';
 
 interface RoleSelectorProps {

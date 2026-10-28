@@ -1,9 +1,8 @@
 import type React from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet } from "react-router";
 
 const AuthLayout: React.FC = () => {
-    const location = useLocation();
-    const isRegisterPage = location.pathname.includes("register");
+
 
     return (
         <div className="min-h-screen bg-[#FFFFFF] text-[#4B4B4B] flex flex-col justify-between relative overflow-x-hidden select-none font-['Nunito',sans-serif]">
