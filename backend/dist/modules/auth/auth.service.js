@@ -1,0 +1,136 @@
+import { AppError } from "../../error/AppError.js";
+import { enviarEmail } from "../../shared/utils/email.js";
+import { html } from "./templates/auth.templates.js";
+export class AuthService {
+    repo;
+    jwt;
+    bcrypt;
+    domain;
+    constructor(repo, jwt, bcrypt, domain) {
+        this.repo = repo;
+        this.jwt = jwt;
+        this.bcrypt = bcrypt;
+        this.domain = domain;
+    }
+    async register(dados) {
+        try {
+            this.domain.ensureRegister(dados);
+            this.domain.ensurePassword(dados.password);
+            const password = await this.bcrypt.hash(dados.password);
+            const newDados = {
+                ...dados,
+                password
+            };
+            const result = await this.repo.register(newDados);
+            if (!result) {
+                throw new AppError(409, 'Não foi possível realizar o cadastro');
+            }
+            try {
+                await enviarEmail(result.user_email, 'Seja bem-vindo', html.register(result.user_username, 'http://localhost:9000/auth/login'));
+            }
+            catch (error) {
+            }
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, 'Erro ao registrar usuario');
+        }
+    }
+    async login(dados) {
+        try {
+            const result = await this.repo.findUser(dados.userName);
+            if (!result) {
+                throw new AppError(401, 'E-mail ou senha inválidos');
+            }
+            const compare = await this.bcrypt.compare(dados.password, result.user_password);
+            if (!compare) {
+                throw new AppError(401, 'E-mail ou senha inválidos');
+            }
+            const { user_password: _, Role: __, ...rest } = result;
+            const permissions = result.Role.rolePermissions.map(item => item.permission.permission_name);
+            const user = {
+                ...rest,
+                role_name: result.Role.role_name,
+                permissions
+            };
+            const token = this.jwt.sign(result.user_id, result.Role.role_name, permissions, '3h');
+            return {
+                user,
+                token
+            };
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, 'Erro ao registrar usuario');
+        }
+    }
+    async forgot(email) {
+        try {
+            const result = await this.repo.findUser(undefined, email);
+            if (!result) {
+                throw new AppError(404, 'usuario nao encontrado');
+            }
+            const token = this.jwt.sign(result.user_id, result.Role.role_name, [], '10m');
+            try {
+                await enviarEmail(result.user_email, 'Recuperar conta', html.forgot(result.user_username, `http://localhost:5173/auth/reset-password/${token}`));
+            }
+            catch (error) {
+            }
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, 'Erro ao registrar usuario');
+        }
+    }
+    async reset(token, password) {
+        try {
+            this.domain.ensurePassword(password);
+            const id = this.jwt.verify(token).id;
+            const hash = await this.bcrypt.hash(password);
+            const result = await this.repo.reset(id, hash);
+            if (!result) {
+                throw new AppError(400, 'falha ao recupar conta');
+            }
+            try {
+                await enviarEmail(result.user_email, 'Senha alterada', html.reset(result.user_username));
+            }
+            catch (error) {
+                throw error;
+            }
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, 'Erro ao registrar usuario');
+        }
+    }
+    async me(user) {
+        try {
+            const result = await this.repo.findUser(undefined, undefined, user.id);
+            if (!user) {
+                throw new AppError(404, 'usuario nao encontrado');
+            }
+            const { user_password: _, Role: __, ...rest } = result;
+            const userLimpo = {
+                ...rest,
+                role_name: result.Role.role_name,
+                permissions: result.Role.rolePermissions.map(item => item.permission.permission_name)
+            };
+            return userLimpo;
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, 'Erro ao registrar usuario');
+        }
+    }
+}
+//# sourceMappingURL=auth.service.js.map

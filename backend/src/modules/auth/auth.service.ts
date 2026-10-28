@@ -1,4 +1,3 @@
-import { Roles, type Users } from "@prisma/client";
 import { AppError } from "../../error/AppError.js";
 import type { BcryptService } from "../../shared/services/bcrypt.service.js";
 import type { JwtService } from "../../shared/services/jwt.service.js";

@@ -1,14 +1,12 @@
-import type { Rooms, Round } from "@prisma/client";
+import type { Rooms } from "@prisma/client";
 import { AppError } from "../../error/AppError.js";
 import type { SocketService } from "../../shared/services/socket.service.js";
 import type { AuthPayload } from "../../types/generic.js";
 import type { PlayerService } from "../players/player.service.js";
-import type { QuestionRepository } from "../question/question.repository.js";
 import type { RoundRepository } from "../round/round.repository.js";
 import type { IRoomRepository } from "./contracts/room.repository.contract.js";
 import type { IRoomService } from "./contracts/room.service.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
-import type { AnswerRepository } from "../answers/answer.repository.js";
 import type { QuestionService } from "../question/question.service.js";
 
 export class RoomService implements IRoomService {
@@ -19,7 +17,6 @@ export class RoomService implements IRoomService {
         private readonly repo: IRoomRepository,
         private readonly serviceQuestion: QuestionService,
         private readonly repoRound: RoundRepository,
-        private readonly repoAnswer: AnswerRepository,
         private readonly socket: SocketService
     ) { }
 

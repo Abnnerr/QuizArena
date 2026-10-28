@@ -5,10 +5,10 @@ import { AuthRepository } from "../modules/auth/auth.repository.js";
 import type { AuthPayload } from "../types/generic.js";
 
 export class AuthMiddleware {
-    static async validate(req: Request, res: Response, next: NextFunction) {
+    static async validate(req: Request, _res: Response , next: NextFunction) {
         try {
 
-            const cookie = req.cookies?.access_token
+            const cookie = req.cookies?.["access_token"]
             // console.log(cookie);
 
             const [bearer, authoToken] = req.headers.authorization?.split(" ") ?? [];
@@ -22,7 +22,7 @@ export class AuthMiddleware {
             const verify = new JwtService().verify(token) as AuthPayload;
 
             // console.log(verify);
-            
+
             const user = await new AuthRepository().findUser(undefined, undefined, verify.id);
 
             if (!user) {

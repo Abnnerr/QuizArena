@@ -1,6 +1,5 @@
-import type { RoomPlayer, Rooms } from "@prisma/client"
+import type { Rooms } from "@prisma/client"
 import type { RoomCreateDTO } from "../schema/roomCreate.schema.js"
-import type { AuthPayload } from "../../../types/generic.js"
 
 export type IRoomRepository = {
     createRoom: (userI: string, dados: RoomCreateDTO, ids: number[]) => Promise<Rooms>

@@ -1,6 +1,5 @@
 import { AppError } from "../../error/AppError.js";
 import type { PlayerService } from "../players/player.service.js";
-import type { IRoomService } from "../room/contracts/room.service.contract.js";
 import type { RoomService } from "../room/room.service.js";
 import type { RoundService } from "../round/round.service.js";
 import type { AnswerRepository } from "./answer.repository.js";

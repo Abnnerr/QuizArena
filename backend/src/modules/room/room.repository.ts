@@ -2,8 +2,7 @@
 import { prisma } from "../../db/index.js";
 import type { IRoomRepository } from "./contracts/room.repository.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
-import type { AuthPayload } from "../../types/generic.js";
-import type { Prisma, RoomPlayer, Rooms, RoomStatus } from "@prisma/client";
+import type { Prisma, Rooms, RoomStatus } from "@prisma/client";
 import { randomBytes } from "node:crypto";
 import type { RoomWithPlayers } from "./dto/room.dto.js";
 
@@ -134,7 +133,7 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
-    async limparRoom(roomId: number, roundId: number): Promise<void> {
+    async limparRoom(roomId: number): Promise<void> {
         try {
             const roundIds = await prisma.round.findMany({
                 where: {

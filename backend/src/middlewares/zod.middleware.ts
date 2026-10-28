@@ -4,7 +4,7 @@ import type { ZodSchema } from "zod";
 
 export class ZodMiddleware {
     static validate<T>(schema: ZodSchema<T>, target: 'body' | 'params') {
-        return (req: Request, res: Response, next: NextFunction) => {
+        return (req: Request, res: Response, next: NextFunction): Response | any => {
             if (target === 'body') {
                 const verify = schema.safeParse(req.body)
 

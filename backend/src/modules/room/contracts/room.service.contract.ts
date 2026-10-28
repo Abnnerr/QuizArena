@@ -1,7 +1,7 @@
-import type { Rooms, Round } from "@prisma/client"
+import type { Rooms } from "@prisma/client"
 import type { AuthPayload } from "../../../types/generic.js"
 import type { RoomCreateDTO } from "../schema/roomCreate.schema.js"
-import type { FindQuestion } from "../dto/room.dto.js"
+
 
 export type IRoomService = {
     createRoom: (user: AuthPayload, dados: RoomCreateDTO) => Promise<string>

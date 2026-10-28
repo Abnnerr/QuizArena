@@ -3,7 +3,6 @@ import cors from 'cors'
 import routes from "./routes.js"
 import helmet from 'helmet'
 import cookieParser from "cookie-parser"
-import { RateLimit } from '../middlewares/rateLimit.middleware.js'
 const app = express()
 
 app.use(express.json({ limit: '100kb', strict: true }))

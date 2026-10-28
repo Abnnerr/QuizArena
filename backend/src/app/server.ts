@@ -6,10 +6,9 @@ import { Server } from "socket.io";
 import { roomService } from "../containers/roomPlayer.container.js";
 
 
-const PORT = process.env.PORT
+const PORT = process.env["PORT"]
 
 export const httpServer = http.createServer(app)
-
 
 export const io = new Server(httpServer, {
     cors: {

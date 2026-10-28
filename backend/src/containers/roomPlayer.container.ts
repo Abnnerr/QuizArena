@@ -1,4 +1,4 @@
-import { AnswerRepository } from "../modules/answers/answer.repository.js";
+
 import { PlayerController } from "../modules/players/player.controller.js";
 import { PlayerRepository } from "../modules/players/player.repository.js";
 import { PlayerService } from "../modules/players/player.service.js";
@@ -16,7 +16,6 @@ const playerRepo = new PlayerRepository();
 const roomRepo = new RoomRepository();
 const questionRepo = new QuestionRepository();
 const repoRound = new RoundRepository();
-const repoAnswer = new AnswerRepository();
 
 const questionService = new QuestionService(questionRepo);
 
@@ -26,7 +25,6 @@ const roomService = new RoomService(
     roomRepo,
     questionService,
     repoRound,
-    repoAnswer,
     socket
 );
 

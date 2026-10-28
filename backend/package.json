@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --watch --env-file=.env  src/app/server.ts",
+    "build": "tsc",
+    "start": "node dist/app/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

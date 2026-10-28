@@ -2,7 +2,6 @@ import { Router } from "express";
 import authController from "../../containers/auth.container.js";
 import { ZodMiddleware } from "../../middlewares/zod.middleware.js";
 import { registerSchema } from "./schema/register.schema.js";
-import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 import { loginSchema } from "./schema/login.schema.js";
 import { forgotSchema } from "./schema/forgot.schema.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";

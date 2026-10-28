@@ -1,4 +1,4 @@
-import type { RoomQuestion } from "@prisma/client";
+
 import { prisma } from "../../db/index.js"
 import type { QuestionCreateDTO } from "./dto/question.dto.js"
 

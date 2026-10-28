@@ -3,7 +3,7 @@ import { AppError } from "../error/AppError.js";
 
 export class PolicyMiddleware {
     static ensureRolePermission(permission: string, ...roles: string[]) {
-        return (req: Request, res: Response, next: NextFunction) => {
+        return (req: Request, _res: Response, next: NextFunction) => {
             
             if (roles.length > 0 && !roles.includes(req.user?.role!)) {
                 throw new AppError(403, "Acesso negado");
