@@ -79,7 +79,7 @@ export class RoomService implements IRoomService {
             const player = await this.playerService.createPlayer(userName)
             await this.playerService.findPlayerRoom(player.player_id, room?.room_id!)
             await this.repo.joinRoom(player.player_id, room.room_id)
-            this.socket.lobby(room.room_code, player.player_id, player.player_name)
+            this.socket.lobby(room.room_code)
             return {
                 player_id: player.player_id,
                 player_name: player.player_name
@@ -105,7 +105,6 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro entrar na sala')
         }
     }
-
     //começa a partida
     async start(user: AuthPayload, id: number): Promise<void> {
         try {
@@ -132,6 +131,7 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro entrar na sala')
         }
     }
+    //faz o update da position da room
     async updateRoomPosition(roomCode: string) {
         try {
             const room = await this.repo.findByRoom(undefined, roomCode)
@@ -144,6 +144,7 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro entrar na sala')
         }
     }
+    //encontra alternativas
     async findAlternatives(questionId: number, alternativeId: number) {
         try {
             const alternatives = await this.repo.findAlternative(questionId, alternativeId)
@@ -155,7 +156,7 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro ao buscar alternatives')
         }
     }
-
+    //terminou a room limpa tudo
     async limparRoom(roomCode: string, roundId: number): Promise<void> {
         try {
             console.log(roomCode, roundId);

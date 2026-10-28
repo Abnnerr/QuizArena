@@ -29,7 +29,7 @@ export class RoundRepository {
             throw error
         }
     }
-    async findById(roomId?: number, roundId?: number) {
+    async findById(roomId?: number, roundId?: number, playerId?: string) {
 
         return await prisma.round.findFirst({
             where: {
@@ -47,6 +47,11 @@ export class RoundRepository {
                                 roomQuestions: true,
                             },
                         },
+                    }
+                },
+                answers: {
+                    where: {
+                        ...(playerId && { player_id: playerId })
                     }
                 },
                 questions: {

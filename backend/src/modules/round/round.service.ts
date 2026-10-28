@@ -18,6 +18,7 @@ export class RoundService {
         try {
             const room = await this.roomService.findRoom(roomCode)
             const round = await this.repo.findById(room?.room_id!)
+
             return {
                 round_id: round?.round_id,
                 round_opened: round?.opened_at,

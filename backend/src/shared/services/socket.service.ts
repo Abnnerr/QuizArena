@@ -4,11 +4,8 @@ import { io } from "../../app/server.js";
 export class SocketService {
 
 
-    lobby(roomCode: string, player_id: string, player_name: string) {
-        io.to(`room:${roomCode}`).emit("room:join", {
-            player_id,
-            player_name,
-        });
+    lobby(roomCode: string) {
+        io.to(`room:${roomCode}`).emit("room:join");
     }
     playerReady(roomCode: string, player_id: string, is_ready: boolean) {
         io.to(`room:${roomCode}`).emit("player:ready", {

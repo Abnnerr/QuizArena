@@ -127,16 +127,31 @@ const useRoomLive = () => {
         const findRound = () => {
             void buscarRound();
         };
+        const roomJoin = () => {
+            socket.emit('room:join', roomCode)
+        }
         const roomFinished = () => {
             navigate('/')
             sessionStorage.clear()
         }
+
+        socket.on("connect", roomJoin)
         socket.on("question:started", findRound);
         socket.on("room:finished", roomFinished)
+
+
+        if (!socket.connected) {
+            socket.connect();
+        } else {
+            roomJoin();
+        }
+
         void buscarRound();
 
         return () => {
+            socket.off("connect", roomJoin);
             socket.off("question:started", findRound);
+            socket.off("room:finished", roomFinished)
         };
     }, [roomCode]);
 
