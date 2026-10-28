@@ -1,18 +1,23 @@
-import React from "react";
-import { Helmet } from "react-helmet-async";
-import { Link } from "react-router";
-import { BiGame, BiTime, BiGroup, BiPlus, BiTrash, BiCheckCircle, BiArrowBack } from "react-icons/bi";
-import { BsArrowRight } from "react-icons/bs";
-import { useRoomCreate } from "../hooks/useRoomCreate";
-
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router';
+import { BiGame, BiGroup, BiTime, BiPlus, BiTrash, BiCheckCircle, BiArrowBack } from 'react-icons/bi';
+import { BsArrowRight } from 'react-icons/bs';
+import { useRoomCreate } from '../hooks/useRoomCreate';
 
 const RoomCreatePage: React.FC = () => {
     const {
-        name, setName,
-        maxPlayers, setMaxPlayers,
-        timeLimit, setTimeLimit,
-        mode, setMode,
+        name,
+        setName,
+        maxPlayers,
+        setMaxPlayers,
+        timeLimit,
+        setTimeLimit,
+        mode,
+        setMode,
         questions,
+        loading,
+        error,
         handleAddQuestion,
         handleRemoveQuestion,
         handleQuestionChange,
@@ -20,7 +25,7 @@ const RoomCreatePage: React.FC = () => {
         handleRemoveAlternative,
         handleAlternativeChange,
         handleSetCorrectAlternative,
-        handleSubmit
+        handleSubmit,
     } = useRoomCreate();
 
     return (
@@ -39,7 +44,7 @@ const RoomCreatePage: React.FC = () => {
                     <div className="flex items-center justify-between mb-6">
                         <Link
                             to="/dashboard"
-                            className="inline-flex items-center gap-1.5 bg-black/40 hover:bg-black/60 border border-white/10 text-zinc-300 hover:text-white px-4 py-2 rounded-2xl text-xs font-bold transition-all"
+                            className="inline-flex items-center gap-1.5 bg-black/40 hover:bg-black/60 border border-white/10 text-zinc-300 hover:text-white px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer"
                         >
                             <BiArrowBack className="w-4 h-4" />
                             Voltar
@@ -61,8 +66,13 @@ const RoomCreatePage: React.FC = () => {
                     </div>
 
                     <div className="bg-[#1E1145]/80 backdrop-blur-2xl border-2 border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] relative">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="mb-6 p-3.5 rounded-2xl text-xs font-bold text-center border-2 bg-[#E21B3C]/20 border-[#E21B3C] text-red-300">
+                                {error}
+                            </div>
+                        )}
 
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
                                     Nome da Sala
@@ -82,7 +92,7 @@ const RoomCreatePage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
                                         Max Jogadores (2-20)
@@ -122,19 +132,32 @@ const RoomCreatePage: React.FC = () => {
                                         />
                                     </div>
                                 </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
-                                        Modo de Jogo
-                                    </label>
-                                    <select
-                                        value={mode}
-                                        onChange={(e) => setMode(e.target.value as "NORMAL" | "HARDCORE")}
-                                        className="w-full bg-black/40 border-2 border-white/10 rounded-2xl px-4 py-3 text-white font-semibold focus:outline-none focus:border-[#1368CE] focus:bg-black/60 transition-all text-sm cursor-pointer"
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                                    Modo de Jogo
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode('NORMAL')}
+                                        className={`py-3 rounded-2xl font-black text-xs uppercase tracking-wider border-2 transition-all cursor-pointer ${mode === 'NORMAL'
+                                                ? 'bg-[#1368CE] border-[#38bdf8] text-white shadow-[0_4px_0_0_#0E4B94]'
+                                                : 'bg-black/40 border-white/10 text-zinc-400 hover:text-white'
+                                            }`}
                                     >
-                                        <option value="NORMAL" className="bg-[#1E1145]">Normal</option>
-                                        <option value="HARDCORE" className="bg-[#1E1145]">Hardcore</option>
-                                    </select>
+                                        Normal
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode('HARDCORE')}
+                                        className={`py-3 rounded-2xl font-black text-xs uppercase tracking-wider border-2 transition-all cursor-pointer ${mode === 'HARDCORE'
+                                                ? 'bg-[#E21B3C] border-[#f43f5e] text-white shadow-[0_4px_0_0_#A0132B]'
+                                                : 'bg-black/40 border-white/10 text-zinc-400 hover:text-white'
+                                            }`}
+                                    >
+                                        Hardcore
+                                    </button>
                                 </div>
                             </div>
 
@@ -164,7 +187,7 @@ const RoomCreatePage: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveQuestion(qIndex)}
-                                                    className="text-red-400 hover:text-red-300 p-1 transition-colors"
+                                                    className="text-red-400 hover:text-red-300 p-1 transition-colors cursor-pointer"
                                                     title="Remover pergunta"
                                                 >
                                                     <BiTrash className="w-5 h-5" />
@@ -199,8 +222,8 @@ const RoomCreatePage: React.FC = () => {
                                                         type="button"
                                                         onClick={() => handleSetCorrectAlternative(qIndex, aIndex)}
                                                         className={`p-2 rounded-xl border transition-all cursor-pointer ${alt.isCorrect
-                                                            ? "bg-[#26890C] border-[#26890C] text-white shadow-[0_2px_0_0_#1a5c08]"
-                                                            : "bg-black/40 border-white/10 text-zinc-500 hover:text-zinc-300"
+                                                                ? "bg-[#26890C] border-[#26890C] text-white shadow-[0_2px_0_0_#1a5c08]"
+                                                                : "bg-black/40 border-white/10 text-zinc-500 hover:text-zinc-300"
                                                             }`}
                                                         title={alt.isCorrect ? "Alternativa Correta" : "Marcar como correta"}
                                                     >
@@ -234,10 +257,11 @@ const RoomCreatePage: React.FC = () => {
 
                             <button
                                 type="submit"
-                                className="w-full mt-6 bg-[#26890C] hover:bg-[#2cb20d] text-white font-black py-3.5 rounded-2xl shadow-[0_5px_0_0_#1a5c08] active:shadow-none active:translate-y-1 transition-all duration-150 flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
+                                disabled={loading}
+                                className="w-full mt-6 bg-[#26890C] hover:bg-[#2cb20d] text-white font-black py-3.5 rounded-2xl shadow-[0_5px_0_0_#1a5c08] active:shadow-none active:translate-y-1 transition-all duration-150 flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <span>Criar Sala Agora</span>
-                                <BsArrowRight className="w-5 h-5" />
+                                <span>{loading ? 'Criando Sala...' : 'Criar Sala Agora'}</span>
+                                {!loading && <BsArrowRight className="w-5 h-5" />}
                             </button>
                         </form>
                     </div>

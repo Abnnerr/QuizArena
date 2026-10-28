@@ -10,7 +10,7 @@ import { usePlayer } from "../../../contexts/hooks/usePlayer";
 
 const RoomLobbyPage = () => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [isMuted, setIsMuted] = useState(false);
+    const [, setIsMuted] = useState(false);
     const [, setIsPlaying] = useState(false);
     const { user } = useAuth();
     const { player } = usePlayer()
