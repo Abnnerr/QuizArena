@@ -20,7 +20,7 @@ export class RateLimit {
             const ip = req.ip ?? ''
             const now = Date.now()
             
-            if (process.env["NODE_MODE"] !== 'production') {
+            if (process.env["NODE_MODE"] !== 'develop') {
                 const client = clients.get(ip)
 
                 if (!client || now >= client.reset) {
