@@ -38,7 +38,8 @@ export class AuthController implements IAuthController {
                 httpOnly: true,
                 sameSite: 'lax',
                 secure: process.env["NODE_MODE"] === 'production',
-                maxAge: 60 * 1000 * 60
+                maxAge: 60 * 1000 * 60,
+                path: '/'
             })
             return HttpResponse.success(res, 200, 'Usuario logado', result)
         } catch (error) {
