@@ -10,16 +10,13 @@ import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
 import type { QuestionService } from "../question/question.service.js";
 
 export class RoomService implements IRoomService {
-
     private playerService!: PlayerService;
-
     constructor(
         private readonly repo: IRoomRepository,
         private readonly serviceQuestion: QuestionService,
         private readonly repoRound: RoundRepository,
         private readonly socket: SocketService
     ) { }
-
 
     setPlayerService(playerService: PlayerService) {
         this.playerService = playerService;

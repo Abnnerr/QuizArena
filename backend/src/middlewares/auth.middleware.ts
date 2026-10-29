@@ -9,7 +9,6 @@ export class AuthMiddleware {
         try {
 
             const cookie = req.cookies["access_token"]
-            // console.log(cookie);
 
             const [bearer, authoToken] = req.headers.authorization?.split(" ") ?? [];
 
@@ -20,8 +19,6 @@ export class AuthMiddleware {
             }
 
             const verify = new JwtService().verify(token) as AuthPayload;
-
-            // console.log(verify);
 
             const user = await new AuthRepository().findUser(undefined, undefined, verify.id);
 

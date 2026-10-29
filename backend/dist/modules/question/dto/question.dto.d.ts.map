@@ -1,1 +1,0 @@
-{"version":3,"file":"question.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/question/dto/question.dto.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,iBAAiB,GAAG;IAC5B,IAAI,EAAE,MAAM,CAAA;IACZ,YAAY,EAAE;QACV,IAAI,EAAE,MAAM,CAAA;QACZ,SAAS,EAAE,OAAO,CAAA;KACrB,EAAE,CAAA;CACN,CAAA"}

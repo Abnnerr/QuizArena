@@ -13,7 +13,7 @@ const router = Router()
 
 //Criar a Sala e as questoes
 router.post('/create',
-    RateLimit.limit(4, 3),
+    // RateLimit.limit(4, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission('ROOM_CREATE', 'admin', 'host'),
     ZodMiddleware.validate(roomCreateSchema, 'body'),
@@ -22,7 +22,7 @@ router.post('/create',
 
 //Criar o player na RoomPlayer
 router.post('/join/:name',
-    RateLimit.limit(6, 1),
+    // RateLimit.limit(6, 1),
     ZodMiddleware.validate(joinSchema, 'body'),
     roomController.join,
 )
@@ -35,9 +35,9 @@ router.get('/:name',
 
 //Iniciar a Sala
 router.get('/:id/start',
-    RateLimit.limit(4, 3),
-    PolicyMiddleware.ensureRolePermission('ROOM_START', 'admin', 'host'),
+    // RateLimit.limit(4, 3),
     AuthMiddleware.validate,
+    PolicyMiddleware.ensureRolePermission('ROOM_START', 'admin', 'host'),
     roomController.start
 )
 

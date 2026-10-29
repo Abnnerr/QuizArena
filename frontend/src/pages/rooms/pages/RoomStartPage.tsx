@@ -11,7 +11,7 @@ const RoomStartPage = () => {
         if (count === 0) {
             const timer = setTimeout(() => {
                 navigate(`/room/${roomCode}/live`);
-            }, 800); // Pequena pausa extra para exibir "VALENDO!"
+            }, 800); 
 
             return () => clearTimeout(timer);
         }
@@ -23,7 +23,7 @@ const RoomStartPage = () => {
         return () => clearTimeout(timer);
     }, [count, roomCode, navigate]);
 
-    // Configuração de cores e rótulos por número no estilo Duolingo
+   
     const getCountdownStyle = () => {
         switch (count) {
             case 3:

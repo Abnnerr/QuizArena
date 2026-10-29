@@ -10,7 +10,7 @@ app.use(cookieParser());
 // app.use(RateLimit.limit(100, 15))
 app.use(helmet())
 app.use(cors({
-    origin: 'https://quiz-arena-zeta-ten.vercel.app',
+    origin: 'http://localhost:5173',
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
     credentials: true
 }))

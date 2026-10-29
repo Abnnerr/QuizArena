@@ -24,8 +24,6 @@ const PodioPage: React.FC = () => {
             </Helmet>
 
             <main className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
-
-                {/* Background Dot Pattern */}
                 <div
                     className="absolute inset-0 pointer-events-none opacity-40 z-0"
                     style={{
@@ -33,10 +31,7 @@ const PodioPage: React.FC = () => {
                         backgroundSize: '24px 24px',
                     }}
                 />
-
                 <div className="w-full max-w-xl relative z-10 space-y-6 my-auto">
-
-                    {/* Topo com Botão de Retorno e Badge */}
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate('/')}
@@ -51,8 +46,6 @@ const PodioPage: React.FC = () => {
                             <span>Pódio Final</span>
                         </div>
                     </div>
-
-                    {/* Card Principal do Pódio */}
                     <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-center">
 
                         <div>
@@ -85,17 +78,14 @@ const PodioPage: React.FC = () => {
                                 <p className="text-[#777777] font-black">Nenhum jogador pontuou na partida.</p>
                             </div>
                         ) : (
-                            /* Pedestais com Aparição Sequencial (3º ➔ 2º ➔ 1º) */
+                           
                             <div className="grid grid-cols-3 gap-3 items-end pt-6 pb-2 min-h-[260px]">
                                 {orderedPodium.map(({ player, originalIndex }) => {
                                     const isFirst = originalIndex === 0;
                                     const isSecond = originalIndex === 1;
                                     const isThird = originalIndex === 2;
 
-                                    // Ordem de revelação: 
-                                    // 3º lugar (index 2) aparece no passo 1
-                                    // 2º lugar (index 1) aparece no passo 2
-                                    // 1º lugar (index 0) aparece no passo 3
+                            
                                     const revealOrder = isThird ? 1 : isSecond ? 2 : 3;
                                     const isVisible = visibleCount >= revealOrder;
 

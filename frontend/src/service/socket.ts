@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 export const socket = io(
-    "https://quizarena1.onrender.com",
+    "http://localhost:9000",
     {
         autoConnect: false,
         withCredentials: true,

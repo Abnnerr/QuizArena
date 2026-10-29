@@ -23,7 +23,6 @@ model Players {
 
   roomPlayers RoomPlayer[]
   answers     Answers[]
-  powerupUses PowerupUse[]
 }
 
 model Role {
@@ -65,7 +64,6 @@ model Rooms {
   roomPlayers   RoomPlayer[]
   roomQuestions RoomQuestion[]
   rounds        Round[]
-  powerupUses   PowerupUse[]
 }
 
 model RoomPlayer {
@@ -75,8 +73,9 @@ model RoomPlayer {
   joined_at DateTime @default(now())
   ready     Boolean  @default(false)
 
-  rooms   Rooms   @relation(fields: [room_id], references: [room_id])
-  players Players @relation(fields: [player_id], references: [player_id])
+  rooms       Rooms        @relation(fields: [room_id], references: [room_id])
+  players     Players      @relation(fields: [player_id], references: [player_id])
+  powerUpUses PowerUpUse[]
 
   @@id([room_id, player_id])
 }
@@ -140,17 +139,26 @@ model Answers {
   @@unique([player_id, round_id])
 }
 
-model PowerupUse {
-  powerup_use_id Int         @id @default(autoincrement())
-  player_id      String
-  room_id        Int
-  powerup_type   PowerupType
-  used_at        DateTime    @default(now())
+model PowerUp {
+  powerup_id   Int         @id @default(autoincrement())
+  powerup_type PowerupType @unique
+  descricao    String
 
-  players Players @relation(fields: [player_id], references: [player_id])
-  rooms   Rooms   @relation(fields: [room_id], references: [room_id])
+  uses PowerUpUse[]
+}
 
-  @@unique([player_id, room_id, powerup_type])
+model PowerUpUse {
+  id         Int       @id @default(autoincrement())
+  room_id    Int
+  player_id  String
+  powerup_id Int
+  used       Boolean   @default(false)
+  used_at    DateTime?
+
+  roomPlayer RoomPlayer @relation(fields: [room_id, player_id], references: [room_id, player_id])
+  powerup PowerUp @relation(fields: [powerup_id], references: [powerup_id])
+
+  @@unique([room_id, player_id, powerup_id])
 }
 
 enum RoomStatus {

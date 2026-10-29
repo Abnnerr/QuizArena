@@ -109,7 +109,6 @@ const RoomLobbyPage = () => {
                         </div>
                     </div>
 
-                    {/* Balão de Fala e Mascote estilo Duolingo */}
                     <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4">
                         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-3xl border-2 border-[#E5E5E5] border-b-8 p-2.5 shadow-sm flex-shrink-0 flex items-center justify-center transform hover:scale-105 transition-transform">
                             <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain" />
@@ -132,10 +131,8 @@ const RoomLobbyPage = () => {
                         </div>
                     </div>
 
-                    {/* Container Card Principal estilo Duolingo */}
                     <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
 
-                        {/* Alerta de Erro em Vermelho */}
                         {error && (
                             <div
                                 role="alert"
@@ -166,7 +163,6 @@ const RoomLobbyPage = () => {
                             </div>
                         ) : (
                             <>
-                                {/* Banner de Código da Sala (Host) ou Perfil (Player) */}
                                 {isHost ? (
                                     <div className="flex flex-col sm:flex-row items-center justify-between bg-[#FFFBF0] border-2 border-[#FFC800] border-b-4 rounded-2xl p-4 gap-4">
                                         <div className="text-center sm:text-left">
@@ -207,8 +203,6 @@ const RoomLobbyPage = () => {
                                         </div>
                                     </div>
                                 )}
-
-                                {/* Caixa Informativa de Função */}
                                 <div
                                     className={`rounded-2xl border-2 border-b-4 p-4 ${isHost
                                             ? "border-[#FFC800] bg-[#FFFBF0]"
@@ -240,8 +234,6 @@ const RoomLobbyPage = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Seção de Jogadores */}
                                 <div>
                                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                                         <h2 className="text-xs font-black uppercase tracking-widest text-[#AFAFAF] flex items-center gap-2">
@@ -299,8 +291,6 @@ const RoomLobbyPage = () => {
                                         </div>
                                     )}
                                 </div>
-
-                                {/* Rodapé e Botões de Ação */}
                                 <div className="pt-2">
                                     {isHost ? (
                                         <button
