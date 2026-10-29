@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router";
 import { BiUser, BiCrown, BiCopy, BiCheck } from "react-icons/bi";
@@ -99,8 +99,8 @@ const RoomLobbyPage = () => {
 
                         <div
                             className={`inline-flex items-center gap-2 text-white font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase shadow-sm ${isHost
-                                    ? "bg-[#FFC800] border-b-4 border-[#E5B200] text-[#7A5B00]"
-                                    : "bg-[#1CB0F6] border-b-4 border-[#0092D6] text-white"
+                                ? "bg-[#FFC800] border-b-4 border-[#E5B200] text-[#7A5B00]"
+                                : "bg-[#1CB0F6] border-b-4 border-[#0092D6] text-white"
                                 }`}
                         >
                             {isHost && <BiCrown className="w-5 h-5" />}
@@ -204,15 +204,15 @@ const RoomLobbyPage = () => {
                                 )}
                                 <div
                                     className={`rounded-2xl border-2 border-b-4 p-4 ${isHost
-                                            ? "border-[#FFC800] bg-[#FFFBF0]"
-                                            : "border-[#1CB0F6] bg-[#E8F7FE]"
+                                        ? "border-[#FFC800] bg-[#FFFBF0]"
+                                        : "border-[#1CB0F6] bg-[#E8F7FE]"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div
                                             className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border-b-4 ${isHost
-                                                    ? "bg-[#FFC800] border-[#E5B200] text-[#7A5B00]"
-                                                    : "bg-[#1CB0F6] border-[#0092D6] text-white"
+                                                ? "bg-[#FFC800] border-[#E5B200] text-[#7A5B00]"
+                                                : "bg-[#1CB0F6] border-[#0092D6] text-white"
                                                 }`}
                                         >
                                             {isHost ? (
@@ -258,8 +258,8 @@ const RoomLobbyPage = () => {
                                                 <div
                                                     key={p.player_id}
                                                     className={`border-2 border-b-4 rounded-2xl p-3 flex items-center justify-between transition-all ${p.ready
-                                                            ? "bg-[#D7FFB8]/50 border-[#58CC02]"
-                                                            : "bg-[#F7F7F7] border-[#E5E5E5]"
+                                                        ? "bg-[#D7FFB8]/50 border-[#58CC02]"
+                                                        : "bg-[#F7F7F7] border-[#E5E5E5]"
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3 min-w-0">
@@ -322,8 +322,8 @@ const RoomLobbyPage = () => {
                                             <button
                                                 onClick={toggleReady}
                                                 className={`w-full sm:w-2/3 border-b-4 font-black py-3.5 rounded-2xl active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer shadow-sm text-white ${ready
-                                                        ? "bg-[#FF4B4B] hover:bg-[#FF5E5E] border-[#D43F3F]"
-                                                        : "bg-[#58CC02] hover:bg-[#61E002] border-[#46A302]"
+                                                    ? "bg-[#FF4B4B] hover:bg-[#FF5E5E] border-[#D43F3F]"
+                                                    : "bg-[#58CC02] hover:bg-[#61E002] border-[#46A302]"
                                                     }`}
                                             >
                                                 <span>
