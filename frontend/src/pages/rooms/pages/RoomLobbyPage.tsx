@@ -9,9 +9,9 @@ import { useAuth } from "../../../contexts/hooks/useAuth";
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
 
 const RoomLobbyPage = () => {
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [, setIsMuted] = useState(false);
-    const [, setIsPlaying] = useState(false);
+    // const audioRef = useRef<HTMLAudioElement | null>(null);
+    // const [, setIsMuted] = useState(false);
+    // const [, setIsPlaying] = useState(false);
     const { user } = useAuth();
     const { player } = usePlayer()
     const navigate = useNavigate();
@@ -32,25 +32,25 @@ const RoomLobbyPage = () => {
 
     const isHost = user?.user_id === room?.host_id;
 
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
+    // useEffect(() => {
+    //     const audio = audioRef.current;
+    //     if (!audio) return;
 
-        audio.volume = 0.15;
+    //     audio.volume = 0.15;
 
-        audio.play()
-            .then(() => setIsPlaying(true))
-            .catch(() => {
-                const handleInteraction = () => {
-                    audio.play().then(() => {
-                        setIsPlaying(true);
-                        setIsMuted(false);
-                    });
-                    window.removeEventListener("click", handleInteraction);
-                };
-                window.addEventListener("click", handleInteraction);
-            });
-    }, []);
+    //     audio.play()
+    //         .then(() => setIsPlaying(true))
+    //         .catch(() => {
+    //             const handleInteraction = () => {
+    //                 audio.play().then(() => {
+    //                     setIsPlaying(true);
+    //                     setIsMuted(false);
+    //                 });
+    //                 window.removeEventListener("click", handleInteraction);
+    //             };
+    //             window.addEventListener("click", handleInteraction);
+    //         });
+    // }, []);
 
     // const toggleMute = () => {
     //     if (!audioRef.current) return;
@@ -78,17 +78,16 @@ const RoomLobbyPage = () => {
             </Helmet>
 
             <main className="w-full flex-1 flex flex-col items-center justify-center p-4 sm:p-6 max-w-2xl mx-auto my-auto min-h-[calc(100vh-80px)] select-none font-['Nunito',sans-serif]">
-                <audio
+                {/* <audio
                     ref={audioRef}
                     src="/intro-lobby.mp3"
                     loop
                     autoPlay
                     preload="auto"
-                />
+                /> */}
 
                 <div className="w-full relative z-10 space-y-5">
 
-                    {/* Topo / Cabeçalho de Navegação */}
                     <div className="flex items-center justify-between gap-3">
                         <button
                             onClick={() => navigate(-1)}
