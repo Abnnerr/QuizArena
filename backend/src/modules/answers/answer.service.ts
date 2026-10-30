@@ -12,6 +12,7 @@ export class AnswerService {
         private readonly playerService: PlayerService
     ) { }
 
+    // cria resposta e pontuacao do player
     async createAnswer(roomCode: string, roundId: number, playerId: string, alternativeId: number) {
         try {
             console.log(roomCode, roundId, playerId, alternativeId);
