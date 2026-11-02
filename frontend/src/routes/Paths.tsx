@@ -30,7 +30,7 @@ const Paths = () => {
                 <Route element={<HomeLayout />}>
                     <Route index element={<HomePage />} />
                 </Route>
-                <Route path="/room" element={<RoomLayout />}>
+                <Route path="/room">
                     <Route path="create" element={<RoomCreatePage />} />
                     <Route path="player/username/:roomName" element={<PlayerNamePage />} />
                     <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />

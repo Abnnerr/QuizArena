@@ -11,7 +11,7 @@ const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const [player, setPlayerState] = useState<Player>();
-
+    
     useEffect(() => {
         const storedPlayer = sessionStorage.getItem("player");
 

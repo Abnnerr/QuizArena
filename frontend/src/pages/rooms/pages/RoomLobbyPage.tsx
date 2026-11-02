@@ -73,7 +73,7 @@ const RoomLobbyPage = () => {
         <>
             <Helmet>
                 <title>
-                    QuizArena • {isHost ? "Painel do Organizador" : "Sala de Espera"}
+                    QuizArena • Sala de Espera
                 </title>
             </Helmet>
 
