@@ -18,29 +18,40 @@ export class RoundService {
 
     async findRound(roomCode: string, playerId?: string): Promise<any> {
         try {
-            const room = await this.roomService.findRoom(roomCode)
-            const round = await this.repo.findById(room?.room_id!, undefined, playerId)
-
-            let skip = false
-            if (playerId && round?.round_id) {
-                const powers = await this.repoPower.findPowerTarget(playerId, room.room_id, round.round_id);
-
-                console.log(powers);
-                
-                skip = powers.length > 0;
+            const room = await this.roomService.findRoom(roomCode);
+            if (!room) {
+                throw new AppError(404, "Sala não encontrada");
+            }
+            const round = await this.repo.findById(
+                room.room_id,
+                undefined,
+                playerId
+            );
+            if (!round) {
+                throw new AppError(404, "Nenhuma rodada ativa encontrada");
+            }
+            let skip = false;
+            if (playerId) {
+                const power = await this.repoPower.findPowerTarget(
+                    playerId,
+                    room.room_id,
+                    round.round_id
+                );
+                skip = power !== null;
             }
             return {
-                round_id: round?.round_id,
-                round_opened: round?.opened_at,
-                question_id: round?.questions.question_id,
-                question_text: round?.questions.question_text,
-                alternatives: round?.questions.alternatives,
-                time_limit: round?.rooms.time_limit,
-                count_questions: round?.rooms._count.roomQuestions,
-                position: round?.rooms.position,
+                round_id: round.round_id,
+                round_opened: round.opened_at,
+                question_id: round.questions.question_id,
+                question_text: round.questions.question_text,
+                alternatives: round.questions.alternatives,
+                time_limit: round.rooms.time_limit,
+                count_questions: round.rooms._count.roomQuestions,
+                position: round.rooms.position,
+
                 ...(playerId && {
-                    powers: round?.rooms.roomPlayers.flatMap(
-                        (player: any) => player.powerUpUses.map((use: any) => ({
+                    powers: round.rooms.roomPlayers.flatMap(player =>
+                        player.powerUpUses.map(use => ({
                             powerup_id: use.powerup.powerup_id,
                             powerup_type: use.powerup.powerup_type,
                             descricao: use.powerup.descricao,
@@ -48,16 +59,16 @@ export class RoundService {
                         }))
                     )
                 }),
+
                 skip
-            }
+            };
+
         } catch (error) {
-
-            console.log(error);
-
             if (error instanceof AppError) {
-                throw error
+                throw error;
             }
-            throw new AppError(500, 'Erro ao encontrar round')
+            console.error(error);
+            throw new AppError(500, "Erro ao encontrar round");
         }
     }
     async roundFinished(roomCode: string, round_id: number) {

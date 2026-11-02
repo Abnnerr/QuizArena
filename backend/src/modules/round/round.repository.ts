@@ -33,28 +33,31 @@ export class RoundRepository {
 
         return await prisma.round.findFirst({
             where: {
-                ...(roomId && { room_id: roomId! }),
-                ...(roundId && { round_id: roundId! }),
                 closed_at: null,
+                ...(roomId !== undefined && { room_id: roomId }),
+                ...(roundId !== undefined && { round_id: roundId })
             },
+
             include: {
                 rooms: {
                     select: {
                         time_limit: true,
                         position: true,
                         roomPlayers: {
-                            where: {
-                                ...(playerId && { player_id: playerId })
-                            },
+                            ...(playerId && {
+                                where: {
+                                    player_id: playerId
+                                }
+                            }),
                             include: {
                                 powerUpUses: {
                                     select: {
                                         used: true,
                                         powerup: {
                                             select: {
+                                                powerup_id: true,
                                                 powerup_type: true,
-                                                descricao: true,
-                                                powerup_id: true
+                                                descricao: true
                                             }
                                         }
                                     }
@@ -63,14 +66,22 @@ export class RoundRepository {
                         },
                         _count: {
                             select: {
-                                roomQuestions: true,
-                            },
-                        },
+                                roomQuestions: true
+                            }
+                        }
                     }
                 },
                 answers: {
                     where: {
                         ...(playerId && { player_id: playerId })
+                    },
+                    select: {
+                        answer_id: true,
+                        round_id: true,
+                        player_id: true,
+                        alternative_id: true,
+                        points: true,
+                        answered_at: true
                     }
                 },
                 questions: {
@@ -80,12 +91,12 @@ export class RoundRepository {
                         alternatives: {
                             select: {
                                 alternative_id: true,
-                                alternative_text: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                alternative_text: true
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
     async updateRound(roundId: number) {
