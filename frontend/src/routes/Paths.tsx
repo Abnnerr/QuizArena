@@ -11,7 +11,6 @@ import PlayerNamePage from "../pages/rooms/pages/PlayerNamePage";
 import RoomStartPage from "../pages/rooms/pages/RoomStartPage";
 import RoomLivePage from "../pages/rooms/pages/RoomLivePage";
 import AuthLayout from "../layouts/AuthLayout";
-import RoomLayout from "../layouts/RoomLayout";
 import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
 import RankingPage from "../pages/rooms/pages/RankingPage";
 import PodioPage from "../pages/rooms/pages/PodioPage";
