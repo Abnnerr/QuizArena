@@ -165,11 +165,11 @@ export class PlayerService {
                     targetPlayerId
                 )
 
-                this.socket.powerSkipTurn(code, true)
+                this.socket.powerSkipTurn(code, true, targetPlayerId!)
             }
         } catch (error) {
             console.log(error);
-            
+
             if (error instanceof AppError) {
                 throw error
             }

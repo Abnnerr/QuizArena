@@ -220,7 +220,12 @@ const useRoomLive = () => {
         };
 
         const skiped = (data: any) => {
-            setSkip(data.skiped)
+
+            if (data.target === player?.player_id) {
+                setSkip(data.skiped)
+                return
+            }
+            return
         }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);

@@ -36,8 +36,9 @@ export class SocketService {
             alternatives
         })
     }
-    powerSkipTurn(roomCode: string, skiped: boolean) {
+    powerSkipTurn(roomCode: string, skiped: boolean, target: string) {
         io.to(`room:${roomCode}`).emit('room:skip', {
+            target,
             skiped
         })
     }
