@@ -1,5 +1,6 @@
 import { AppError } from "../../error/AppError.js";
 import type { SocketService } from "../../shared/services/socket.service.js";
+import type { PowerRepository } from "../powers/powers.repository.js";
 import type { QuestionService } from "../question/question.service.js";
 import type { IRoomService } from "../room/contracts/room.service.contract.js";
 import type { RoundRepository } from "./round.repository.js";
@@ -9,16 +10,25 @@ export class RoundService {
         private readonly repo: RoundRepository,
         private readonly roomService: IRoomService,
         private readonly questionService: QuestionService,
+        private readonly repoPower: PowerRepository,
         private readonly socket: SocketService,
     ) {
 
     }
 
-    async findRound(roomCode: string): Promise<any> {
+    async findRound(roomCode: string, playerId?: string): Promise<any> {
         try {
             const room = await this.roomService.findRoom(roomCode)
-            const round = await this.repo.findById(room?.room_id!)
+            const round = await this.repo.findById(room?.room_id!, undefined, playerId)
 
+            let skip = false
+            if (playerId && round?.round_id) {
+                const powers = await this.repoPower.findPowerTarget(playerId, room.room_id, round.round_id);
+
+                console.log(powers);
+                
+                skip = powers.length > 0;
+            }
             return {
                 round_id: round?.round_id,
                 round_opened: round?.opened_at,
@@ -27,9 +37,23 @@ export class RoundService {
                 alternatives: round?.questions.alternatives,
                 time_limit: round?.rooms.time_limit,
                 count_questions: round?.rooms._count.roomQuestions,
-                position: round?.rooms.position
+                position: round?.rooms.position,
+                ...(playerId && {
+                    powers: round?.rooms.roomPlayers.flatMap(
+                        (player: any) => player.powerUpUses.map((use: any) => ({
+                            powerup_id: use.powerup.powerup_id,
+                            powerup_type: use.powerup.powerup_type,
+                            descricao: use.powerup.descricao,
+                            used: use.used
+                        }))
+                    )
+                }),
+                skip
             }
         } catch (error) {
+
+            console.log(error);
+
             if (error instanceof AppError) {
                 throw error
             }
@@ -44,7 +68,7 @@ export class RoundService {
             const question = await this.questionService.findQuestion(room?.room_id!, room.position)
 
             await this.repo.createRound(room?.room_id!, question.question_id)
-            
+
             console.log("6. Evento enviado para:", room.room_code);
 
             this.socket.findQuestion(room?.room_code!)

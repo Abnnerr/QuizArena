@@ -99,7 +99,7 @@ export class RoomRepository implements IRoomRepository {
     }
     async roomUpdate(id: number, status?: string): Promise<any> {
         try {
-            const room =await prisma.rooms.findFirst({
+            const room = await prisma.rooms.findFirst({
                 where: {
                     room_id: id
                 }
@@ -133,6 +133,21 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
+    async findAlternativeIncorret(questionId: number): Promise<any> {
+        try {
+            const alternatives = await prisma.alternatives.findMany({
+                where: {
+                    question_id: questionId,
+                    is_correct: false
+                },
+            })
+            return alternatives
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 2);
+        } catch (error) {
+            throw error
+        }
+    }
     async limparRoom(roomId: number): Promise<void> {
         try {
             const roundIds = await prisma.round.findMany({
@@ -150,6 +165,11 @@ export class RoomRepository implements IRoomRepository {
                             in: roundIds.map(item => item.round_id),
                         }
                     },
+                }),
+                prisma.powerUpUse.deleteMany({
+                    where: {
+                        room_id: roomId
+                    }
                 }),
                 prisma.roomPlayer.deleteMany({
                     where: {

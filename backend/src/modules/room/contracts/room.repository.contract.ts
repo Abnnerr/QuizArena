@@ -9,5 +9,6 @@ export type IRoomRepository = {
     countQuestions: (id: number) => Promise<number>
     roomUpdate: (id: number, status?: string) => Promise<void>
     findAlternative: (iquestionId: number, alternativeId: number) => Promise<any>
+    findAlternativeIncorret: (questionId: number) => Promise<any>
     limparRoom: (roomId: number, roundId: number) => Promise<void>
 }

@@ -16,4 +16,9 @@ router.patch('/:playerId/:roomCode/ready',
     ZodMiddleware.validate(readySchema, 'body'),
     playerController.ready
 )
+
+router.post('/:roomCode/:playerId/:powerId/powerup',
+    // RateLimit.limit(4, 3),
+    playerController.powerUp
+)
 export default router

@@ -9,6 +9,7 @@ import { RoomRepository } from "../modules/room/room.repository.js";
 import { RoomService } from "../modules/room/room.service.js";
 import { RoundRepository } from "../modules/round/round.repository.js";
 import { SocketService } from "../shared/services/socket.service.js";
+import powerService, { powerRepo } from "./power.contrainer.js";
 
 const socket = new SocketService();
 
@@ -20,10 +21,11 @@ const repoRound = new RoundRepository();
 const questionService = new QuestionService(questionRepo);
 
 // Criar os serviços sem as dependências circulares no construtor
-const playerService = new PlayerService(playerRepo, socket);
+const playerService = new PlayerService(playerRepo, powerRepo, repoRound, socket);
 const roomService = new RoomService(
     roomRepo,
     questionService,
+    powerService,
     repoRound,
     socket
 );

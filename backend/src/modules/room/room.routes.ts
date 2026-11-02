@@ -22,9 +22,9 @@ router.post('/create',
 
 //Criar o player na RoomPlayer
 router.post('/join/:name',
-    RateLimit.limit(6, 1),
+    // RateLimit.limit(6, 1),
     ZodMiddleware.validate(joinSchema, 'body'),
-    roomController.join,
+    roomController.join
 )
 
 

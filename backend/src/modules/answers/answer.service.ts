@@ -1,5 +1,6 @@
 import { AppError } from "../../error/AppError.js";
 import type { PlayerService } from "../players/player.service.js";
+import type { PowerService } from "../powers/powers.service.js";
 import type { RoomService } from "../room/room.service.js";
 import type { RoundService } from "../round/round.service.js";
 import type { AnswerRepository } from "./answer.repository.js";
@@ -9,6 +10,7 @@ export class AnswerService {
         private readonly repo: AnswerRepository,
         private readonly roomService: RoomService,
         private readonly roundService: RoundService,
+        private readonly powerService: PowerService,
         private readonly playerService: PlayerService
     ) { }
 
@@ -25,7 +27,13 @@ export class AnswerService {
             if (!round) {
                 throw new Error("Rodada não encontrada");
             }
+            const power = await this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP')
 
+            let double = 1
+            
+            if (power.position === room.position && power.used === true) {
+                double = 2
+            }
             const alternative = await this.roomService.findAlternatives(
                 round.question_id,
                 alternativeId
@@ -49,9 +57,9 @@ export class AnswerService {
                 );
 
                 if (room.room_mode === "NORMAL") {
-                    scores = Math.ceil(900 * remainingSeconds / timeLimit);
+                    scores = Math.ceil(900 * remainingSeconds / timeLimit) * double;
                 } else if (room.room_mode === "HARDCORE") {
-                    scores = Math.ceil(500 * remainingSeconds / timeLimit);
+                    scores = Math.ceil(500 * remainingSeconds / timeLimit) * double;
                 }
 
             }

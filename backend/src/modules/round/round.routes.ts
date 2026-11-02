@@ -8,6 +8,9 @@ const router = Router()
 
 
 //Buscar a round em aberto
+router.get('/:roomCode/:playerId/findRound',
+    roundController.findRound
+)
 router.get('/:roomCode/findRound',
     roundController.findRound
 )

@@ -17,7 +17,7 @@ export class SocketService {
     leaveRoom(roomCode: string) {
         io.to(`room:${roomCode}`).emit("room:leave")
     }
-    
+
     roundStarted(roomCode: string) {
         io.to(`room:${roomCode}`).emit("room:start");
     }
@@ -28,5 +28,15 @@ export class SocketService {
 
     roomFinished(roomCode: string) {
         io.to(`room:${roomCode}`).emit('room:finished')
+    }
+
+    powerFifty(roomCode: string, alternatives: any, playerId: string) {
+        io.to(`room:${roomCode}`).emit('room:powerfifty', {
+            playerId,
+            alternatives
+        })
+    }
+    powerSkipTurn(roomCode: string) {
+        io.to(`room:${roomCode}`).emit('room:skip')
     }
 }

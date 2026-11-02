@@ -41,6 +41,7 @@ export class RoomController implements IRoomController {
     }
     async join(req: Request<{ name: string }, {}, JoinDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
+            
             const player = await this.service.joinRoom(req.params.name, req.body.userName)
             return HttpResponse.success(res, 200, 'usuario entrou na sala', player)
         } catch (error) {

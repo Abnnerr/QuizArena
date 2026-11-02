@@ -148,15 +148,18 @@ model PowerUp {
 }
 
 model PowerUpUse {
-  id         Int       @id @default(autoincrement())
-  room_id    Int
-  player_id  String
-  powerup_id Int
-  used       Boolean   @default(false)
-  used_at    DateTime?
+  id            Int       @id @default(autoincrement())
+  room_id       Int
+  round_id      Int?
+  player_id     String
+  powerup_id    Int
+  position      Int       @default(0)
+  player_target String?
+  used          Boolean   @default(false)
+  used_at       DateTime?
 
   roomPlayer RoomPlayer @relation(fields: [room_id, player_id], references: [room_id, player_id])
-  powerup PowerUp @relation(fields: [powerup_id], references: [powerup_id])
+  powerup    PowerUp    @relation(fields: [powerup_id], references: [powerup_id])
 
   @@unique([room_id, player_id, powerup_id])
 }
@@ -174,6 +177,8 @@ enum GameMode {
 
 enum PowerupType {
   FIFTY_FIFTY
+  DOUBLE_XP
+  SKIP_TURN
 }
 
 enum Roles {

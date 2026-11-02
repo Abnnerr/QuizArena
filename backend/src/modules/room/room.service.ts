@@ -8,12 +8,14 @@ import type { IRoomRepository } from "./contracts/room.repository.contract.js";
 import type { IRoomService } from "./contracts/room.service.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
 import type { QuestionService } from "../question/question.service.js";
+import type { PowerService } from "../powers/powers.service.js";
 
 export class RoomService implements IRoomService {
     private playerService!: PlayerService;
     constructor(
         private readonly repo: IRoomRepository,
         private readonly serviceQuestion: QuestionService,
+        private readonly servicePower: PowerService,
         private readonly repoRound: RoundRepository,
         private readonly socket: SocketService
     ) { }
@@ -58,7 +60,7 @@ export class RoomService implements IRoomService {
     }
     //player entra
     async joinRoom(roomCode: string, userName: string): Promise<any> {
-        try {
+        try {    
             const room = await this.repo.findByRoom(undefined, roomCode)
             if (!room) {
                 throw new AppError(404, 'sala nao encontrada')
@@ -114,6 +116,7 @@ export class RoomService implements IRoomService {
                 throw new AppError(400, 'quantidade de jogadores nescessario 2')
             }
             const question = await this.serviceQuestion.findQuestion(room.room_id, 1)
+            await this.servicePower.createPowerPlayers(room.room_id)
             await this.repoRound.createRound(room.room_id, question?.question_id!)
             await this.repo.roomUpdate(room.room_id, "LIVE")
 
@@ -148,6 +151,22 @@ export class RoomService implements IRoomService {
                 throw error
             }
             throw new AppError(500, 'Erro ao buscar alternatives')
+        }
+    }
+    //encontrar alternativas erradas
+    async findAlternativesIncorret(questionId: number) {
+        try {
+            const alternatives = await this.repo.findAlternativeIncorret(questionId)
+
+            if (!alternatives) {
+                throw new AppError(404, 'alternativas nao encontradas')
+            }
+            return alternatives
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao buscar alternatives incorretas')
         }
     }
     //terminou a room limpa tudo

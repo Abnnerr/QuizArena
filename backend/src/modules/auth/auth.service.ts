@@ -30,7 +30,7 @@ export class AuthService {
             }
             const result = await this.repo.register(newDados)
             if (!result) {
-                throw new AppError(409, 'Não foi possível realizar o cadastro')
+                throw new AppError(409, 'Não foi possível realizar o cadastro, email ja cadastrado')
             }
             try {
                 await enviarEmail(

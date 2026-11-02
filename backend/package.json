@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
+    "test:run": "vitest run",
     "dev": "tsx --watch --env-file=.env  src/app/server.ts",
     "build": "tsc",
     "start": "node dist/app/server.js",
@@ -43,6 +44,7 @@
     "prisma": "^7.9.1",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.71.0"
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.5"
   }
 }

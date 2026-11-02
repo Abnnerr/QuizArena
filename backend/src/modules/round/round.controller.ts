@@ -13,9 +13,9 @@ export class RoundController {
 
 
 
-    async findRound(req: Request<{ roomCode: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+    async findRound(req: Request<{ roomCode: string, playerId: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
-            const result = await this.service.findRound(req.params.roomCode)
+            const result = await this.service.findRound(req.params.roomCode, req.params.playerId)
 
             return HttpResponse.success(res, 200, 'Round Encontrado', result)
         } catch (error) {

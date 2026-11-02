@@ -9,6 +9,7 @@ export class PlayerController {
     constructor(private readonly service: PlayerService) {
         this.ready = this.ready.bind(this)
         this.findPodium = this.findPodium.bind(this)
+        this.powerUp = this.powerUp.bind(this)
     }
 
     async ready(req: Request<{ playerId: string, roomCode: string }, {}, ReadyDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -27,6 +28,21 @@ export class PlayerController {
             const result = await this.service.findPodium(req.params.roomCode)
             return HttpResponse.success(res, 200, 'players encontrados', result)
         } catch (error: any) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, error.message)
+        }
+    }
+    async powerUp(req: Request<{ roomCode: string, playerId: string, powerId: string }, {}, { target: string }, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+
+            const { target } = req.body || {};
+            await this.service.powerUp(req.params.roomCode, req.params.playerId, Number(req.params.powerId), target)
+            return HttpResponse.success(res, 200, 'players encontrados')
+        } catch (error: any) {
+            console.log(error);
+
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }

@@ -63,6 +63,7 @@ export class PlayerRepository {
                 include: {
                     players: {
                         select: {
+                            player_id: true,
                             player_name: true
                         }
                     }
@@ -104,7 +105,7 @@ export class PlayerRepository {
                 }
             })
         } catch (error) {
-
+            throw error
         }
     }
     async updatePlayerScore(roomId: number, playerId: string, score: number) {
@@ -133,7 +134,7 @@ export class PlayerRepository {
                 }
             })
         } catch (error) {
-
+            throw error
         }
     }
 }

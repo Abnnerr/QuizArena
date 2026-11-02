@@ -1,6 +1,6 @@
 
 import { prisma } from "../../db/index.js"
-import type { RoundWithQuestion } from "./dto/round.dto.js"
+import type { RoundWithQuestion, RoundWithRelations } from "./dto/round.dto.js"
 
 export class RoundRepository {
     async createRound(roomId: number, questionId: number): Promise<RoundWithQuestion> {
@@ -29,7 +29,7 @@ export class RoundRepository {
             throw error
         }
     }
-    async findById(roomId?: number, roundId?: number, playerId?: string) {
+    async findById(roomId?: number, roundId?: number, playerId?: string): Promise<RoundWithRelations | null> {
 
         return await prisma.round.findFirst({
             where: {
@@ -42,6 +42,25 @@ export class RoundRepository {
                     select: {
                         time_limit: true,
                         position: true,
+                        roomPlayers: {
+                            where: {
+                                ...(playerId && { player_id: playerId })
+                            },
+                            include: {
+                                powerUpUses: {
+                                    select: {
+                                        used: true,
+                                        powerup: {
+                                            select: {
+                                                powerup_type: true,
+                                                descricao: true,
+                                                powerup_id: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         _count: {
                             select: {
                                 roomQuestions: true,

@@ -11,4 +11,5 @@ export type IRoomService = {
     start: (user: AuthPayload, id: number) => Promise<void>
     limparRoom: (roomCode: string, roundId: number) => Promise<void>
     updateRoomPosition: (roomCode: string) => Promise<any>
+    findAlternativesIncorret: (questionId: number) => Promise<any>
 }
