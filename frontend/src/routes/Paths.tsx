@@ -37,8 +37,6 @@ const Paths = () => {
                     <Route path=":roomCode/start" element={<RoomStartPage />} />
                     <Route path=":roomCode/live" element={<RoomLivePage />} />
                 </Route>
-
-                
                 <Route path="/:roomCode/:round/ranking" element={<RankingPage />} />
                 <Route path="/:roomCode/:round/podio" element={<PodioPage />} />
                 <Route path="*" element={<NotFoundPage />} />
