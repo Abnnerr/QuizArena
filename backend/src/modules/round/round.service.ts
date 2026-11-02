@@ -37,7 +37,7 @@ export class RoundService {
                     room.room_id,
                     round.round_id
                 );
-                skip = power !== null;
+                skip = power.length > 0;
             }
             return {
                 round_id: round.round_id,
