@@ -165,7 +165,7 @@ export class PlayerService {
                     targetPlayerId
                 )
 
-                this.socket.powerSkipTurn(code)
+                this.socket.powerSkipTurn(code, true)
             }
         } catch (error) {
             console.log(error);

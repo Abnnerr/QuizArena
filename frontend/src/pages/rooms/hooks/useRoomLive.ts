@@ -219,11 +219,14 @@ const useRoomLive = () => {
             setHiddenAlternativeIds(ids);
         };
 
+        const skiped = (data: any) => {
+            setSkip(data.skiped)
+        }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
         socket.on("room:finished", roomFinished);
         socket.on("room:powerfifty", handlePowerFifty);
-        socket.on("room:skip", findRound);
+        socket.on("room:skip", skiped);
 
         if (!socket.connected) {
             socket.connect();
@@ -298,7 +301,7 @@ const useRoomLive = () => {
                 `/player/${roomCode}/${getPlayerId()}/${powerupId}/powerup`,
                 targetPlayer ? { target: targetPlayer } : undefined
             );
-            
+
             if (data.type !== "Success") {
                 setError(data.message ?? "Não foi possível utilizar o power-up.");
                 return;
