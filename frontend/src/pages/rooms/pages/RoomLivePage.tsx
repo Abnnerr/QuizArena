@@ -64,26 +64,13 @@ const RoomLivePage = () => {
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 className={`min-h-screen bg-[#121212] text-[#F3F4F6] font-['Nunito',sans-serif] flex flex-col relative overflow-x-hidden select-none outline-none transition-all duration-300 ${skip
-                        ? "ring-8 ring-inset ring-[#1CB0F6] shadow-[inset_0_0_50px_rgba(28,176,246,0.3)]"
-                        : ""
+                    ? "ring-8 ring-inset ring-[#1CB0F6] shadow-[inset_0_0_50px_rgba(28,176,246,0.3)]"
+                    : ""
                     }`}
             >
                 {/* Overlay de Efeito SKIP (Setas animadas descendo) */}
                 {skip && (
-                    <div className="fixed inset-0 pointer-events-none z-40 flex flex-col items-center justify-between p-8 overflow-hidden">
-                        {/* Indicador superior com setas descendo */}
-                        <div className="flex flex-col items-center gap-1 text-[#1CB0F6] animate-pulse mt-4 bg-[#1E1E1E]/90 backdrop-blur-md px-6 py-3 rounded-2xl border-2 border-[#1CB0F6] border-b-4 shadow-lg pointer-events-auto">
-                            <span className="font-black text-sm uppercase tracking-wider text-white">
-                                Sua vez foi pulada!
-                            </span>
-                            <div className="flex gap-2">
-                                <BsChevronDown className="w-5 h-5 animate-bounce [animation-delay:0ms]" />
-                                <BsChevronDown className="w-5 h-5 animate-bounce [animation-delay:150ms]" />
-                                <BsChevronDown className="w-5 h-5 animate-bounce [animation-delay:300ms]" />
-                            </div>
-                        </div>
-
-                        {/* Setas flutuantes nas laterais descendo */}
+                    <div className="fixed inset-0 pointer-events-none z-40 flex flex-col items-center justify-between p-8 overflow-hidden duration-600">
                         <div className="absolute inset-x-4 top-1/4 flex justify-between opacity-30 text-[#1CB0F6]">
                             <BsChevronDown className="w-12 h-12 animate-bounce [animation-duration:1.2s]" />
                             <BsChevronDown className="w-12 h-12 animate-bounce [animation-duration:1.2s] [animation-delay:200ms]" />
@@ -91,6 +78,17 @@ const RoomLivePage = () => {
                         <div className="absolute inset-x-16 top-1/2 flex justify-between opacity-30 text-[#1CB0F6]">
                             <BsChevronDown className="w-12 h-12 animate-bounce [animation-duration:1.2s] [animation-delay:400ms]" />
                             <BsChevronDown className="w-12 h-12 animate-bounce [animation-duration:1.2s] [animation-delay:600ms]" />
+                        </div>
+                        
+                        <div className="flex flex-col items-center gap-1 text-[#1CB0F6] animate-pulse mb-4 bg-[#1E1E1E]/90 backdrop-blur-md px-6 py-3 rounded-2xl border-2 border-[#1CB0F6] border-b-4 shadow-lg pointer-events-auto">
+                            <span className="font-black text-sm uppercase tracking-wider  text-white">
+                                Sua vez foi pulada!
+                            </span>
+                            <div className="flex gap-2">
+                                <BsChevronDown className="w-5 h-5 animate-bounce [animation-delay:0ms]" />
+                                <BsChevronDown className="w-5 h-5 animate-bounce [animation-delay:250ms]" />
+                                <BsChevronDown className="w-5 h-5 animate-bounce [animation-delay:500ms]" />
+                            </div>
                         </div>
                     </div>
                 )}

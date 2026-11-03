@@ -7,6 +7,7 @@ import type { IRoomService } from "../room/contracts/room.service.contract.js";
 import type { PowerRepository } from "../powers/powers.repository.js";
 import type { RoomService } from "../room/room.service.js";
 import type { RoundRepository } from "../round/round.repository.js";
+import { PowerUpFactory } from "./services/powerup.factory.js";
 
 
 export class PlayerService {
@@ -130,31 +131,57 @@ export class PlayerService {
     //usa um power
     async powerUp(code: string, playerId: string, powerId: number, targetPlayerId?: string) {
         try {
-            const room = await this.roomService.findRoom(code)
-            const power = await this.repoPower.findPowerById(powerId)
-            const round = await this.repoRound.findById(room.room_id)
-            const position = room.position + 1
 
-            if (power?.powerup_type === 'DOUBLE_XP') {
-                await this.repoPower.updatePower(
-                    playerId,
-                    room.room_id,
-                    power.powerup_id,
-                    position
-                )
+
+            const room = await this.roomService.findRoom(code);
+            const round = await this.repoRound.findById(room.room_id);
+            const power = await this.repoPower.findPowerById(powerId);
+            if (!room) {
+                throw new AppError(404, "Sala não encontrada");
             }
-            if (power?.powerup_type === 'FIFTY_FIFTY') {
-                await this.repoPower.updatePower(
-                    playerId,
-                    room.room_id,
-                    power.powerup_id,
-                )
-                const alternatives = await this.roomService.findAlternativesIncorret(round?.question_id!)
-
-                console.log(alternatives);
-
-                this.socket.powerFifty(code, alternatives, playerId)
+            if (!power) {
+                throw new AppError(404, "PowerUp não encontrado");
             }
+            if (!round) {
+                throw new AppError(404, "Rodada não encontrada");
+            }
+
+            const strategy = PowerUpFactory.execute(power.powerup_type)
+
+
+            await strategy({
+                code,
+                playerId,
+                roomId: room.room_id,
+                powerId: power.powerup_id,
+                position: room.position + 1,
+                roundId: round.round_id,
+                questionId: round.question_id,
+                targetPlayerId,
+                repoPower: this.repoPower,
+                roomService: this.roomService,
+                socket: this.socket
+            })
+            // if (power?.powerup_type === 'DOUBLE_XP') {
+            //     await this.repoPower.updatePower(
+            //         playerId,
+            //         room.room_id,
+            //         power.powerup_id,
+            //         position
+            //     )
+            // }
+            // if (power?.powerup_type === 'FIFTY_FIFTY') {
+            //     await this.repoPower.updatePower(
+            //         playerId,
+            //         room.room_id,
+            //         power.powerup_id,
+            //     )
+            //     const alternatives = await this.roomService.findAlternativesIncorret(round?.question_id!)
+
+            //     console.log(alternatives);
+
+            //     this.socket.powerFifty(code, alternatives, playerId)
+            // }
             if (power?.powerup_type === 'SKIP_TURN') {
                 await this.repoPower.updatePower(
                     playerId,

@@ -246,7 +246,7 @@ const useRoomLive = () => {
             socket.off("question:started", findRound);
             socket.off("room:finished", roomFinished);
             socket.off("room:powerfifty", handlePowerFifty);
-            socket.off("room:skip", findRound);
+            socket.off("room:skip", skiped);
         };
     }, [roomCode, player?.player_id]);
 
@@ -265,7 +265,7 @@ const useRoomLive = () => {
 
     // Envia resposta.
     const handleAnswer = async (answerId: number) => {
-        if (!question || answered || timeLeft <= 0 || round === null) {
+        if (!question || answered || skip ||timeLeft <= 0 || round === null) {
             return;
         }
 

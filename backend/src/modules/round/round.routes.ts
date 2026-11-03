@@ -7,7 +7,7 @@ import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 const router = Router()
 
 
-//Buscar a round em aberto
+// Buscar a round em aberto
 router.get('/:roomCode/:playerId/findRound',
     roundController.findRound
 )
