@@ -182,18 +182,18 @@ export class PlayerService {
 
             //     this.socket.powerFifty(code, alternatives, playerId)
             // }
-            if (power?.powerup_type === 'SKIP_TURN') {
-                await this.repoPower.updatePower(
-                    playerId,
-                    room.room_id,
-                    power.powerup_id,
-                    undefined,
-                    round?.round_id,
-                    targetPlayerId
-                )
+            // if (power?.powerup_type === 'SKIP_TURN') {
+            //     await this.repoPower.updatePower(
+            //         playerId,
+            //         room.room_id,
+            //         power.powerup_id,
+            //         undefined,
+            //         round?.round_id,
+            //         targetPlayerId
+            //     )
 
-                this.socket.powerSkipTurn(code, true, targetPlayerId!)
-            }
+            //     this.socket.powerSkipTurn(code, true, targetPlayerId!)
+            // }
         } catch (error) {
             console.log(error);
 
