@@ -19,9 +19,6 @@ export class RoundService {
     async findRound(roomCode: string, playerId?: string): Promise<any> {
         try {
             const room = await this.roomService.findRoom(roomCode);
-            if (!room) {
-                throw new AppError(404, "Sala não encontrada");
-            }
             const round = await this.repo.findById(
                 room.room_id,
                 undefined,

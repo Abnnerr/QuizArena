@@ -4,6 +4,8 @@ import type { PowerService } from "../powers/powers.service.js";
 import type { RoomService } from "../room/room.service.js";
 import type { RoundService } from "../round/round.service.js";
 import type { AnswerRepository } from "./answer.repository.js";
+import { ScoreFactory } from "./services/score.factory.js";
+import { applyMultiplier } from "./services/strategies/multiplier.js";
 
 export class AnswerService {
     constructor(
@@ -24,48 +26,37 @@ export class AnswerService {
             }
 
             const round = await this.roundService.findRound(room.room_code);
-            if (!round) {
-                throw new Error("Rodada não encontrada");
-            }
+           
             const power = await this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP')
 
-            let double = 1
-            
-            if (power.position === room.position && power.used === true) {
-                double = 2
-            }
             const alternative = await this.roomService.findAlternatives(
                 round.question_id,
                 alternativeId
             );
 
-            console.log("alternativas:", alternative);
-
-            if (!alternative) {
-                throw new Error("Alternativa não encontrada");
-            }
             let scores = 0;
+            const timeLimit = room.time_limit;
             if (alternative.is_correct) {
                 const answeredAt = new Date();
-
                 const elapsedSeconds = (answeredAt.getTime() - new Date(round.round_opened).getTime()) / 1000;
 
-                const timeLimit = room.time_limit;
-                const remainingSeconds = Math.max(
-                    0,
-                    Math.min(timeLimit, timeLimit - elapsedSeconds)
+                const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
+
+                const strategy = ScoreFactory.execute(room.room_mode);
+
+                const baseScore = strategy.calculate(
+                    remainingSeconds,
+                    timeLimit
                 );
 
-                if (room.room_mode === "NORMAL") {
-                    scores = Math.ceil(900 * remainingSeconds / timeLimit) * double;
-                } else if (room.room_mode === "HARDCORE") {
-                    scores = Math.ceil(500 * remainingSeconds / timeLimit) * double;
-                }
+                const multiplier = power?.position === room.position && power.used === true ? 2 : 1;
 
+                scores = applyMultiplier(baseScore, multiplier);
             }
 
             await this.repo.createAnswer(roundId, playerId, alternativeId, scores)
             await this.playerService.updatePlayerScore(room.room_id!, playerId, scores)
+
             return {
                 scores,
                 isCorrect: alternative.is_correct,
