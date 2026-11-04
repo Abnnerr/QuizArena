@@ -6,23 +6,25 @@ const HomeLayout: React.FC = () => {
     const { user } = useAuth();
 
     return (
-        <div className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col justify-between relative overflow-x-hidden select-none font-['Nunito',sans-serif]">
-            {/* Padrão de pontos sutil para dar textura sem cansar a vista */}
+        <div className="min-h-screen bg-[#121212] text-[#F3F4F6] flex flex-col justify-between relative overflow-x-hidden select-none font-['Nunito',sans-serif]">
             <div
-                className="absolute inset-0 pointer-events-none opacity-40 z-0"
+                className="absolute inset-0 pointer-events-none opacity-15 z-0"
                 style={{
-                    backgroundImage: 'radial-gradient(#E5E5E5 2px, transparent 2px)',
-                    backgroundSize: '24px 24px'
+                    backgroundImage:
+                        "radial-gradient(#383838 2px, transparent 2px)",
+                    backgroundSize: "24px 24px",
                 }}
             />
-
-            {/* Header com fundo branco e borda cinza limpa */}
-            <header className="w-full border-b-2 border-[#E5E5E5] bg-white py-3 px-4 sm:px-10 flex items-center justify-between relative z-20 shadow-xs">
+            <header className="w-full border-b-2 border-[#2A2A2A] bg-[#1E1E1E] py-3 px-4 sm:px-10 flex items-center justify-between relative z-20 shadow-md">
                 <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-white rounded-xl border-2 border-[#E5E5E5] border-b-4 p-1 shadow-sm flex items-center justify-center transition-transform group-hover:scale-105">
-                        <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain" />
+                    <div className="w-10 h-10 bg-[#282828] rounded-xl border-2 border-[#333333] border-b-4 p-1 shadow-sm flex items-center justify-center transition-transform group-hover:scale-105">
+                        <img
+                            src="/favicon-quiz.png"
+                            alt="QuizArena"
+                            className="h-full w-full object-contain filter drop-shadow"
+                        />
                     </div>
-                    <span className="text-xl sm:text-2xl font-black text-[#4B4B4B] tracking-tight">
+                    <span className="text-xl sm:text-2xl font-black text-[#F3F4F6] tracking-tight">
                         Quiz<span className="text-[#1CB0F6]">Arena</span>
                     </span>
                 </Link>
@@ -32,7 +34,7 @@ const HomeLayout: React.FC = () => {
                         <>
                             <Link
                                 to="/auth/login"
-                                className="bg-white h-11 flex items-center justify-center hover:bg-[#F7F7F7] text-[#4B4B4B] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-2 border-[#E5E5E5] border-b-4 active:border-b-2 active:translate-y-0.5 transition-all"
+                                className="bg-[#282828] h-11 flex items-center justify-center hover:bg-[#333333] text-[#F3F4F6] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-2 border-[#3A3A3A] border-b-4 active:border-b-2 active:translate-y-0.5 transition-all"
                             >
                                 Entrar
                             </Link>
@@ -56,17 +58,13 @@ const HomeLayout: React.FC = () => {
                     )}
                 </div>
             </header>
-
-            {/* Conteúdo Principal */}
             <main className="w-full flex-1 flex flex-col relative z-10">
                 <Outlet />
             </main>
-
-            {/* Rodapé em contraste com o fundo claro */}
-            <footer className="w-full border-t-2 border-[#E5E5E5] bg-white py-4 px-4 sm:px-10 relative z-20">
+            <footer className="w-full border-t-2 border-[#2A2A2A] bg-[#1E1E1E] py-4 px-4 sm:px-10 relative z-20">
                 <div className="max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <div className="text-center sm:text-left text-xs sm:text-sm font-black text-[#AFAFAF]">
-                        Quer criar seu próprio Quiz?{' '}
+                    <div className="text-center sm:text-left text-xs sm:text-sm font-black text-[#888888]">
+                        Quer criar seu próprio Quiz?{" "}
                         <Link
                             to="/auth/register"
                             className="text-[#1CB0F6] hover:text-[#0092D6] font-black uppercase tracking-wider ml-1 underline underline-offset-4"

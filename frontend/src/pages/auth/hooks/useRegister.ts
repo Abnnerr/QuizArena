@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../contexts/hooks/useAuth";
+import type { ResponseDTO } from "../../../contexts/types/authTypes";
 
 
 export function useRegister() {
@@ -9,6 +10,10 @@ export function useRegister() {
     const { register } = useAuth()
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
+
+
+    const [feedback, setFeedback] = useState<ResponseDTO | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
     const [userName, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -21,6 +26,7 @@ export function useRegister() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
         e.preventDefault();
+        setLoading(true)
 
         try {
             const dados = {
@@ -33,10 +39,34 @@ export function useRegister() {
             const response = await register(dados)
 
             if (response.type === 'Success') {
-                navigate('/auth/login', { replace: false })
+                setFeedback({
+                    type: "Success",
+                    message: response.message
+                })
+                setTimeout(() => {
+                    setFeedback(null)
+                }, 2000);
+
+            } else {
+                setFeedback({
+                    type: "Warning",
+                    message: response.message
+                })
+                setTimeout(() => {
+                    setFeedback(null)
+                }, 2000);
             }
         } catch (error: any) {
-            console.log(error.message)
+            setFeedback({
+                type: "Warning",
+                message: error.message || "Erro ao registrar usuario"
+            })
+            setTimeout(() => {
+                setFeedback(null)
+            }, 2000);
+        }
+        finally {
+            setLoading(false)
         }
     };
 
@@ -50,6 +80,8 @@ export function useRegister() {
         email,
         password,
         showPassword,
+        loading,
+        feedback,
 
         setShowPassword,
         setUserName,

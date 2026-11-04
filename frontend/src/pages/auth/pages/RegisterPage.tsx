@@ -23,6 +23,8 @@ const RegisterPage: React.FC = () => {
         hasNumber,
         hasSpecial,
         handleSubmit,
+        loading,
+        feedback
     } = useRegister();
 
     const passwordRequirements = [
@@ -38,39 +40,56 @@ const RegisterPage: React.FC = () => {
             <Helmet>
                 <title>QuizArena • Registrar</title>
             </Helmet>
-            <div className="w-full flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-xl mx-auto my-auto min-h-[calc(100vh-120px)]">
+
+            <div className="w-full flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-xl mx-auto my-auto min-h-[calc(100vh-120px)] relative z-10">
                 <div className="w-full flex items-center justify-between mb-6">
                     <Link
                         to="/"
-                        className="inline-flex h-10 items-center gap-2 bg-white hover:bg-[#F7F7F7] border-2 border-[#E5E5E5] border-b-4 text-[#777777] hover:text-[#4B4B4B] active:border-b-2 active:translate-y-0.5 px-4 py-2 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all cursor-pointer"
+                        className="inline-flex h-10 items-center gap-2 bg-[#1E1E1E] hover:bg-[#282828] border-2 border-[#2A2A2A] border-b-4 text-[#AAAAAA] hover:text-[#F3F4F6] active:border-b-2 active:translate-y-0.5 px-4 py-2 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm"
                     >
-                        <BiArrowBack className="w-5 h-5 text-[#AFAFAF]" />
+                        <BiArrowBack className="w-5 h-5 text-[#888888]" />
                         <span>Início</span>
                     </Link>
 
-                    <div className="inline-flex items-center gap-2 bg-[#FFC800] text-[#7A5B00] font-black px-4 py-2 rounded-2xl text-xs uppercase tracking-wider border-b-4 border-[#E5B200]">
+                    <div className="inline-flex items-center gap-2 bg-[#FFC800] text-[#7A5B00] font-black px-4 py-2 rounded-2xl text-xs uppercase tracking-wider border-b-4 border-[#C69B00] shadow-sm">
                         <span>Criar Conta</span>
                     </div>
                 </div>
+
                 <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-3xl border-2 border-[#E5E5E5] border-b-8 p-3 shadow-sm flex-shrink-0 flex items-center justify-center transform hover:scale-105 transition-transform">
-                        <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain" />
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 bg-[#1E1E1E] rounded-3xl border-2 border-[#2A2A2A] border-b-8 p-3 shadow-lg flex-shrink-0 flex items-center justify-center transform hover:scale-105 transition-transform">
+                        <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain filter drop-shadow" />
                     </div>
 
-                    <div className="relative bg-white border-2 border-[#E5E5E5] border-b-4 rounded-2xl p-4 sm:p-5 text-center sm:text-left shadow-sm w-full sm:w-auto">
-                        <div className="hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-[#E5E5E5]" />
-                        <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-6 border-y-transparent border-r-6 border-r-white" />
+                    <div className="relative bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-4 rounded-2xl p-4 sm:p-5 text-center sm:text-left shadow-lg w-full sm:w-auto">
+                        <div className="hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-[#2A2A2A]" />
+                        <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-6 border-y-transparent border-r-6 border-r-[#1E1E1E]" />
 
-                        <h2 className="text-xl sm:text-2xl font-black text-[#4B4B4B] tracking-tight">
+                        <h2 className="text-xl sm:text-2xl font-black text-[#F3F4F6] tracking-tight">
                             Crie sua conta de Host!
                         </h2>
-                        <p className="text-[#777777] text-xs sm:text-sm font-extrabold mt-1">
+                        <p className="text-[#AAAAAA] text-xs sm:text-sm font-extrabold mt-1">
                             Monte seus próprios quizes e jogue com seus amigos na arena.
                         </p>
                     </div>
                 </div>
+
                 <form onSubmit={handleSubmit} className="w-full space-y-4">
-                    <div className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+                    <div className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-6 sm:p-8 shadow-lg space-y-4">
+                        <div className="min-h-[40px] flex items-center  justify-center">
+                            {feedback && (
+                                <div
+                                    className={` w-full p-1.5 transition-all duration-700 rounded-2xl text-xs sm:text-sm font-black text-center border-2 border-b-4 flex items-center justify-center gap-2 ${feedback.type === 'Success'
+                                        ? 'bg-[#15320F] border-[#58CC02] text-[#8BEA44]'
+                                        : feedback.type === 'Warning'
+                                            ? 'bg-[#3A320A] border-[#FFC800] text-[#FFD966]'
+                                            : 'bg-[#3B1515] border-[#FF4B4B] text-[#FF6B6B]'
+                                        }`}
+                                >
+                                    <span>{feedback.message}</span>
+                                </div>
+                            )}
+                        </div>
                         <Input
                             label="Nome de Usuário"
                             icon={<BiUser className="w-6 h-6 text-[#FFC800]" />}
@@ -104,7 +123,7 @@ const RegisterPage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="text-[#AFAFAF] hover:text-[#4B4B4B] transition-colors cursor-pointer"
+                                        className="text-[#888888] hover:text-[#FFFFFF] transition-colors cursor-pointer"
                                     >
                                         {showPassword ? <BsEyeSlash className="w-6 h-6" /> : <BsEye className="w-6 h-6" />}
                                     </button>
@@ -113,15 +132,17 @@ const RegisterPage: React.FC = () => {
                             <PasswordRequirements requirements={passwordRequirements} />
                         </div>
                     </div>
+
                     <button
                         type="submit"
-                        className="w-full h-15 bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-4 rounded-2xl shadow-sm transition-all duration-75 flex items-center justify-center gap-3 text-lg uppercase tracking-wider cursor-pointer"
+                        className="w-full h-15 bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-4 rounded-2xl shadow-md transition-all duration-75 flex items-center justify-center gap-3 text-lg uppercase tracking-wider cursor-pointer"
                     >
                         <span>Criar Conta</span>
                         <BsArrowRight className="w-6 h-6" />
                     </button>
                 </form>
-                <div className="mt-6 text-center text-xs sm:text-sm font-black text-[#AFAFAF]">
+
+                <div className="mt-6 text-center text-xs sm:text-sm font-black text-[#888888]">
                     Já tem uma conta na arena?{' '}
                     <Link
                         to="/auth/login"
@@ -132,7 +153,7 @@ const RegisterPage: React.FC = () => {
                 </div>
             </div>
         </>
-    );
+    )
 };
 
 export default RegisterPage;
