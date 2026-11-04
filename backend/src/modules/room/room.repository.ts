@@ -150,33 +150,9 @@ export class RoomRepository implements IRoomRepository {
     }
     async limparRoom(roomId: number): Promise<void> {
         try {
-            const roundIds = await prisma.round.findMany({
-                where: {
-                    room_id: roomId
-                },
-                select: {
-                    round_id: true
-                }
-            })
-            await prisma.$transaction([
-                prisma.answers.deleteMany({
-                    where: {
-                        round_id: {
-                            in: roundIds.map(item => item.round_id),
-                        }
-                    },
-                }),
-                prisma.powerUpUse.deleteMany({
-                    where: {
-                        room_id: roomId
-                    }
-                }),
-                prisma.roomPlayer.deleteMany({
-                    where: {
-                        room_id: roomId,
-                    },
-                }),
-                prisma.players.deleteMany({
+            await prisma.$transaction(async (tx) => {
+
+                const players = await tx.players.findMany({
                     where: {
                         roomPlayers: {
                             some: {
@@ -184,24 +160,67 @@ export class RoomRepository implements IRoomRepository {
                             },
                         },
                     },
-                }),
-                prisma.round.deleteMany({
+                    select: {
+                        player_id: true,
+                    },
+                });
+
+                const roundIds = await tx.round.findMany({
                     where: {
                         room_id: roomId,
                     },
-                }),
-                prisma.rooms.update({
+                    select: {
+                        round_id: true,
+                    },
+                });
+
+                await tx.answers.deleteMany({
                     where: {
-                        room_id: roomId
+                        round_id: {
+                            in: roundIds.map(item => item.round_id),
+                        },
+                    },
+                });
+
+                await tx.powerUpUse.deleteMany({
+                    where: {
+                        room_id: roomId,
+                    },
+                });
+
+                await tx.roomPlayer.deleteMany({
+                    where: {
+                        room_id: roomId,
+                    },
+                });
+
+                await tx.players.deleteMany({
+                    where: {
+                        player_id: {
+                            in: players.map(item => item.player_id),
+                        },
+                    },
+                });
+
+                await tx.round.deleteMany({
+                    where: {
+                        room_id: roomId,
+                    },
+                });
+
+                await tx.rooms.update({
+                    where: {
+                        room_id: roomId,
                     },
                     data: {
                         room_status: "LOBBY",
-                        position: 0
-                    }
-                })
-            ]);
+                        position: 0,
+                    },
+                });
+            });
         } catch (error) {
             throw error
         }
+
     }
 }

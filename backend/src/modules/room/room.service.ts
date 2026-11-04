@@ -60,7 +60,7 @@ export class RoomService implements IRoomService {
     }
     //player entra
     async joinRoom(roomCode: string, userName: string): Promise<any> {
-        try {    
+        try {
             const room = await this.repo.findByRoom(undefined, roomCode)
             if (!room) {
                 throw new AppError(404, 'sala nao encontrada')
@@ -169,7 +169,7 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro ao buscar alternatives incorretas')
         }
     }
-    //terminou a room limpa tudo
+    //terminou a room e limpa tudo
     async limparRoom(roomCode: string, roundId: number): Promise<void> {
         try {
             console.log(roomCode, roundId);
