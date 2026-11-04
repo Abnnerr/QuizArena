@@ -41,7 +41,7 @@ export class AnswerService {
                 const elapsedSeconds = (answeredAt.getTime() - new Date(round.round_opened).getTime()) / 1000;
 
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
-
+                
                 const strategy = ScoreFactory.execute(room.room_mode);
 
                 const baseScore = strategy.calculate(

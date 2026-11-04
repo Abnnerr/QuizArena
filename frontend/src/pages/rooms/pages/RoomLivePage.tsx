@@ -116,43 +116,41 @@ const RoomLivePage = () => {
                 </div>
 
                 <section className="flex-1 w-full max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 flex flex-col justify-between relative z-10 gap-3 sm:gap-6 my-auto">
+                    {/* Cabeçalho Fixo: Power-ups em cima (sem scroll) e Timer embaixo */}
+                    <div className="flex flex-col gap-2 w-full shrink-0">
 
-                    {/* Cabeçalho: Power-ups e Timer */}
-                    {/* Cabeçalho: Power-ups e Timer */}
-                    <div className="flex items-center justify-between w-full gap-3 shrink-0">
-                        {/* Container de Power-ups com Scroll Horizontal Suave no Mobile */}
-                        <div className="flex items-center gap-2 overflow-x-auto py-1 max-w-[70%] sm:max-w-none no-scrollbar">
-                            {powerUp && powerUp.map((item: any, idx: number) => (
+                        {/* 1. Três Power-ups em cima dividindo o espaço perfeitamente */}
+                        <div className="grid grid-cols-3 gap-2 w-full">
+                            {powerUp && powerUp.slice(0, 3).map((item: any, idx: number) => (
                                 <button
                                     key={item.powerup_id ?? idx}
                                     disabled={item.used === true}
                                     type="button"
                                     onClick={() => setSelectedPowerUp(item)}
-                                    className={`px-3 py-2 rounded-2xl flex items-center gap-2 font-black text-xs sm:text-sm transition-all shadow-sm border-2 border-b-4 shrink-0 ${item.used
+                                    className={`py-2 px-1.5 sm:px-3.5 rounded-2xl flex items-center justify-center gap-1.5 font-black text-[11px] sm:text-sm transition-all shadow-sm border-2 border-b-4 truncate ${item.used
                                             ? "bg-[#1E1E1E] border-[#333333] text-[#666666] cursor-not-allowed opacity-50"
                                             : "bg-[#1E1E1E] hover:bg-[#282828] border-[#FFC800]/60 border-b-[#FFC800] text-[#FFC800] cursor-pointer active:border-b-2 active:translate-y-0.5"
                                         }`}
                                 >
-                                    <BsLightningFill className={`w-4 h-4 shrink-0 ${item.used ? "text-[#666666]" : "text-[#FFC800]"}`} />
-                                    <span className="capitalize whitespace-nowrap">{item.powerup_type}</span>
+                                    <BsLightningFill className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${item.used ? "text-[#666666]" : "text-[#FFC800]"}`} />
+                                    <span className="capitalize truncate">{item.powerup_type}</span>
                                 </button>
                             ))}
                         </div>
 
-                        {/* Timer */}
+                        {/* 2. Timer na parte de baixo ocupando toda a largura */}
                         <div
-                            className={`px-3.5 py-2 rounded-2xl border-2 border-b-4 flex items-center gap-2 font-black transition-all shadow-sm shrink-0 ${isCriticalTime
+                            className={`w-full py-2.5 sm:py-2 rounded-2xl border-2 border-b-4 flex items-center justify-center gap-2 font-black transition-all shadow-sm shrink-0 ${isCriticalTime
                                     ? "border-[#FF4B4B] bg-[#3B1515] text-[#FF6B6B] animate-bounce"
                                     : "border-[#FFC800]/60 bg-[#1E1E1E] text-[#FFC800]"
                                 }`}
                         >
                             <BsClockHistory className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                            <span className="text-lg sm:text-2xl font-black leading-none">
-                                {timeLeft}s
+                            <span className="text-base sm:text-2xl font-black leading-none">
+                                {timeLeft}s restantes
                             </span>
                         </div>
                     </div>
-
                     {/* Enunciado do Host */}
                     {isHost && (
                         <div className="flex-1 min-h-[120px] sm:min-h-[180px] max-h-[220px] sm:max-h-none flex items-center justify-center text-center bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-4 sm:border-b-8 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-lg relative overflow-y-auto">
