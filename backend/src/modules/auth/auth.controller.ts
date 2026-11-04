@@ -45,7 +45,7 @@ export class AuthController implements IAuthController {
             res.cookie('access_token', result.token, {
                 httpOnly: true,
                 sameSite: 'none',
-                secure: process.env["NODE_MODE"] === 'production',
+                secure: true,
                 maxAge: 60 * 1000 * 60,
                 path: '/'
             })
