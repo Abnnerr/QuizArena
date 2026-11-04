@@ -45,6 +45,7 @@ export function useRegister() {
                 })
                 setTimeout(() => {
                     setFeedback(null)
+                    navigate('/auth/login')
                 }, 2000);
 
             } else {
