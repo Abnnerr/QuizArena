@@ -151,7 +151,6 @@ export class RoomRepository implements IRoomRepository {
     async limparRoom(roomId: number): Promise<void> {
         try {
             await prisma.$transaction(async (tx) => {
-
                 const players = await tx.players.findMany({
                     where: {
                         roomPlayers: {

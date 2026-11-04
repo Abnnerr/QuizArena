@@ -14,6 +14,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
 import RankingPage from "../pages/rooms/pages/RankingPage";
 import PodioPage from "../pages/rooms/pages/PodioPage";
+import RoomLayout from "../layouts/RoomLayout";
 
 
 const Paths = () => {
@@ -31,10 +32,15 @@ const Paths = () => {
                 </Route>
                 <Route path="/room">
                     <Route path="create" element={<RoomCreatePage />} />
-                    <Route path="player/username/:roomName" element={<PlayerNamePage />} />
-                    <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />
                     <Route path=":roomCode/start" element={<RoomStartPage />} />
                     <Route path=":roomCode/live" element={<RoomLivePage />} />
+
+                    <Route element={<RoomLayout />}>
+                        <Route path="player/username/:roomName" element={<PlayerNamePage />} />
+                        <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />
+                    </Route>
+
+
                 </Route>
                 <Route path="/:roomCode/:round/ranking" element={<RankingPage />} />
                 <Route path="/:roomCode/:round/podio" element={<PodioPage />} />

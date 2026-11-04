@@ -173,13 +173,9 @@ export class RoomService implements IRoomService {
     async limparRoom(roomCode: string, roundId: number): Promise<void> {
         try {
             console.log(roomCode, roundId);
-
             const room = await this.repo.findByRoom(undefined, roomCode)
-
             console.log(room);
-
             await this.repo.limparRoom(room?.room_id!, roundId)
-
             this.socket.roomFinished(roomCode)
         } catch (error) {
             console.log(error);
