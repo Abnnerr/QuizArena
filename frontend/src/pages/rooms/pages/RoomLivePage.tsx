@@ -128,8 +128,8 @@ const RoomLivePage = () => {
                                     type="button"
                                     onClick={() => setSelectedPowerUp(item)}
                                     className={`py-2 px-1.5 sm:px-3.5 rounded-2xl flex items-center justify-center gap-1.5 font-black text-[11px] sm:text-sm transition-all shadow-sm border-2 border-b-4 truncate ${item.used
-                                            ? "bg-[#1E1E1E] border-[#333333] text-[#666666] cursor-not-allowed opacity-50"
-                                            : "bg-[#1E1E1E] hover:bg-[#282828] border-[#FFC800]/60 border-b-[#FFC800] text-[#FFC800] cursor-pointer active:border-b-2 active:translate-y-0.5"
+                                        ? "bg-[#1E1E1E] border-[#333333] text-[#666666] cursor-not-allowed opacity-50"
+                                        : "bg-[#1E1E1E] hover:bg-[#282828] border-[#FFC800]/60 border-b-[#FFC800] text-[#FFC800] cursor-pointer active:border-b-2 active:translate-y-0.5"
                                         }`}
                                 >
                                     <BsLightningFill className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${item.used ? "text-[#666666]" : "text-[#FFC800]"}`} />
@@ -139,17 +139,7 @@ const RoomLivePage = () => {
                         </div>
 
                         {/* 2. Timer na parte de baixo ocupando toda a largura */}
-                        <div
-                            className={`w-full py-2.5 sm:py-2 rounded-2xl border-2 border-b-4 flex items-center justify-center gap-2 font-black transition-all shadow-sm shrink-0 ${isCriticalTime
-                                    ? "border-[#FF4B4B] bg-[#3B1515] text-[#FF6B6B] animate-bounce"
-                                    : "border-[#FFC800]/60 bg-[#1E1E1E] text-[#FFC800]"
-                                }`}
-                        >
-                            <BsClockHistory className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                            <span className="text-base sm:text-2xl font-black leading-none">
-                                {timeLeft}s restantes
-                            </span>
-                        </div>
+
                     </div>
                     {/* Enunciado do Host */}
                     {isHost && (
@@ -235,6 +225,18 @@ const RoomLivePage = () => {
                                 </button>
                             );
                         })}
+                    </div>
+
+                    <div
+                        className={`w-full py-2.5 sm:py-2 rounded-2xl border-2 border-b-4 flex items-center justify-center gap-2 font-black transition-all shadow-sm shrink-0 ${isCriticalTime
+                            ? "border-[#FF4B4B] bg-[#3B1515] text-[#FF6B6B] animate-bounce"
+                            : "border-[#FFC800]/60 bg-[#1E1E1E] text-[#FFC800]"
+                            }`}
+                    >
+                        <BsClockHistory className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                        <span className="text-base sm:text-2xl font-black leading-none">
+                            {timeLeft}s restantes
+                        </span>
                     </div>
                 </section>
 
