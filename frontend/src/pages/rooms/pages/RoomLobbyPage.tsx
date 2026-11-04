@@ -72,35 +72,27 @@ const RoomLobbyPage = () => {
     return (
         <>
             <Helmet>
-                <title>
-                    QuizArena • Sala de Espera
-                </title>
+                <title>QuizArena • Sala de Espera</title>
             </Helmet>
 
-            <main className="w-full flex-1 flex flex-col items-center justify-center p-4 sm:p-6 max-w-2xl mx-auto my-auto min-h-[calc(100vh-80px)] select-none font-['Nunito',sans-serif]">
-                {/* <audio
-                    ref={audioRef}
-                    src="/intro-lobby.mp3"
-                    loop
-                    autoPlay
-                    preload="auto"
-                /> */}
+            <main className="w-full flex-1 flex flex-col items-center justify-center p-4 sm:p-6 max-w-2xl mx-auto my-auto min-h-[100dvh] select-none font-['Nunito',sans-serif]">
 
                 <div className="w-full relative z-10 space-y-5">
 
+                    {/* Topbar: Botão Voltar + Tag de Host/Participante */}
                     <div className="flex items-center justify-between gap-3">
                         <button
                             onClick={() => navigate(-1)}
-                            className="inline-flex items-center gap-2 bg-white hover:bg-[#F7F7F7] border-2 border-[#E5E5E5] border-b-4 text-[#777777] hover:text-[#4B4B4B] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer shadow-sm"
+                            className="inline-flex items-center gap-2 bg-[#1E1E1E] hover:bg-[#282828] border-2 border-[#2A2A2A] border-b-4 text-[#AAAAAA] hover:text-[#F3F4F6] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer shadow-sm"
                         >
-                            <BsArrowLeft className="w-5 h-5 text-[#AFAFAF]" />
+                            <BsArrowLeft className="w-5 h-5 text-[#888888]" />
                             <span>Voltar</span>
                         </button>
 
                         <div
-                            className={`inline-flex items-center gap-2 text-white font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase shadow-sm ${isHost
-                                ? "bg-[#FFC800] border-b-4 border-[#E5B200] text-[#7A5B00]"
-                                : "bg-[#1CB0F6] border-b-4 border-[#0092D6] text-white"
+                            className={`inline-flex items-center gap-2 font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase shadow-sm border-b-4 ${isHost
+                                    ? "bg-[#FFC800] border-[#C69B00] text-[#7A5B00]"
+                                    : "bg-[#1CB0F6] border-[#0092D6] text-white"
                                 }`}
                         >
                             {isHost && <BiCrown className="w-5 h-5" />}
@@ -108,19 +100,20 @@ const RoomLobbyPage = () => {
                         </div>
                     </div>
 
+                    {/* Banner com Logo e Nome da Sala */}
                     <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-3xl border-2 border-[#E5E5E5] border-b-8 p-2.5 shadow-sm flex-shrink-0 flex items-center justify-center transform hover:scale-105 transition-transform">
-                            <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain" />
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#1E1E1E] rounded-3xl border-2 border-[#2A2A2A] border-b-8 p-2.5 shadow-lg flex-shrink-0 flex items-center justify-center transform hover:scale-105 transition-transform">
+                            <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain filter drop-shadow" />
                         </div>
 
-                        <div className="relative bg-white border-2 border-[#E5E5E5] border-b-4 rounded-2xl p-4 sm:p-5 text-center sm:text-left shadow-sm w-full sm:w-auto flex-1">
-                            <div className="hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-[#E5E5E5]" />
-                            <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-6 border-y-transparent border-r-6 border-r-white" />
+                        <div className="relative bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-4 rounded-2xl p-4 sm:p-5 text-center sm:text-left shadow-lg w-full sm:w-auto flex-1">
+                            <div className="hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-[#2A2A2A]" />
+                            <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-6 border-y-transparent border-r-6 border-r-[#1E1E1E]" />
 
-                            <h1 className="text-xl sm:text-2xl font-black text-[#4B4B4B] tracking-tight">
+                            <h1 className="text-xl sm:text-2xl font-black text-[#F3F4F6] tracking-tight truncate">
                                 {loading ? "Carregando arena..." : room?.room_name}
                             </h1>
-                            <p className="text-[#777777] font-extrabold text-xs sm:text-sm mt-0.5">
+                            <p className="text-[#AAAAAA] font-extrabold text-xs sm:text-sm mt-0.5">
                                 {!loading && room
                                     ? isHost
                                         ? "Gerencie os participantes e inicie a partida quando todos estiverem prontos!"
@@ -130,12 +123,13 @@ const RoomLobbyPage = () => {
                         </div>
                     </div>
 
-                    <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    {/* Card Principal */}
+                    <section className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-6 sm:p-8 shadow-lg space-y-6">
 
                         {error && (
                             <div
                                 role="alert"
-                                className="bg-[#FFD2D2] border-2 border-[#FF4B4B] border-b-4 text-[#A80000] p-4 rounded-2xl text-xs sm:text-sm font-black text-center animate-bounce-short"
+                                className="bg-[#3B1515] border-2 border-[#FF4B4B] border-b-4 text-[#FF6B6B] p-4 rounded-2xl text-xs sm:text-sm font-black text-center animate-bounce"
                             >
                                 {error}
                             </div>
@@ -144,32 +138,33 @@ const RoomLobbyPage = () => {
                         {loading ? (
                             <div className="text-center py-12 space-y-3">
                                 <div className="inline-block w-10 h-10 border-4 border-[#1CB0F6] border-t-transparent rounded-full animate-spin" />
-                                <p className="text-[#AFAFAF] font-black text-xs uppercase tracking-wider">
+                                <p className="text-[#888888] font-black text-xs uppercase tracking-wider">
                                     Conectando à sala...
                                 </p>
                             </div>
                         ) : !room ? (
                             <div className="text-center py-8 space-y-4">
-                                <p className="text-[#777777] font-black text-base">
+                                <p className="text-[#AAAAAA] font-black text-base">
                                     Não foi possível carregar os dados da sala.
                                 </p>
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="bg-[#1CB0F6] hover:bg-[#00A2ED] text-white border-b-4 border-[#0092D6] px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider active:translate-y-1 active:border-b-0 cursor-pointer transition-all"
+                                    className="bg-[#1CB0F6] hover:bg-[#0092D6] text-white border-b-4 border-[#0073A8] px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider active:translate-y-1 active:border-b-0 cursor-pointer transition-all shadow-md"
                                 >
                                     Voltar para o Início
                                 </button>
                             </div>
                         ) : (
                             <>
+                                {/* Bloco do Código da Sala (Host) ou Perfil (Player) */}
                                 {isHost ? (
-                                    <div className="flex flex-col sm:flex-row items-center justify-between bg-[#FFFBF0] border-2 border-[#FFC800] border-b-4 rounded-2xl p-4 gap-4">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between bg-[#151515] border-2 border-[#2A2A2A] border-b-4 rounded-2xl p-4 gap-4">
                                         <div className="text-center sm:text-left">
-                                            <span className="block text-xs font-black uppercase tracking-widest text-[#A38000]">
+                                            <span className="block text-xs font-black uppercase tracking-widest text-[#888888]">
                                                 Código da Sala
                                             </span>
                                             <div className="flex items-center justify-center sm:justify-start gap-2 mt-0.5">
-                                                <span className="text-2xl sm:text-3xl font-black tracking-widest text-[#7A5B00]">
+                                                <span className="text-2xl sm:text-3xl font-black tracking-widest text-[#FFC800]">
                                                     {roomCode}
                                                 </span>
                                             </div>
@@ -177,7 +172,7 @@ const RoomLobbyPage = () => {
 
                                         <button
                                             onClick={handleCopyCode}
-                                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FFC800] hover:bg-[#FFD22E] border-b-4 border-[#E5B200] text-[#7A5B00] font-black px-5 py-3 rounded-2xl text-xs uppercase tracking-wider active:translate-y-1 active:border-b-0 transition-all cursor-pointer shadow-sm"
+                                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FFC800] hover:bg-[#FFD93D] border-b-4 border-[#C69B00] text-[#7A5B00] font-black px-5 py-3 rounded-2xl text-xs uppercase tracking-wider active:translate-y-1 active:border-b-0 transition-all cursor-pointer shadow-sm"
                                         >
                                             {copied ? (
                                                 <BiCheck className="w-5 h-5 text-[#7A5B00]" />
@@ -188,31 +183,28 @@ const RoomLobbyPage = () => {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-3 bg-[#E8F7FE] border-2 border-[#1CB0F6] border-b-4 rounded-2xl p-4">
+                                    <div className="flex items-center gap-3 bg-[#151515] border-2 border-[#2A2A2A] border-b-4 rounded-2xl p-4">
                                         <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#1CB0F6] text-white font-black text-xl uppercase shrink-0 border-b-4 border-[#0092D6]">
                                             {player?.player_name?.trim().charAt(0) || "?"}
                                         </div>
                                         <div className="min-w-0">
-                                            <span className="block text-xs font-black uppercase tracking-wider text-[#0092D6]">
+                                            <span className="block text-xs font-black uppercase tracking-wider text-[#1CB0F6]">
                                                 Você entrou como
                                             </span>
-                                            <span className="block text-[#4B4B4B] font-black text-lg truncate">
+                                            <span className="block text-[#F3F4F6] font-black text-lg truncate">
                                                 {player?.player_name}
                                             </span>
                                         </div>
                                     </div>
                                 )}
-                                <div
-                                    className={`rounded-2xl border-2 border-b-4 p-4 ${isHost
-                                        ? "border-[#FFC800] bg-[#FFFBF0]"
-                                        : "border-[#1CB0F6] bg-[#E8F7FE]"
-                                        }`}
-                                >
+
+                                {/* Status de Função */}
+                                <div className="rounded-2xl border-2 border-b-4 p-4 border-[#2A2A2A] bg-[#151515]">
                                     <div className="flex items-center gap-3">
                                         <div
                                             className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border-b-4 ${isHost
-                                                ? "bg-[#FFC800] border-[#E5B200] text-[#7A5B00]"
-                                                : "bg-[#1CB0F6] border-[#0092D6] text-white"
+                                                    ? "bg-[#FFC800] border-[#C69B00] text-[#7A5B00]"
+                                                    : "bg-[#1CB0F6] border-[#0092D6] text-white"
                                                 }`}
                                         >
                                             {isHost ? (
@@ -222,10 +214,10 @@ const RoomLobbyPage = () => {
                                             )}
                                         </div>
                                         <div>
-                                            <h2 className="font-black text-base text-[#4B4B4B]">
+                                            <h2 className="font-black text-base text-[#F3F4F6]">
                                                 {isHost ? "Você é o Organizador" : "Você é um Participante"}
                                             </h2>
-                                            <p className="text-xs font-extrabold text-[#777777] mt-0.5">
+                                            <p className="text-xs font-extrabold text-[#888888] mt-0.5">
                                                 {isHost
                                                     ? "Compartilhe o código acima para convidar jogadores."
                                                     : "Aguarde o host iniciar a partida após se marcar como pronto."}
@@ -233,33 +225,35 @@ const RoomLobbyPage = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Lista de Jogadores */}
                                 <div>
                                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                                        <h2 className="text-xs font-black uppercase tracking-widest text-[#AFAFAF] flex items-center gap-2">
+                                        <h2 className="text-xs font-black uppercase tracking-widest text-[#888888] flex items-center gap-2">
                                             <BiUser className="w-5 h-5 text-[#1CB0F6]" />
                                             <span>Jogadores ({room.players.length}/{room.max_players})</span>
                                         </h2>
 
-                                        <span className="text-xs font-black text-[#2B7200] bg-[#D7FFB8] px-3 py-1 rounded-xl border-2 border-[#58CC02] border-b-4">
-                                            Prontos: {room.players.filter((p) => p.ready).length}/{room.players.length}
+                                        <span className="text-xs font-black text-[#8BEA44] bg-[#15320F] px-3 py-1 rounded-xl border-2 border-[#58CC02] border-b-4">
+                                            Prontos: {room.players.filter((p: any) => p.ready).length}/{room.players.length}
                                         </span>
                                     </div>
 
                                     {room.players.length === 0 ? (
-                                        <div className="text-center py-8 rounded-2xl bg-[#F7F7F7] border-2 border-dashed border-[#E5E5E5]">
-                                            <BiUser className="w-8 h-8 mx-auto mb-2 text-[#AFAFAF]" />
-                                            <p className="text-sm font-black text-[#777777]">
+                                        <div className="text-center py-8 rounded-2xl bg-[#151515] border-2 border-dashed border-[#2A2A2A]">
+                                            <BiUser className="w-8 h-8 mx-auto mb-2 text-[#555555]" />
+                                            <p className="text-sm font-black text-[#888888]">
                                                 Nenhum jogador na sala ainda.
                                             </p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
-                                            {room.players.map((p) => (
+                                            {room.players.map((p: any) => (
                                                 <div
                                                     key={p.player_id}
                                                     className={`border-2 border-b-4 rounded-2xl p-3 flex items-center justify-between transition-all ${p.ready
-                                                        ? "bg-[#D7FFB8]/50 border-[#58CC02]"
-                                                        : "bg-[#F7F7F7] border-[#E5E5E5]"
+                                                            ? "bg-[#15320F]/60 border-[#58CC02]"
+                                                            : "bg-[#151515] border-[#2A2A2A]"
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3 min-w-0">
@@ -268,11 +262,11 @@ const RoomLobbyPage = () => {
                                                         </div>
 
                                                         <div className="min-w-0">
-                                                            <span className="font-black text-sm text-[#4B4B4B] block truncate">
+                                                            <span className="font-black text-sm text-[#F3F4F6] block truncate">
                                                                 {p.player_name}
                                                             </span>
                                                             <span
-                                                                className={`block text-[11px] font-black ${p.ready ? "text-[#2B7200]" : "text-[#7A5B00]"
+                                                                className={`block text-[11px] font-black ${p.ready ? "text-[#8BEA44]" : "text-[#FFC800]"
                                                                     }`}
                                                             >
                                                                 {p.ready ? "● Pronto" : "○ Aguardando"}
@@ -281,8 +275,8 @@ const RoomLobbyPage = () => {
                                                     </div>
 
                                                     {p.ready && (
-                                                        <div className="w-7 h-7 shrink-0 rounded-full bg-[#58CC02] text-white flex items-center justify-center font-black border-b-2 border-[#46A302]">
-                                                            <BiCheck className="w-5 h-5 stroke-[2]" />
+                                                        <div className="w-7 h-7 shrink-0 rounded-full bg-[#58CC02] text-[#121212] flex items-center justify-center font-black border-b-2 border-[#46A302]">
+                                                            <BiCheck className="w-5 h-5 stroke-[3]" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -290,20 +284,22 @@ const RoomLobbyPage = () => {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Botões de Ação (Host: Iniciar / Player: Sair ou Pronto) */}
                                 <div className="pt-2">
                                     {isHost ? (
                                         <button
                                             onClick={startRoom}
                                             disabled={
                                                 room.players.length < 2 ||
-                                                !room.players.every((p) => p.ready)
+                                                !room.players.every((p: any) => p.ready)
                                             }
                                             title={
                                                 room.players.length < 2
                                                     ? "São necessários pelo menos 2 jogadores."
                                                     : undefined
                                             }
-                                            className="w-full bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 text-lg uppercase tracking-wider cursor-pointer transition-all shadow-sm disabled:bg-[#E5E5E5] disabled:border-[#CECECE] disabled:text-[#AFAFAF] disabled:cursor-not-allowed disabled:translate-y-0 disabled:border-b-4"
+                                            className="w-full bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 text-lg uppercase tracking-wider cursor-pointer transition-all shadow-md disabled:bg-[#222222] disabled:border-[#2F2F2F] disabled:text-[#666666] disabled:cursor-not-allowed disabled:translate-y-0 disabled:border-b-4"
                                         >
                                             <span>
                                                 {starting ? "Iniciando..." : "Iniciar Partida"}
@@ -314,16 +310,16 @@ const RoomLobbyPage = () => {
                                         <div className="flex flex-col sm:flex-row gap-3">
                                             <button
                                                 onClick={toggleLeave}
-                                                className="w-full sm:w-1/3 bg-white hover:bg-[#FFD2D2]/30 border-2 border-[#FF4B4B] border-b-4 text-[#FF4B4B] font-black py-3.5 rounded-2xl active:border-b-2 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
+                                                className="w-full sm:w-1/3 bg-[#1E1E1E] hover:bg-[#3B1515] border-2 border-[#2A2A2A] hover:border-[#FF4B4B] border-b-4 text-[#AAAAAA] hover:text-[#FF6B6B] font-black py-3.5 rounded-2xl active:border-b-2 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
                                             >
                                                 <span>Sair</span>
                                             </button>
 
                                             <button
                                                 onClick={toggleReady}
-                                                className={`w-full sm:w-2/3 border-b-4 font-black py-3.5 rounded-2xl active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer shadow-sm text-white ${ready
-                                                    ? "bg-[#FF4B4B] hover:bg-[#FF5E5E] border-[#D43F3F]"
-                                                    : "bg-[#58CC02] hover:bg-[#61E002] border-[#46A302]"
+                                                className={`w-full sm:w-2/3 border-b-4 font-black py-3.5 rounded-2xl active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer shadow-md text-white ${ready
+                                                        ? "bg-[#FF4B4B] hover:bg-[#FF5E5E] border-[#D43F3F]"
+                                                        : "bg-[#58CC02] hover:bg-[#61E002] border-[#46A302]"
                                                     }`}
                                             >
                                                 <span>

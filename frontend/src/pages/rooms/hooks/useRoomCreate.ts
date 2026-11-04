@@ -50,6 +50,27 @@ export const useRoomCreate = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Gerencia a troca de modo e trava o limite máximo de tempo correspondente
+    const handleModeChange = (newMode: "NORMAL" | "HARDCORE") => {
+        setMode(newMode);
+        const maxTime = newMode === "HARDCORE" ? 15 : 20;
+        if (timeLimit > maxTime) {
+            setTimeLimit(maxTime);
+        }
+    };
+
+    // Garante que o input manual do tempo também não ultrapasse o teto do modo atual
+    const handleTimeLimitChange = (value: number) => {
+        const maxTime = mode === "HARDCORE" ? 15 : 20;
+        if (value > maxTime) {
+            setTimeLimit(maxTime);
+        } else if (value < 1) {
+            setTimeLimit(1);
+        } else {
+            setTimeLimit(value);
+        }
+    };
+
     const handleAddQuestion = () => {
         setQuestions((prev) => [
             ...prev,
@@ -78,17 +99,22 @@ export const useRoomCreate = () => {
 
     const handleAddAlternative = (qIndex: number) => {
         setQuestions((prev) =>
-            prev.map((question, index) =>
-                index === qIndex
-                    ? {
-                        ...question,
-                        alternatives: [
-                            ...question.alternatives,
-                            createEmptyAlternative(),
-                        ],
-                    }
-                    : question
-            )
+            prev.map((question, index) => {
+                if (index !== qIndex) return question;
+
+                // Não permite criar mais de 4 alternativas
+                if (question.alternatives.length >= 4) {
+                    return question;
+                }
+
+                return {
+                    ...question,
+                    alternatives: [
+                        ...question.alternatives,
+                        createEmptyAlternative(),
+                    ],
+                };
+            })
         );
     };
 
@@ -180,12 +206,13 @@ export const useRoomCreate = () => {
             return;
         }
 
+        const maxAllowedTime = mode === "HARDCORE" ? 15 : 20;
         if (
             !Number.isInteger(timeLimit) ||
             timeLimit < 1 ||
-            timeLimit > 15
+            timeLimit > maxAllowedTime
         ) {
-            setError("O tempo por questão deve ser entre 1 e 15 minutos.");
+            setError(`O tempo por questão no modo ${mode} deve ser entre 1 e ${maxAllowedTime} segundos.`);
             return;
         }
 
@@ -205,6 +232,13 @@ export const useRoomCreate = () => {
             if (question.alternatives.length < 2) {
                 setError(
                     `A pergunta ${i + 1} precisa de pelo menos 2 alternativas.`
+                );
+                return;
+            }
+
+            if (question.alternatives.length > 4) {
+                setError(
+                    `A pergunta ${i + 1} pode ter no máximo 4 alternativas.`
                 );
                 return;
             }
@@ -272,9 +306,9 @@ export const useRoomCreate = () => {
         maxPlayers,
         setMaxPlayers,
         timeLimit,
-        setTimeLimit,
+        setTimeLimit: handleTimeLimitChange,
         mode,
-        setMode,
+        setMode: handleModeChange,
         questions,
         loading,
         error,
