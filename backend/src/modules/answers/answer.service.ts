@@ -26,7 +26,7 @@ export class AnswerService {
             }
 
             const round = await this.roundService.findRound(room.room_code);
-           
+
             const power = await this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP')
 
             const alternative = await this.roomService.findAlternatives(
@@ -40,8 +40,19 @@ export class AnswerService {
                 const answeredAt = new Date();
                 const elapsedSeconds = (answeredAt.getTime() - new Date(round.round_opened).getTime()) / 1000;
 
+
+                if (timeLimit <= 0) {
+                    throw new AppError(400, 'Tempo limite inválido');
+                }
+                if (elapsedSeconds < 0) {
+                    throw new AppError(400, 'Horário de resposta inválido');
+                }
+                if (elapsedSeconds > timeLimit) {
+                    throw new AppError(400, 'Tempo da rodada encerrado');
+                }
+
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
-                
+
                 const strategy = ScoreFactory.execute(room.room_mode);
 
                 const baseScore = strategy.calculate(
@@ -52,6 +63,8 @@ export class AnswerService {
                 const multiplier = power?.position === room.position && power.used === true ? 2 : 1;
 
                 scores = applyMultiplier(baseScore, multiplier);
+            } else if (room.room_mode === 'HARDCORE') {
+                scores -= 30
             }
 
             await this.repo.createAnswer(roundId, playerId, alternativeId, scores)

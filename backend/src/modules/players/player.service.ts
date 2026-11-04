@@ -148,7 +148,6 @@ export class PlayerService {
 
             const strategy = PowerUpFactory.execute(power.powerup_type)
 
-
             await strategy({
                 code,
                 playerId,
@@ -162,38 +161,7 @@ export class PlayerService {
                 roomService: this.roomService,
                 socket: this.socket
             })
-            // if (power?.powerup_type === 'DOUBLE_XP') {
-            //     await this.repoPower.updatePower(
-            //         playerId,
-            //         room.room_id,
-            //         power.powerup_id,
-            //         position
-            //     )
-            // }
-            // if (power?.powerup_type === 'FIFTY_FIFTY') {
-            //     await this.repoPower.updatePower(
-            //         playerId,
-            //         room.room_id,
-            //         power.powerup_id,
-            //     )
-            //     const alternatives = await this.roomService.findAlternativesIncorret(round?.question_id!)
-
-            //     console.log(alternatives);
-
-            //     this.socket.powerFifty(code, alternatives, playerId)
-            // }
-            // if (power?.powerup_type === 'SKIP_TURN') {
-            //     await this.repoPower.updatePower(
-            //         playerId,
-            //         room.room_id,
-            //         power.powerup_id,
-            //         undefined,
-            //         round?.round_id,
-            //         targetPlayerId
-            //     )
-
-            //     this.socket.powerSkipTurn(code, true, targetPlayerId!)
-            // }
+            
         } catch (error) {
             console.log(error);
 

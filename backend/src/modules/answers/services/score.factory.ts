@@ -1,5 +1,5 @@
 import { AppError } from "../../../error/AppError.js";
-import { ScoreHarcode } from "./strategies/hardcore.strategy.js";
+import { ScoreHardcore } from "./strategies/hardcore.strategy.js";
 import { ScoreNormal } from "./strategies/normal.strategy.js";
 
 export class ScoreFactory {
@@ -9,7 +9,7 @@ export class ScoreFactory {
                 return new ScoreNormal()
 
             case "HARDCORE":
-                return new ScoreHarcode()
+                return new ScoreHardcore()
             default:
                 throw new AppError(400, 'modo de jogo invalido')
         }
