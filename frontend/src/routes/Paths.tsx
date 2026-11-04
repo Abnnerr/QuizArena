@@ -14,7 +14,6 @@ import AuthLayout from "../layouts/AuthLayout";
 import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
 import RankingPage from "../pages/rooms/pages/RankingPage";
 import PodioPage from "../pages/rooms/pages/PodioPage";
-import RoomLayout from "../layouts/RoomLayout";
 
 
 const Paths = () => {
