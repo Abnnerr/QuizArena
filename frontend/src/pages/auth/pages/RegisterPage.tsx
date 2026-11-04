@@ -135,6 +135,7 @@ const RegisterPage: React.FC = () => {
 
                     <button
                         type="submit"
+                        disabled={loading}
                         className="w-full h-15 bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-4 rounded-2xl shadow-md transition-all duration-75 flex items-center justify-center gap-3 text-lg uppercase tracking-wider cursor-pointer"
                     >
                         <span>Criar Conta</span>
