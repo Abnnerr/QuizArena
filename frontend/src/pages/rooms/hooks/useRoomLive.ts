@@ -220,7 +220,6 @@ const useRoomLive = () => {
 
             // console.log(data, currentPlayerId);
 
-            // Só aplica o efeito ao jogador que ativou o power-up.
             if (data.playerId !== currentPlayerId) {
                 return;
             }
@@ -327,7 +326,6 @@ const useRoomLive = () => {
 
             setSelectedPowerUp(null);
 
-            // Atualiza apenas o power-up utilizado.
             setPowerUp((previous) =>
                 previous.map((power) =>
                     power.powerup_id === powerupId
