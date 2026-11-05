@@ -124,6 +124,14 @@ const useRoomLive = () => {
         const elapsed = Math.floor((Date.now() - start) / 1000);
         const remaining = Math.max(0, duration - elapsed);
 
+
+        console.log({
+            round_opened: data.round_opened,
+            parsedDate: new Date(data.round_opened).toString(),
+            now: new Date().toString(),
+            difference: (Date.now() - new Date(data.round_opened).getTime()) / 1000,
+            time_limit: data.time_limit
+        });
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
