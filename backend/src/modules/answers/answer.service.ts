@@ -41,7 +41,7 @@ export class AnswerService {
                 const openedAt = new Date(round.opened_at).getTime();
                 const elapsedSeconds = Math.max(0, (answeredAt - openedAt) / 1000);
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
-                
+
                 const strategy = ScoreFactory.execute(room.room_mode);
 
                 const baseScore = strategy.calculate(
@@ -52,6 +52,8 @@ export class AnswerService {
                 const multiplier = power?.position === room.position && power.used === true ? 2 : 1;
 
                 scores = applyMultiplier(baseScore, multiplier);
+            } else if (room.room_mode === 'HARDCORE') {
+                scores = -30
             }
 
             await this.repo.createAnswer(roundId, playerId, alternativeId, scores)
