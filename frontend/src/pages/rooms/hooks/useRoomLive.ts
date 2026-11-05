@@ -118,9 +118,13 @@ const useRoomLive = () => {
         setRound(data.round_id);
 
         const duration = data.time_limit ?? QUESTION_TIME;
+
         const start = new Date(data.round_opened).getTime();
         const elapsed = Math.floor((Date.now() - start) / 1000);
         const remaining = Math.max(0, duration - elapsed);
+
+
+        console.log(duration, start, elapsed, remaining);
 
         setQuestionTime(duration);
         setTimeLeft(remaining);
@@ -265,7 +269,7 @@ const useRoomLive = () => {
 
     // Envia resposta.
     const handleAnswer = async (answerId: number) => {
-        if (!question || answered || skip ||timeLeft <= 0 || round === null) {
+        if (!question || answered || skip || timeLeft <= 0 || round === null) {
             return;
         }
 
