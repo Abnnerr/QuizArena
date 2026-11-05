@@ -99,7 +99,7 @@ const useRoomLive = () => {
         navigate(`/${roomCode}/${round}/ranking`);
     };
 
-    // Atualiza a pergunta recebida do backend.
+    // Atualiza a pergunta recebida do backend
     const atualizarPergunta = (data: any) => {
         const questionData = data.questions ?? data;
 
@@ -121,7 +121,7 @@ const useRoomLive = () => {
         const start = new Date(data.round_opened).getTime();
         const elapsed = Math.floor((Date.now() - start) / 1000);
         const remaining = Math.max(0, duration - elapsed);
-
+        
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
@@ -265,7 +265,7 @@ const useRoomLive = () => {
 
     // Envia resposta.
     const handleAnswer = async (answerId: number) => {
-        if (!question || answered || skip ||timeLeft <= 0 || round === null) {
+        if (!question || answered || skip || timeLeft <= 0 || round === null) {
             return;
         }
 
