@@ -26,7 +26,7 @@ export class AnswerService {
             }
 
             const round = await this.roundService.findRound(room.room_code);
-           
+
             const power = await this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP')
 
             const alternative = await this.roomService.findAlternatives(
@@ -37,9 +37,9 @@ export class AnswerService {
             let scores = 0;
             const timeLimit = room.time_limit;
             if (alternative.is_correct) {
-                const answeredAt = new Date();
-                const elapsedSeconds = (answeredAt.getTime() - new Date(round.round_opened).getTime()) / 1000;
-
+                const answeredAt = Date.now();
+                const openedAt = new Date(round.opened_at).getTime();
+                const elapsedSeconds = Math.max(0, (answeredAt - openedAt) / 1000);
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
                 
                 const strategy = ScoreFactory.execute(room.room_mode);
