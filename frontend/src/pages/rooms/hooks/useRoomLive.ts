@@ -120,8 +120,12 @@ const useRoomLive = () => {
 
         const duration = Number(data.time_limit ?? QUESTION_TIME);
         const start = new Date(data.round_opened).getTime();
+        const serverNow = new Date(data.server_now).getTime();
 
-        const elapsed = Math.floor((Date.now() - start) / 1000);
+        const elapsed = Math.max(
+            0,
+            Math.floor((serverNow - start) / 1000)
+        );
         const remaining = Math.max(0, duration - elapsed);
 
 
