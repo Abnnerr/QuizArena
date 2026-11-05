@@ -117,11 +117,13 @@ const useRoomLive = () => {
         setSkip(data.skip)
         setRound(data.round_id);
 
-        const duration = data.time_limit ?? QUESTION_TIME;
+
+        const duration = Number(data.time_limit ?? QUESTION_TIME);
         const start = new Date(data.round_opened).getTime();
+
         const elapsed = Math.floor((Date.now() - start) / 1000);
         const remaining = Math.max(0, duration - elapsed);
-        
+
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
