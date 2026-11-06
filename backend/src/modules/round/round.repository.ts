@@ -81,6 +81,7 @@ export class RoundRepository {
                             select: {
                                 alternative_id: true,
                                 alternative_text: true,
+                                is_correct: true
                             },
                         },
                     },

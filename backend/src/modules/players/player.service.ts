@@ -136,6 +136,7 @@ export class PlayerService {
             const room = await this.roomService.findRoom(code);
             const round = await this.repoRound.findById(room.room_id);
             const power = await this.repoPower.findPowerById(powerId);
+            
             if (!room) {
                 throw new AppError(404, "Sala não encontrada");
             }
