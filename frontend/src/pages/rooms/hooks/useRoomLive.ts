@@ -99,7 +99,7 @@ const useRoomLive = () => {
         navigate(`/${roomCode}/${round}/ranking`);
     };
 
-    // Atualiza a pergunta recebida do backend.
+    // Atualiza a pergunta recebida do backend
     const atualizarPergunta = (data: any) => {
         const questionData = data.questions ?? data;
 
@@ -117,6 +117,7 @@ const useRoomLive = () => {
         setSkip(data.skip)
         setRound(data.round_id);
 
+<<<<<<< HEAD
         const duration = data.time_limit ?? QUESTION_TIME;
 
         const start = new Date(data.round_opened).getTime();
@@ -130,6 +131,26 @@ const useRoomLive = () => {
             difference: (start - Date.now()) / 1000
         });
 
+=======
+
+        const duration = Number(data.time_limit ?? QUESTION_TIME);
+        const start = new Date(data.round_opened).getTime();
+        const serverNow = new Date(data.server_now).getTime();
+
+        const elapsed = Math.floor((serverNow - start) / 1000);
+
+        const remaining = Math.max(0, duration - elapsed);
+
+
+        console.log({
+            round_opened: data.round_opened,
+            parsedDate: new Date(data.round_opened).toString(),
+            serverNow: new Date(data.server_now).toString(),
+            now: new Date().toString(),
+            difference: (Date.now() - new Date(data.round_opened).getTime()) / 1000,
+            time_limit: data.time_limit
+        });
+>>>>>>> f275cd449ebf1f54bbd0289d02e4b4aa5b466559
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
@@ -215,7 +236,6 @@ const useRoomLive = () => {
 
             // console.log(data, currentPlayerId);
 
-            // Só aplica o efeito ao jogador que ativou o power-up.
             if (data.playerId !== currentPlayerId) {
                 return;
             }
@@ -322,7 +342,6 @@ const useRoomLive = () => {
 
             setSelectedPowerUp(null);
 
-            // Atualiza apenas o power-up utilizado.
             setPowerUp((previous) =>
                 previous.map((power) =>
                     power.powerup_id === powerupId

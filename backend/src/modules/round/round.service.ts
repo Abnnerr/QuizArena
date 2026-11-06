@@ -39,6 +39,7 @@ export class RoundService {
             return {
                 round_id: round.round_id,
                 round_opened: round.opened_at,
+                server_now: new Date(),
                 question_id: round.questions.question_id,
                 question_text: round.questions.question_text,
                 alternatives: round.questions.alternatives,
