@@ -37,20 +37,9 @@ export class AnswerService {
             let scores = 0;
             const timeLimit = room.time_limit;
             if (alternative.is_correct) {
-                const answeredAt = new Date();
-                const elapsedSeconds = (answeredAt.getTime() - new Date(round.round_opened).getTime()) / 1000;
-
-
-                if (timeLimit <= 0) {
-                    throw new AppError(400, 'Tempo limite inválido');
-                }
-                if (elapsedSeconds < 0) {
-                    throw new AppError(400, 'Horário de resposta inválido');
-                }
-                if (elapsedSeconds > timeLimit) {
-                    throw new AppError(400, 'Tempo da rodada encerrado');
-                }
-
+                const answeredAt = Date.now();
+                const openedAt = new Date(round.opened_at).getTime();
+                const elapsedSeconds = Math.max(0, (answeredAt - openedAt) / 1000);
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
 
                 const strategy = ScoreFactory.execute(room.room_mode);
@@ -64,7 +53,7 @@ export class AnswerService {
 
                 scores = applyMultiplier(baseScore, multiplier);
             } else if (room.room_mode === 'HARDCORE') {
-                scores -= 30
+                scores = -30
             }
 
             await this.repo.createAnswer(roundId, playerId, alternativeId, scores)
