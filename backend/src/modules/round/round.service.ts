@@ -1,3 +1,4 @@
+import { time } from "node:console";
 import { AppError } from "../../error/AppError.js";
 import type { SocketService } from "../../shared/services/socket.service.js";
 import type { PowerRepository } from "../powers/powers.repository.js";
@@ -28,12 +29,25 @@ export class RoundService {
                 throw new AppError(404, "Nenhuma rodada ativa encontrada");
             }
             let skip = false;
+            let fiftyAlternatives = []
+            
             if (playerId) {
-                const power = await this.repoPower.findPowerTarget(
-                    playerId,
-                    room.room_id,
-                    round.round_id
-                );
+                const [power, fifty] = await Promise.all([
+                    this.repoPower.findPowerTarget(
+                        playerId,
+                        room.room_id,
+                        round.round_id
+                    ),
+                    this.repoPower.findPowerPlayer(
+                        playerId,
+                        room.room_id,
+                        "FIFTY_FIFTY"
+                    )
+                ]);
+
+                if (fifty?.used) {
+                    fiftyAlternatives = await this.roomService.findAlternativesIncorret(round.question_id)
+                }
                 skip = power.length > 0;
             }
             return {
@@ -48,16 +62,16 @@ export class RoundService {
                 position: round.rooms.position,
 
                 ...(playerId && {
-                    powers: round.rooms.roomPlayers.flatMap(player =>
-                        player.powerUpUses.map(use => ({
+                    powers: round.rooms.roomPlayers
+                        .find(player => player.player_id === playerId)
+                        ?.powerUpUses.map(use => ({
                             powerup_id: use.powerup.powerup_id,
                             powerup_type: use.powerup.powerup_type,
                             descricao: use.powerup.descricao,
                             used: use.used
-                        }))
-                    )
+                        })) ?? []
                 }),
-
+                fiftyAlternatives,
                 skip
             };
 

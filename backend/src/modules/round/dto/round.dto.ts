@@ -54,7 +54,8 @@ export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
                 alternatives: {
                     select: {
                         alternative_id: true,
-                        alternative_text: true
+                        alternative_text: true,
+                        is_correct: true
                     }
                 }
             }

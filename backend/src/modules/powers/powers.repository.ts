@@ -43,6 +43,7 @@ export class PowerRepository {
                 where: {
                     player_id: playerId,
                     room_id: roomId,
+                    used: true,
                     ...(namePower && {
                         powerup: {
                             powerup_type: namePower

@@ -7,75 +7,69 @@ datasource db {
 }
 
 model Users {
-  user_id       String @id @default(uuid())
-  user_email    String @unique
-  user_username String @unique
+  user_id       String  @id @default(uuid())
+  user_email    String  @unique
+  user_username String  @unique
   user_password String
   role_id       Int
-
-  Role        Role    @relation(fields: [role_id], references: [role_id])
-  hostedRooms Rooms[]
+  hostedRooms   Rooms[]
+  Role          Role    @relation(fields: [role_id], references: [role_id])
 }
 
 model Players {
-  player_id   String @id @default(uuid())
-  player_name String @unique
-
-  roomPlayers RoomPlayer[]
+  player_id   String       @id @default(uuid())
+  player_name String       @unique
   answers     Answers[]
+  roomPlayers RoomPlayer[]
 }
 
 model Role {
   role_id         Int              @id @default(autoincrement())
   role_name       Roles            @unique
-  users           Users[]
   rolePermissions RolePermission[]
+  users           Users[]
 }
 
 model Permissions {
-  permission_id   Int             @id @default(autoincrement())
-  permission_name PermissionseNum @unique
-
+  permission_id   Int              @id @default(autoincrement())
+  permission_name PermissionseNum  @unique
   rolePermissions RolePermission[]
 }
 
 model RolePermission {
   role_id       Int
   permission_id Int
-
-  role       Role        @relation(fields: [role_id], references: [role_id])
-  permission Permissions @relation(fields: [permission_id], references: [permission_id])
+  permission    Permissions @relation(fields: [permission_id], references: [permission_id])
+  role          Role        @relation(fields: [role_id], references: [role_id])
 
   @@id([role_id, permission_id])
 }
 
 model Rooms {
-  room_id      Int        @id @default(autoincrement())
-  room_code    String     @unique
-  room_name    String
-  host_user_id String
-  max_players  Int        @default(20)
-  time_limit   Int        @default(20)
-  room_mode    GameMode   @default(NORMAL)
-  room_status  RoomStatus @default(LOBBY)
-  position     Int        @default(0)
-
-  host          Users          @relation(fields: [host_user_id], references: [user_id])
+  room_id       Int            @id @default(autoincrement())
+  room_code     String         @unique
+  room_name     String
+  host_user_id  String
+  max_players   Int            @default(20)
+  time_limit    Int            @default(20)
+  room_mode     GameMode       @default(NORMAL)
+  room_status   RoomStatus     @default(LOBBY)
+  position      Int            @default(0)
   roomPlayers   RoomPlayer[]
   roomQuestions RoomQuestion[]
+  host          Users          @relation(fields: [host_user_id], references: [user_id])
   rounds        Round[]
 }
 
 model RoomPlayer {
-  room_id   Int
-  player_id String
-  score     Int      @default(0)
-  joined_at DateTime @default(now())
-  ready     Boolean  @default(false)
-
-  rooms       Rooms        @relation(fields: [room_id], references: [room_id])
-  players     Players      @relation(fields: [player_id], references: [player_id])
+  room_id     Int
+  player_id   String
+  score       Int          @default(0)
+  joined_at   DateTime     @default(now())
+  ready       Boolean      @default(false)
   powerUpUses PowerUpUse[]
+  players     Players      @relation(fields: [player_id], references: [player_id])
+  rooms       Rooms        @relation(fields: [room_id], references: [room_id])
 
   @@id([room_id, player_id])
 }
@@ -84,32 +78,29 @@ model RoomQuestion {
   room_id     Int
   question_id Int
   position    Int
-
-  rooms     Rooms     @relation(fields: [room_id], references: [room_id])
-  questions Questions @relation(fields: [question_id], references: [question_id])
+  questions   Questions @relation(fields: [question_id], references: [question_id])
+  rooms       Rooms     @relation(fields: [room_id], references: [room_id])
 
   @@id([room_id, question_id])
   @@unique([room_id, position])
 }
 
 model Questions {
-  question_id   Int     @id @default(autoincrement())
+  question_id   Int            @id @default(autoincrement())
   question_text String
-  active        Boolean @default(true)
-
+  active        Boolean        @default(true)
   alternatives  Alternatives[]
   roomQuestions RoomQuestion[]
   rounds        Round[]
 }
 
 model Alternatives {
-  alternative_id   Int     @id @default(autoincrement())
+  alternative_id   Int       @id @default(autoincrement())
   alternative_text String
   is_correct       Boolean
   question_id      Int
-
-  question Questions @relation(fields: [question_id], references: [question_id])
-  answers  Answers[]
+  question         Questions @relation(fields: [question_id], references: [question_id])
+  answers          Answers[]
 }
 
 model Round {
@@ -118,48 +109,44 @@ model Round {
   question_id Int
   opened_at   DateTime  @default(now())
   closed_at   DateTime?
-
-  rooms     Rooms     @relation(fields: [room_id], references: [room_id])
-  questions Questions @relation(fields: [question_id], references: [question_id])
-  answers   Answers[]
+  answers     Answers[]
+  questions   Questions @relation(fields: [question_id], references: [question_id])
+  rooms       Rooms     @relation(fields: [room_id], references: [room_id])
 }
 
 model Answers {
-  answer_id      Int      @id @default(autoincrement())
+  answer_id      Int          @id @default(autoincrement())
   player_id      String
   round_id       Int
   alternative_id Int
-  points         Int      @default(0)
-  answered_at    DateTime @default(now())
-
-  player      Players      @relation(fields: [player_id], references: [player_id])
-  round       Round        @relation(fields: [round_id], references: [round_id])
-  alternative Alternatives @relation(fields: [alternative_id], references: [alternative_id])
+  points         Int          @default(0)
+  answered_at    DateTime     @default(now())
+  alternative    Alternatives @relation(fields: [alternative_id], references: [alternative_id])
+  player         Players      @relation(fields: [player_id], references: [player_id])
+  round          Round        @relation(fields: [round_id], references: [round_id])
 
   @@unique([player_id, round_id])
 }
 
 model PowerUp {
-  powerup_id   Int         @id @default(autoincrement())
-  powerup_type PowerupType @unique
+  powerup_id   Int          @id @default(autoincrement())
+  powerup_type PowerupType  @unique
   descricao    String
-
-  uses PowerUpUse[]
+  uses         PowerUpUse[]
 }
 
 model PowerUpUse {
-  id            Int       @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   room_id       Int
-  round_id      Int?
   player_id     String
   powerup_id    Int
-  position      Int       @default(0)
-  player_target String?
-  used          Boolean   @default(false)
+  used          Boolean    @default(false)
   used_at       DateTime?
-
-  roomPlayer RoomPlayer @relation(fields: [room_id, player_id], references: [room_id, player_id])
-  powerup    PowerUp    @relation(fields: [powerup_id], references: [powerup_id])
+  position      Int        @default(0)
+  player_target String?
+  round_id      Int?
+  powerup       PowerUp    @relation(fields: [powerup_id], references: [powerup_id])
+  roomPlayer    RoomPlayer @relation(fields: [room_id, player_id], references: [room_id, player_id])
 
   @@unique([room_id, player_id, powerup_id])
 }
