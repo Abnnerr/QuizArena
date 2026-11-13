@@ -62,6 +62,7 @@ export class RoomService implements IRoomService {
     async joinRoom(roomCode: string, userName: string): Promise<any> {
         try {
             const room = await this.repo.findByRoom(undefined, roomCode)
+
             if (!room) {
                 throw new AppError(404, 'sala nao encontrada')
             }
@@ -69,13 +70,18 @@ export class RoomService implements IRoomService {
                 throw new AppError(400, "A sala não está aberta");
             }
             const countPLayer = await this.playerService.countPlayers(room?.room_id!)
+
+            await this.playerService.findPlayerRoom(userName, room?.room_id!)
+            
             if (countPLayer >= room?.max_players) {
                 throw new AppError(400, 'sala esta cheia')
             }
+
+            //cria o player
             const player = await this.playerService.createPlayer(userName)
 
+            //verifica se ele ja existe na sala
 
-            await this.playerService.findPlayerRoom(player.player_id, room?.room_id!)
             await this.repo.joinRoom(player.player_id, room.room_id)
 
 

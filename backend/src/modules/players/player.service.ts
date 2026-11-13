@@ -53,9 +53,9 @@ export class PlayerService {
             throw new AppError(500, 'Erro ao criar player')
         }
     }
-    async findPlayerRoom(id: string, roomId: number): Promise<RoomPlayer | null> {
+    async findPlayerRoom(username: string, roomId: number): Promise<RoomPlayer | null> {
         try {
-            const player = await this.repo.findPlayerRoom(id, roomId)
+            const player = await this.repo.findPlayerRoom(username, roomId)
 
             if (player) {
                 throw new AppError(400, 'player ja esta na sala')
@@ -77,7 +77,7 @@ export class PlayerService {
 
             const room = await this.roomService.findRoom(roomCode)
             const isReady = await this.repo.readyPlayer(playerId, room.room_id, ready)
-            
+
             if (!isReady) {
                 throw new AppError(400, 'Erro ao player ficar pronto')
             }

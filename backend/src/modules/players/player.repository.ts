@@ -28,14 +28,14 @@ export class PlayerRepository {
         }
     }
 
-    async findPlayerRoom(id: string, roomId: number): Promise<RoomPlayer | null> {
+    async findPlayerRoom(username: string, roomId: number): Promise<RoomPlayer | null> {
         try {
-            return await prisma.roomPlayer.findUnique({
+            return await prisma.roomPlayer.findFirst({
                 where: {
-                    room_id_player_id: {
-                        player_id: id,
-                        room_id: roomId
-                    }
+                    players: {
+                        player_name: username
+                    },
+                    room_id: roomId
                 }
             })
         } catch (error) {
