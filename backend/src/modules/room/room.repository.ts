@@ -123,7 +123,10 @@ export class RoomRepository implements IRoomRepository {
             return await prisma.alternatives.findFirst({
                 where: {
                     question_id: questionId,
-                    ...(alternativeId && { alternative_id: alternativeId })
+                    ...(alternativeId ?
+                        { alternative_id: alternativeId } :
+                        { is_correct: true }
+                    )
                 },
                 select: {
                     alternative_id: true,
