@@ -105,7 +105,6 @@ export class RoomService implements IRoomService {
     async start(user: AuthPayload, id: number): Promise<void> {
         try {
 
-                      
             const room = await this.repo.findByRoom(undefined, undefined, id)
             const countPlayers = await this.playerService.countPlayers(id)
             if (!room) {
