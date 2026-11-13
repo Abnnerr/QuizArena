@@ -89,7 +89,8 @@ const RankingPage: React.FC = () => {
                         diff,
                     };
                 });
-
+                console.log(ranking);
+                
                 setRankingList(ranking);
                 sessionStorage.setItem("podium", JSON.stringify(currentData));
             } catch (err) {
@@ -180,6 +181,7 @@ const RankingPage: React.FC = () => {
                             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                                 <AnimatePresence>
                                     {rankingList.map((player, index) => (
+                                        
                                         <motion.div
                                             key={player.player_id}
                                             layout
