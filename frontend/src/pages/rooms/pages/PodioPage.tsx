@@ -23,26 +23,26 @@ const PodioPage: React.FC = () => {
                 <title>QuizArena • Fim de Partida • Pódio Final</title>
             </Helmet>
 
-            <main className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
+            <main className="min-h-screen bg-[#121212] text-[#F3F4F6] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
 
-                {/* Background Dot Pattern */}
+                {/* Background Dot Pattern Dark */}
                 <div
-                    className="absolute inset-0 pointer-events-none opacity-40 z-0"
+                    className="absolute inset-0 pointer-events-none opacity-15 z-0"
                     style={{
-                        backgroundImage: 'radial-gradient(#E5E5E5 2px, transparent 2px)',
+                        backgroundImage: 'radial-gradient(#383838 2px, transparent 2px)',
                         backgroundSize: '24px 24px',
                     }}
                 />
 
                 <div className="w-full max-w-xl relative z-10 space-y-6 my-auto">
 
-                    {/* Topo com Botão Voltar e Badge */}
+                    {/* Topo com Botão Início e Badge */}
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate('/')}
-                            className="inline-flex items-center gap-2 bg-white hover:bg-[#F7F7F7] border-2 border-[#E5E5E5] border-b-4 text-[#777777] hover:text-[#4B4B4B] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer shadow-sm"
+                            className="inline-flex items-center gap-2 bg-[#1E1E1E] hover:bg-[#282828] border-2 border-[#2A2A2A] border-b-4 text-[#AAAAAA] hover:text-[#FFFFFF] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer shadow-sm"
                         >
-                            <BsArrowLeft className="w-5 h-5 text-[#AFAFAF]" />
+                            <BsArrowLeft className="w-5 h-5 text-[#888888]" />
                             <span>Início</span>
                         </button>
 
@@ -52,14 +52,14 @@ const PodioPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Card Principal */}
-                    <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-center">
+                    {/* Card Principal (Dark) */}
+                    <section className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-center">
 
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-black text-[#4B4B4B] tracking-tight">
+                            <h1 className="text-2xl sm:text-3xl font-black text-[#F3F4F6] tracking-tight">
                                 Partida Finalizada! 🏆
                             </h1>
-                            <p className="text-[#777777] font-extrabold text-xs sm:text-sm mt-1">
+                            <p className="text-[#888888] font-extrabold text-xs sm:text-sm mt-1">
                                 Revelando os grandes campeões da arena...
                             </p>
                         </div>
@@ -67,7 +67,7 @@ const PodioPage: React.FC = () => {
                         {error && (
                             <div
                                 role="alert"
-                                className="bg-[#FFD2D2] border-2 border-[#FF4B4B] border-b-4 text-[#A80000] p-4 rounded-2xl text-xs sm:text-sm font-black text-center"
+                                className="bg-[#3B1515] border-2 border-[#FF4B4B] border-b-4 text-[#FF6B6B] p-4 rounded-2xl text-xs sm:text-sm font-black text-center"
                             >
                                 {error}
                             </div>
@@ -76,13 +76,13 @@ const PodioPage: React.FC = () => {
                         {loading ? (
                             <div className="text-center py-12 space-y-3">
                                 <div className="inline-block w-10 h-10 border-4 border-[#1CB0F6] border-t-transparent rounded-full animate-spin" />
-                                <p className="text-[#AFAFAF] font-black text-xs uppercase tracking-wider">
+                                <p className="text-[#888888] font-black text-xs uppercase tracking-wider">
                                     Calculando pódio final...
                                 </p>
                             </div>
                         ) : topThree.length === 0 ? (
                             <div className="text-center py-8 space-y-4">
-                                <p className="text-[#777777] font-black">Nenhum jogador pontuou na partida.</p>
+                                <p className="text-[#888888] font-black">Nenhum jogador pontuou na partida.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-3 gap-3 items-end pt-6 pb-2 min-h-[260px]">
@@ -109,10 +109,10 @@ const PodioPage: React.FC = () => {
                                                             damping: 16,
                                                         }}
                                                         className={`flex flex-col items-center justify-between p-4 sm:p-5 rounded-3xl border-2 border-b-8 text-center transition-all ${isFirst
-                                                                ? 'bg-[#FFFBF0] border-[#FFC800] min-h-[220px] sm:min-h-[250px] shadow-md z-10 -translate-y-2'
+                                                                ? 'bg-[#2A2312] border-[#FFC800] min-h-[220px] sm:min-h-[250px] shadow-lg z-10 -translate-y-2'
                                                                 : isSecond
-                                                                    ? 'bg-[#E8F7FE] border-[#1CB0F6] min-h-[180px] sm:min-h-[210px]'
-                                                                    : 'bg-[#FFF2B2]/40 border-[#D89E00] min-h-[150px] sm:min-h-[180px]'
+                                                                    ? 'bg-[#15232A] border-[#1CB0F6] min-h-[180px] sm:min-h-[210px]'
+                                                                    : 'bg-[#2A2615] border-[#D89E00] min-h-[150px] sm:min-h-[180px]'
                                                             }`}
                                                     >
                                                         {/* Ícone de Destaque */}
@@ -127,17 +127,17 @@ const PodioPage: React.FC = () => {
 
                                                         {/* Informações do Jogador */}
                                                         <div className="w-full space-y-1 my-auto">
-                                                            <span className="block font-black text-xs sm:text-sm text-[#AFAFAF] uppercase tracking-wider">
+                                                            <span className="block font-black text-xs sm:text-sm text-[#888888] uppercase tracking-wider">
                                                                 {originalIndex + 1}º Lugar
                                                             </span>
-                                                            <span className="block font-black text-sm sm:text-lg text-[#4B4B4B] truncate w-full px-1">
+                                                            <span className="block font-black text-sm sm:text-lg text-[#F3F4F6] truncate w-full px-1">
                                                                 {playerName}
                                                             </span>
                                                         </div>
 
                                                         {/* Pontuação */}
-                                                        <div className="bg-white/90 border-2 border-[#E5E5E5] rounded-xl py-1.5 px-3 w-full shadow-xs">
-                                                            <span className="text-xs sm:text-sm font-black text-[#777777]">
+                                                        <div className="bg-[#151515] border-2 border-[#2A2A2A] rounded-xl py-1.5 px-3 w-full shadow-xs">
+                                                            <span className="text-xs sm:text-sm font-black text-[#AAAAAA]">
                                                                 {player.score} pts
                                                             </span>
                                                         </div>
