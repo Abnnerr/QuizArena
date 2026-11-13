@@ -244,6 +244,8 @@ const useRoomLive = () => {
         }
 
         const expired = (data: any) => {
+            console.log(data);
+            
             setTimeLeft(0)
             setCorrectAlternative(data.alternativeCorrect.alternative_id)
         }
