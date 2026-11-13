@@ -140,6 +140,9 @@ export class RoomRepository implements IRoomRepository {
                     question_id: questionId,
                     is_correct: false
                 },
+                select: {
+                    alternative_id: true
+                }
             })
             return alternatives
                 .sort(() => Math.random() - 0.5)
