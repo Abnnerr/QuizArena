@@ -260,7 +260,7 @@ const RoomLivePage = () => {
                                         </div>
 
                                         {isHost && (
-                                            <span className="truncate text-left text-white tracking-wide text-xs sm:text-base">
+                                            <span className="flex-1 min-w-0 whitespace-normal break-words text-left text-white tracking-wide text-xs sm:text-base leading-snug">
                                                 {alternative.text}
                                             </span>
                                         )}
