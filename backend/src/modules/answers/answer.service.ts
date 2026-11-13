@@ -1,4 +1,5 @@
 import { AppError } from "../../error/AppError.js";
+import { logger } from "../../shared/utils/logger.js";
 import type { PlayerService } from "../players/player.service.js";
 import type { PowerService } from "../powers/powers.service.js";
 import type { RoomService } from "../room/room.service.js";
@@ -38,6 +39,10 @@ export class AnswerService {
 
             const skip = Boolean(powerSkip);
             if (skip) {
+                logger.warn({
+                    event: " nao skipado",
+                    skip
+                })
                 throw new AppError(400, 'Erro vc pulou')
             }
 

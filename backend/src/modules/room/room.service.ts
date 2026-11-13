@@ -9,6 +9,7 @@ import type { IRoomService } from "./contracts/room.service.contract.js";
 import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
 import type { QuestionService } from "../question/question.service.js";
 import type { PowerService } from "../powers/powers.service.js";
+import { logger } from "../../shared/utils/logger.js";
 
 export class RoomService implements IRoomService {
     private playerService!: PlayerService;
@@ -25,22 +26,45 @@ export class RoomService implements IRoomService {
     }
 
     //Cria a sala
-    async createRoom(user: AuthPayload, dados: RoomCreateDTO): Promise<string> {
+    async createRoom(user: AuthPayload, dados: RoomCreateDTO ): Promise<string> {
         try {
-            const room = await this.repo.findByRoom(dados.name)
+            logger.info(
+                { userId: user.id },
+                "Iniciando criação de sala"
+            );
+
+            const room = await this.repo.findByRoom(dados.name);
+
             if (room) {
-                throw new AppError(409, 'Já existe uma sala com esse nome')
+                logger.warn(
+                    { userId: user.id },
+                    "Tentativa de criar sala com nome já existente"
+                );
+                throw new AppError(409, "Já existe uma sala com esse nome");
             }
-            const idQuestions = await this.serviceQuestion.createQuestions(dados.questions)
-            const roomcreate = await this.repo.createRoom(user.id, dados, idQuestions)
-            console.log(idQuestions);
-            console.log(roomcreate);
-            return roomcreate.room_code
+            const idQuestions = await this.serviceQuestion.createQuestions(dados.questions);
+
+            logger.info(
+                { questionsCount: idQuestions.length },
+                "Perguntas criadas com sucesso"
+            );
+
+            const roomcreate = await this.repo.createRoom(user.id, dados, idQuestions);
+            logger.info(
+                { roomId: roomcreate.room_id },
+                "Sala criada com sucesso"
+            );
+
+            return roomcreate.room_code;
         } catch (error) {
             if (error instanceof AppError) {
-                throw error
+                throw error;
             }
-            throw new AppError(500, 'Erro ao criar sala')
+            logger.error(
+                { err: error, userId: user.id },
+                "Erro inesperado ao criar sala"
+            );
+            throw new AppError(500, "Erro ao criar sala");
         }
     }
     //encontra a sala
