@@ -148,13 +148,13 @@ const RankingPage: React.FC = () => {
                 <title>QuizArena • Classificação da Rodada</title>
             </Helmet>
 
-            <main className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
+            <main className="min-h-screen bg-[#121212] text-[#F3F4F6] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
 
-                {/* Background Dot Pattern */}
+                {/* Background Dot Pattern Dark */}
                 <div
-                    className="absolute inset-0 pointer-events-none opacity-40 z-0"
+                    className="absolute inset-0 pointer-events-none opacity-15 z-0"
                     style={{
-                        backgroundImage: 'radial-gradient(#E5E5E5 2px, transparent 2px)',
+                        backgroundImage: 'radial-gradient(#383838 2px, transparent 2px)',
                         backgroundSize: '24px 24px',
                     }}
                 />
@@ -165,9 +165,9 @@ const RankingPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate(-1)}
-                            className="inline-flex items-center gap-2 bg-white hover:bg-[#F7F7F7] border-2 border-[#E5E5E5] border-b-4 text-[#777777] hover:text-[#4B4B4B] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer shadow-sm"
+                            className="inline-flex items-center gap-2 bg-[#1E1E1E] hover:bg-[#282828] border-2 border-[#2A2A2A] border-b-4 text-[#AAAAAA] hover:text-[#FFFFFF] font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm tracking-wider uppercase transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer shadow-sm"
                         >
-                            <BsArrowLeft className="w-5 h-5 text-[#AFAFAF]" />
+                            <BsArrowLeft className="w-5 h-5 text-[#888888]" />
                             <span>Voltar</span>
                         </button>
 
@@ -177,14 +177,14 @@ const RankingPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Card Principal do Ranking */}
-                    <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    {/* Card Principal do Ranking (Dark) */}
+                    <section className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
 
                         <div className="text-center">
-                            <h1 className="text-xl sm:text-2xl font-black text-[#4B4B4B] tracking-tight">
+                            <h1 className="text-xl sm:text-2xl font-black text-[#F3F4F6] tracking-tight">
                                 Ranking Parcial
                             </h1>
-                            <p className="text-[#777777] font-extrabold text-xs sm:text-sm mt-1">
+                            <p className="text-[#888888] font-extrabold text-xs sm:text-sm mt-1">
                                 Veja quem subiu e quem desceu na tabela!
                             </p>
                         </div>
@@ -192,7 +192,7 @@ const RankingPage: React.FC = () => {
                         {error && (
                             <div
                                 role="alert"
-                                className="bg-[#FFD2D2] border-2 border-[#FF4B4B] border-b-4 text-[#A80000] p-4 rounded-2xl text-xs sm:text-sm font-black text-center"
+                                className="bg-[#3B1515] border-2 border-[#FF4B4B] border-b-4 text-[#FF6B6B] p-4 rounded-2xl text-xs sm:text-sm font-black text-center"
                             >
                                 {error}
                             </div>
@@ -201,13 +201,13 @@ const RankingPage: React.FC = () => {
                         {loading ? (
                             <div className="text-center py-12 space-y-3">
                                 <div className="inline-block w-10 h-10 border-4 border-[#1CB0F6] border-t-transparent rounded-full animate-spin" />
-                                <p className="text-[#AFAFAF] font-black text-xs uppercase tracking-wider">
+                                <p className="text-[#888888] font-black text-xs uppercase tracking-wider">
                                     Calculando posições...
                                 </p>
                             </div>
                         ) : rankingList.length === 0 ? (
                             <div className="text-center py-8 space-y-4">
-                                <p className="text-[#777777] font-black">Nenhum jogador pontuou ainda.</p>
+                                <p className="text-[#888888] font-black">Nenhum jogador pontuou ainda.</p>
                             </div>
                         ) : (
                             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
@@ -215,7 +215,6 @@ const RankingPage: React.FC = () => {
                                     const hasMovedUp = player.diff > 0;
                                     const hasMovedDown = player.diff < 0;
 
-                                    // Deslocamento vertical exato baseado na variação de posições (prevPos - currentPos) * altura do card
                                     const offsetY = animateTrigger ? 0 : (player.prevPos - player.currentPos) * 72;
 
                                     return (
@@ -225,7 +224,7 @@ const RankingPage: React.FC = () => {
                                             animate={{
                                                 y: 0,
                                                 opacity: 1,
-                                                backgroundColor: animateTrigger && hasMovedUp ? "#F4FFEC" : animateTrigger && hasMovedDown ? "#FFF5F5" : "#F7F7F7"
+                                                backgroundColor: animateTrigger && hasMovedUp ? "#152E0C" : animateTrigger && hasMovedDown ? "#3B1515" : "#171717"
                                             }}
                                             transition={{
                                                 type: "spring",
@@ -237,7 +236,7 @@ const RankingPage: React.FC = () => {
                                                     ? "border-[#58CC02]"
                                                     : animateTrigger && hasMovedDown
                                                         ? "border-[#FF4B4B]"
-                                                        : "border-[#E5E5E5]"
+                                                        : "border-[#2A2A2A]"
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">
@@ -248,13 +247,13 @@ const RankingPage: React.FC = () => {
                                                                 ? 'bg-[#1CB0F6] border-[#0092D6] text-white'
                                                                 : player.currentPos === 3
                                                                     ? 'bg-[#D89E00] border-[#B88F00] text-white'
-                                                                    : 'bg-white border-[#E5E5E5] text-[#AFAFAF]'
+                                                                    : 'bg-[#282828] border-[#383838] text-[#888888]'
                                                         }`}
                                                 >
                                                     {player.currentPos}º
                                                 </span>
 
-                                                <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
+                                                <span className="font-black text-sm sm:text-base text-[#F3F4F6]">
                                                     {player.player_name}
                                                 </span>
                                             </div>
@@ -265,7 +264,7 @@ const RankingPage: React.FC = () => {
                                                         <motion.span
                                                             initial={{ scale: 0 }}
                                                             animate={{ scale: animateTrigger ? 1 : 0 }}
-                                                            className="inline-flex items-center gap-0.5 text-[#2B7200] bg-[#D7FFB8] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#58CC02] border-b-4"
+                                                            className="inline-flex items-center gap-0.5 text-[#58CC02] bg-[#152E0C] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#58CC02] border-b-4"
                                                         >
                                                             <BsArrowUpShort className="w-4 h-4 stroke-[2]" />
                                                             <span>+{player.diff}</span>
@@ -274,19 +273,19 @@ const RankingPage: React.FC = () => {
                                                         <motion.span
                                                             initial={{ scale: 0 }}
                                                             animate={{ scale: animateTrigger ? 1 : 0 }}
-                                                            className="inline-flex items-center gap-0.5 text-[#A80000] bg-[#FFD2D2] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#FF4B4B] border-b-4"
+                                                            className="inline-flex items-center gap-0.5 text-[#FF6B6B] bg-[#3B1515] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#FF4B4B] border-b-4"
                                                         >
                                                             <BsArrowDownShort className="w-4 h-4 stroke-[2]" />
                                                             <span>{player.diff}</span>
                                                         </motion.span>
                                                     ) : (
-                                                        <span className="text-[#AFAFAF] px-2 py-1">
+                                                        <span className="text-[#666666] px-2 py-1">
                                                             <BsDash className="w-5 h-5" />
                                                         </span>
                                                     )}
                                                 </div>
 
-                                                <span className="text-xs sm:text-sm font-black text-[#777777] min-w-[55px] text-right">
+                                                <span className="text-xs sm:text-sm font-black text-[#AAAAAA] min-w-[55px] text-right">
                                                     {player.score} pts
                                                 </span>
                                             </div>
