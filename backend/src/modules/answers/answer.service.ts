@@ -21,12 +21,8 @@ export class AnswerService {
         try {
             console.log(roomCode, roundId, playerId, alternativeId);
             const room = await this.roomService.findRoom(roomCode);
-            if (!room) {
-                throw new Error("Sala não encontrada");
-            }
 
             const round = await this.roundService.findRound(room.room_code);
-
 
             const [power, powerSkip, alternative] = await Promise.all([
                 this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP'),

@@ -140,13 +140,10 @@ export class PlayerService {
             const room = await this.roomService.findRoom(code);
 
             const [power, round] = await Promise.all([
-                await this.repoPower.findPowerById(powerId),
-                await this.repoRound.findById(room.room_id)
+                this.repoPower.findPowerById(powerId),
+                this.repoRound.findById(room.room_id)
             ])
-            
-            if (!room) {
-                throw new AppError(404, "Sala não encontrada");
-            }
+
             if (!power) {
                 throw new AppError(404, "PowerUp não encontrado");
             }

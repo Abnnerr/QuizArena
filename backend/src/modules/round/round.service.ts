@@ -1,4 +1,4 @@
-import { time } from "node:console";
+
 import { AppError } from "../../error/AppError.js";
 import type { SocketService } from "../../shared/services/socket.service.js";
 import type { PowerRepository } from "../powers/powers.repository.js";
@@ -86,12 +86,15 @@ export class RoundService {
     }
     async roundFinished(roomCode: string, round_id: number) {
         try {
-            await this.repo.updateRound(round_id)
+
 
             const room = await this.roomService.updateRoomPosition(roomCode)
             const question = await this.questionService.findQuestion(room?.room_id!, room.position)
 
-            await this.repo.createRound(room?.room_id!, question.question_id)
+            await Promise.all([
+                await this.repo.updateRound(round_id),
+                await this.repo.createRound(room?.room_id!, question.question_id)
+            ])
 
             console.log("6. Evento enviado para:", room.room_code);
 
