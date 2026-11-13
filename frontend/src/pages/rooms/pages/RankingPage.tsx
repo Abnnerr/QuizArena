@@ -105,7 +105,7 @@ const RankingPage: React.FC = () => {
 
                 // Ordena sempre pela posição atual para exibir na tela
                 const sortedList = processedRanking.sort((a, b) => a.currentPos - b.currentPos);
-                
+
                 setRankingList(sortedList);
                 setLoading(false);
 
@@ -150,6 +150,7 @@ const RankingPage: React.FC = () => {
 
             <main className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
 
+                {/* Background Dot Pattern */}
                 <div
                     className="absolute inset-0 pointer-events-none opacity-40 z-0"
                     style={{
@@ -160,6 +161,7 @@ const RankingPage: React.FC = () => {
 
                 <div className="w-full max-w-xl relative z-10 space-y-6 my-auto">
 
+                    {/* Topo com Botão Voltar e Badge */}
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate(-1)}
@@ -175,6 +177,7 @@ const RankingPage: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* Card Principal do Ranking */}
                     <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
 
                         <div className="text-center">
@@ -212,17 +215,17 @@ const RankingPage: React.FC = () => {
                                     const hasMovedUp = player.diff > 0;
                                     const hasMovedDown = player.diff < 0;
 
-                                    // Calcula o deslocamento vertical exato baseado na diferença de posições (cada card tem ~65px de altura + gap)
-                                    const offsetY = animateTrigger ? 0 : player.diff * 72;
+                                    // Deslocamento vertical exato baseado na variação de posições (prevPos - currentPos) * altura do card
+                                    const offsetY = animateTrigger ? 0 : (player.prevPos - player.currentPos) * 72;
 
                                     return (
                                         <motion.div
                                             key={player.player_id}
                                             initial={{ y: offsetY, opacity: 0 }}
-                                            animate={{ 
-                                                y: 0, 
+                                            animate={{
+                                                y: 0,
                                                 opacity: 1,
-                                                backgroundColor: animateTrigger && hasMovedUp ? "#F4FFEC" : animateTrigger && hasMovedDown ? "#FFF5F5" : "#F7F7F7" 
+                                                backgroundColor: animateTrigger && hasMovedUp ? "#F4FFEC" : animateTrigger && hasMovedDown ? "#FFF5F5" : "#F7F7F7"
                                             }}
                                             transition={{
                                                 type: "spring",
@@ -230,25 +233,23 @@ const RankingPage: React.FC = () => {
                                                 damping: 14,
                                                 opacity: { duration: 0.3 }
                                             }}
-                                            className={`border-2 border-b-4 rounded-2xl p-3.5 flex items-center justify-between shadow-xs transition-colors ${
-                                                animateTrigger && hasMovedUp
+                                            className={`border-2 border-b-4 rounded-2xl p-3.5 flex items-center justify-between shadow-xs transition-colors ${animateTrigger && hasMovedUp
                                                     ? "border-[#58CC02]"
                                                     : animateTrigger && hasMovedDown
                                                         ? "border-[#FF4B4B]"
                                                         : "border-[#E5E5E5]"
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <span
-                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${
-                                                        player.currentPos === 1
+                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${player.currentPos === 1
                                                             ? 'bg-[#FFC800] border-[#E5B200] text-[#7A5B00]'
                                                             : player.currentPos === 2
                                                                 ? 'bg-[#1CB0F6] border-[#0092D6] text-white'
                                                                 : player.currentPos === 3
                                                                     ? 'bg-[#D89E00] border-[#B88F00] text-white'
                                                                     : 'bg-white border-[#E5E5E5] text-[#AFAFAF]'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {player.currentPos}º
                                                 </span>
@@ -295,6 +296,7 @@ const RankingPage: React.FC = () => {
                             </div>
                         )}
 
+                        {/* Botão de Avançar Partida */}
                         <div className="pt-2">
                             <button
                                 onClick={createNewRound}

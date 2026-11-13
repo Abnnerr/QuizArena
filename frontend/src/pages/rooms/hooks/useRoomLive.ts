@@ -288,8 +288,6 @@ const useRoomLive = () => {
         if (!question || !isHost || timeLeft !== 0) return;
 
 
-        console.log("questionid", question);
-
         socket.emit("round:time_expired", {
             roomCode,
             roundId: question.id

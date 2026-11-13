@@ -24,6 +24,8 @@ const PodioPage: React.FC = () => {
             </Helmet>
 
             <main className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
+
+                {/* Background Dot Pattern */}
                 <div
                     className="absolute inset-0 pointer-events-none opacity-40 z-0"
                     style={{
@@ -31,7 +33,10 @@ const PodioPage: React.FC = () => {
                         backgroundSize: '24px 24px',
                     }}
                 />
+
                 <div className="w-full max-w-xl relative z-10 space-y-6 my-auto">
+
+                    {/* Topo com Botão Voltar e Badge */}
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate('/')}
@@ -46,6 +51,8 @@ const PodioPage: React.FC = () => {
                             <span>Pódio Final</span>
                         </div>
                     </div>
+
+                    {/* Card Principal */}
                     <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-center">
 
                         <div>
@@ -78,14 +85,12 @@ const PodioPage: React.FC = () => {
                                 <p className="text-[#777777] font-black">Nenhum jogador pontuou na partida.</p>
                             </div>
                         ) : (
-                           
                             <div className="grid grid-cols-3 gap-3 items-end pt-6 pb-2 min-h-[260px]">
-                                {orderedPodium.map(({ player, originalIndex }) => {
+                                {orderedPodium.map(({ player, originalIndex }: any) => {
                                     const isFirst = originalIndex === 0;
                                     const isSecond = originalIndex === 1;
                                     const isThird = originalIndex === 2;
 
-                            
                                     const revealOrder = isThird ? 1 : isSecond ? 2 : 3;
                                     const isVisible = visibleCount >= revealOrder;
 
@@ -104,18 +109,18 @@ const PodioPage: React.FC = () => {
                                                             damping: 16,
                                                         }}
                                                         className={`flex flex-col items-center justify-between p-4 sm:p-5 rounded-3xl border-2 border-b-8 text-center transition-all ${isFirst
-                                                            ? 'bg-[#FFFBF0] border-[#FFC800] min-h-[220px] sm:min-h-[250px] shadow-md z-10 -translate-y-2'
-                                                            : isSecond
-                                                                ? 'bg-[#E8F7FE] border-[#1CB0F6] min-h-[180px] sm:min-h-[210px]'
-                                                                : 'bg-[#FFF2B2]/40 border-[#D89E00] min-h-[150px] sm:min-h-[180px]'
+                                                                ? 'bg-[#FFFBF0] border-[#FFC800] min-h-[220px] sm:min-h-[250px] shadow-md z-10 -translate-y-2'
+                                                                : isSecond
+                                                                    ? 'bg-[#E8F7FE] border-[#1CB0F6] min-h-[180px] sm:min-h-[210px]'
+                                                                    : 'bg-[#FFF2B2]/40 border-[#D89E00] min-h-[150px] sm:min-h-[180px]'
                                                             }`}
                                                     >
                                                         {/* Ícone de Destaque */}
                                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white shadow-sm ${isFirst
-                                                            ? 'bg-[#FFC800] border-2 border-b-4 border-[#E5B200] text-[#7A5B00] animate-bounce'
-                                                            : isSecond
-                                                                ? 'bg-[#1CB0F6] border-2 border-b-4 border-[#0092D6]'
-                                                                : 'bg-[#D89E00] border-2 border-b-4 border-[#B88F00]'
+                                                                ? 'bg-[#FFC800] border-2 border-b-4 border-[#E5B200] text-[#7A5B00] animate-bounce'
+                                                                : isSecond
+                                                                    ? 'bg-[#1CB0F6] border-2 border-b-4 border-[#0092D6]'
+                                                                    : 'bg-[#D89E00] border-2 border-b-4 border-[#B88F00]'
                                                             }`}>
                                                             {isFirst ? <BiCrown className="w-7 h-7" /> : <BiMedal className="w-6 h-6" />}
                                                         </div>
