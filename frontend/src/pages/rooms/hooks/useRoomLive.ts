@@ -243,7 +243,6 @@ const useRoomLive = () => {
 
         const expired = () => {
             setTimeLeft(0)
-            setAnswered(true)
         }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
