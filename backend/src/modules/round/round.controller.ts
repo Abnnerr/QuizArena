@@ -15,10 +15,11 @@ export class RoundController {
 
     async findRound(req: Request<{ roomCode: string, playerId: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
-            const result = await this.service.findRound(req.params.roomCode, req.params.playerId)
 
+            const result = await this.service.findRound(req.params.roomCode, req.params.playerId)
             return HttpResponse.success(res, 200, 'Round Encontrado', result)
         } catch (error) {
+
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }
@@ -30,6 +31,8 @@ export class RoundController {
             await this.service.roundFinished(req.params.roomCode, req.body.round_id)
             return HttpResponse.success(res, 201, "Round terminado e novo criado")
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }

@@ -29,10 +29,20 @@ export class PowerService {
         try {
             const power = await this.repo.findPowerPlayer(playerId, roomId, namePower)
 
-            if (!power) {
-                throw new AppError(404, 'power relacionado ao player nao encontrado')
-            }
             return power
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao encontrar o power')
+        }
+    }
+
+    async findPowerTarget(playerId: string, roomId: number, roundId: number, power: PowerupType) {
+        try {
+            const result = await this.repo.findPowerTarget(playerId, roomId, roundId, power)
+
+            return result
         } catch (error) {
             if (error instanceof AppError) {
                 throw error

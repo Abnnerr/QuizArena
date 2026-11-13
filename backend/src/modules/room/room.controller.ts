@@ -18,6 +18,8 @@ export class RoomController implements IRoomController {
 
     async create(req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
+            console.log('chegou na controller');
+            
             const result = await this.service.createRoom(req.user!, req.body)
             return HttpResponse.success(res, 201, 'Sala criada', result)
         } catch (error: any) {

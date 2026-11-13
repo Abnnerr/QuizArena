@@ -117,22 +117,6 @@ const useRoomLive = () => {
         setSkip(data.skip)
         setRound(data.round_id);
 
-<<<<<<< HEAD
-        const duration = data.time_limit ?? QUESTION_TIME;
-
-        const start = new Date(data.round_opened).getTime();
-        const elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-        const remaining = Math.max(0, duration - elapsed);
-
-        console.log({
-            round_opened: data.round_opened,
-            round_date: new Date(data.round_opened).toISOString(),
-            browser_date: new Date().toISOString(),
-            difference: (start - Date.now()) / 1000
-        });
-
-=======
-
         const duration = Number(data.time_limit ?? QUESTION_TIME);
         const start = new Date(data.round_opened).getTime();
         const serverNow = new Date(data.server_now).getTime();
@@ -150,7 +134,6 @@ const useRoomLive = () => {
             difference: (Date.now() - new Date(data.round_opened).getTime()) / 1000,
             time_limit: data.time_limit
         });
->>>>>>> f275cd449ebf1f54bbd0289d02e4b4aa5b466559
         setQuestionTime(duration);
         setTimeLeft(remaining);
 

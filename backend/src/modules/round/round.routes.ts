@@ -16,7 +16,7 @@ router.get('/:roomCode/findRound',
 )
 // termina a round, atualiza e cria um novo
 router.post('/:roomCode/roundFinished',
-    RateLimit.limit(10, 2),
+    // RateLimit.limit(10, 2),
     ZodMiddleware.validate(finishedSchema, 'body'),
     roundController.roundFinished
 )

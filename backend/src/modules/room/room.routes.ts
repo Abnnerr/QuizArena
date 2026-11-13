@@ -35,7 +35,7 @@ router.get('/:name',
 
 //Iniciar a Sala
 router.get('/:id/start',
-    RateLimit.limit(4, 3),
+    // RateLimit.limit(4, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission('ROOM_START', 'admin', 'host'),
     roomController.start

@@ -27,13 +27,22 @@ export class AnswerService {
 
             const round = await this.roundService.findRound(room.room_code);
 
-            const power = await this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP')
 
-            const alternative = await this.roomService.findAlternatives(
-                round.question_id,
-                alternativeId
-            );
+            const [power, powerSkip, alternative] = await Promise.all([
+                this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP'),
+                this.powerService.findPowerTarget(playerId, room.room_id, round.round_id, 'SKIP_TURN'),
+                this.roomService.findAlternatives(
+                    round.question_id,
+                    alternativeId
+                )
+            ])
 
+
+            const skip = Boolean(powerSkip);
+            if (skip) {
+                throw new AppError(400, 'Erro vc pulou')
+            }
+            
             let scores = 0;
             const timeLimit = room.time_limit;
             if (alternative.is_correct) {
@@ -41,6 +50,7 @@ export class AnswerService {
                 const openedAt = new Date(round.opened_at).getTime();
                 const elapsedSeconds = Math.max(0, (answeredAt - openedAt) / 1000);
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
+
 
                 const strategy = ScoreFactory.execute(room.room_mode);
 
@@ -56,14 +66,18 @@ export class AnswerService {
                 scores = -30
             }
 
-            await this.repo.createAnswer(roundId, playerId, alternativeId, scores)
-            await this.playerService.updatePlayerScore(room.room_id!, playerId, scores)
+            await Promise.all([
+                this.repo.createAnswer(roundId, playerId, alternativeId, scores),
+                this.playerService.updatePlayerScore(room.room_id!, playerId, scores)
+            ])
+
 
             return {
                 scores,
                 isCorrect: alternative.is_correct,
             };
         } catch (error) {
+
             console.error('Erro ao criar resposta:', error);
             if (error instanceof AppError) {
                 throw error

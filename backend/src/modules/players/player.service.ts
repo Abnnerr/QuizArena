@@ -98,6 +98,10 @@ export class PlayerService {
             const playerScore = await this.repo.playerScore(playerId)
 
             scores += playerScore?.score! + scores
+
+            if (scores < 0) {
+                throw new AppError(400, 'Scores negativo')
+            }
             await this.repo.updatePlayerScore(roomId, playerId, scores)
         } catch (error) {
 
@@ -134,8 +138,11 @@ export class PlayerService {
 
 
             const room = await this.roomService.findRoom(code);
-            const round = await this.repoRound.findById(room.room_id);
-            const power = await this.repoPower.findPowerById(powerId);
+
+            const [power, round] = await Promise.all([
+                await this.repoPower.findPowerById(powerId),
+                await this.repoRound.findById(room.room_id)
+            ])
             
             if (!room) {
                 throw new AppError(404, "Sala não encontrada");
@@ -162,7 +169,7 @@ export class PlayerService {
                 roomService: this.roomService,
                 socket: this.socket
             })
-            
+
         } catch (error) {
             console.log(error);
 

@@ -1,4 +1,4 @@
-import type { PowerupType } from "@prisma/client";
+import type {  PowerupType } from "@prisma/client";
 import { prisma } from "../../db/index.js"
 
 export class PowerRepository {
@@ -75,12 +75,12 @@ export class PowerRepository {
             throw error
         }
     }
-    async findPowerTarget(playerId: string, roomId: number, roundId: number) {
+    async findPowerTarget(playerId: string, roomId: number, roundId: number, power: PowerupType) {
         try {
 
             console.log(playerId, roomId, roundId);
 
-            return await prisma.powerUpUse.findMany({
+            return await prisma.powerUpUse.findFirst({
                 where: {
                     player_target: playerId,
                     room_id: roomId,
@@ -88,7 +88,7 @@ export class PowerRepository {
                     used: true,
                     powerup: {
                         is: {
-                            powerup_type: 'SKIP_TURN'
+                            powerup_type: power
                         }
                     }
                 },

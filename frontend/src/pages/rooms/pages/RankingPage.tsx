@@ -36,7 +36,8 @@ const RankingPage: React.FC = () => {
         if (!roomCode || !round) return;
 
         try {
-           
+
+            
             const { data } = await AXIOS.post(`/round/${roomCode}/roundFinished`, {
                 round_id: Number(round)
             });

@@ -30,13 +30,14 @@ export class RoundService {
             }
             let skip = false;
             let fiftyAlternatives = []
-            
+
             if (playerId) {
                 const [power, fifty] = await Promise.all([
                     this.repoPower.findPowerTarget(
                         playerId,
                         room.room_id,
-                        round.round_id
+                        round.round_id,
+                        "SKIP_TURN"
                     ),
                     this.repoPower.findPowerPlayer(
                         playerId,
@@ -48,7 +49,7 @@ export class RoundService {
                 if (fifty?.used) {
                     fiftyAlternatives = await this.roomService.findAlternativesIncorret(round.question_id)
                 }
-                skip = power.length > 0;
+                skip = power ? true : false;
             }
             return {
                 round_id: round.round_id,
@@ -97,7 +98,6 @@ export class RoundService {
             this.socket.findQuestion(room?.room_code!)
         } catch (error) {
             console.error('erro ao terminar round', error);
-
             if (error instanceof AppError) {
                 throw error
             }

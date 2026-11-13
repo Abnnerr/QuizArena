@@ -104,6 +104,8 @@ export class RoomService implements IRoomService {
     //começa a partida
     async start(user: AuthPayload, id: number): Promise<void> {
         try {
+
+                      
             const room = await this.repo.findByRoom(undefined, undefined, id)
             const countPlayers = await this.playerService.countPlayers(id)
             if (!room) {
@@ -116,12 +118,15 @@ export class RoomService implements IRoomService {
                 throw new AppError(400, 'quantidade de jogadores nescessario 2')
             }
             const question = await this.serviceQuestion.findQuestion(room.room_id, 1)
+
             await this.servicePower.createPowerPlayers(room.room_id)
             await this.repoRound.createRound(room.room_id, question?.question_id!)
             await this.repo.roomUpdate(room.room_id, "LIVE")
 
             this.socket.roundStarted(room.room_code)
         } catch (error) {
+            console.log(error);
+
             if (error instanceof AppError) {
                 throw error
             }
