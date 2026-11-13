@@ -242,15 +242,20 @@ const useRoomLive = () => {
             }
             return
         }
-
         const expired = (data: any) => {
-            console.log(data);
+            console.log("Rodada expirada:", data);
 
-            setTimeLeft(0)
-            setCorrectAlternative(
-                data.alternative?.alternative_id ?? null
-            );
-        }
+            const alternativeId = data?.alternative?.alternative_id;
+
+            if (alternativeId == null) {
+                console.error("Alternativa correta não encontrada:", data);
+                return;
+            }
+
+            setTimeLeft(0);
+            setCorrectAlternative(Number(alternativeId));
+        };
+        
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
         socket.on("room:finished", roomFinished);
