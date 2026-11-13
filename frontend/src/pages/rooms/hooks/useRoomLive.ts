@@ -217,7 +217,7 @@ const useRoomLive = () => {
         const handlePowerFifty = (data: PowerFiftyPayload) => {
             const currentPlayerId = getPlayerId();
 
-            // console.log(data, currentPlayerId);
+            console.log(data, currentPlayerId);
 
             if (data.playerId !== currentPlayerId) {
                 return;
