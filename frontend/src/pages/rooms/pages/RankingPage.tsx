@@ -37,67 +37,101 @@ const RankingPage: React.FC = () => {
 
         try {
 
-            
+
             const { data } = await AXIOS.post(`/round/${roomCode}/roundFinished`, {
                 round_id: Number(round)
             });
 
             if (data.type === "Success") {
                 navigate(-1);
-            } 
+            }
         } catch (err) {
             console.error("Erro ao avançar a rodada:", err);
             setError("Não foi possível avançar a rodada.");
         }
     }
 
+
     useEffect(() => {
+        let active = true;
+
         async function fetchPodium() {
             try {
-                const { data } = await AXIOS.get(`/player/${roomCode}/podium`);
-                const currentData: PlayerData[] = data?.data ?? data;
+                const { data } = await AXIOS.get(
+                    `/player/${roomCode}/podium`
+                );
+
+                // Extrai os jogadores da resposta
+                const currentData = data?.data;
 
                 if (!Array.isArray(currentData)) {
-                    setError("Formato de ranking inválido.");
-                    return;
+                    throw new Error("Formato de ranking inválido.");
                 }
 
-                console.log(data);
-                
+                // Normaliza os dados recebidos
+                const currentPlayers: PlayerData[] = currentData.map(
+                    (item: any) => ({
+                        player_id: item.player_id,
+                        player_name: item.players.player_name,
+                        score: item.score
+                    })
+                );
+
+                // Recupera o ranking anterior
                 const savedPodium = sessionStorage.getItem("podium");
+
                 let previousData: PlayerData[] = [];
 
                 if (savedPodium) {
                     try {
                         const parsed = JSON.parse(savedPodium);
-                        previousData = parsed?.data ?? parsed;
-                        if (!Array.isArray(previousData)) previousData = [];
+                        previousData = Array.isArray(parsed) ? parsed : [];
                     } catch {
                         previousData = [];
                     }
                 }
 
-                const ranking: RankingWithDiff[] = currentData.map((player, index) => {
-                    const currentPos = index + 1;
-                    const previousIndex = previousData.findIndex(
-                        (prev) => String(prev.player_id) === String(player.player_id)
-                    );
-                    const prevPos = previousIndex !== -1 ? previousIndex + 1 : currentPos;
-                    const diff = prevPos - currentPos;
+                // Calcula as posições e diferenças
+                const ranking: RankingWithDiff[] = currentPlayers.map(
+                    (player, index) => {
+                        const currentPos = index + 1;
 
-                    return {
-                        ...player,
-                        currentPos,
-                        diff,
-                    };
-                });
+                        const previousIndex = previousData.findIndex(
+                            prev => prev.player_id === player.player_id
+                        );
+
+                        const prevPos = previousIndex !== -1
+                            ? previousIndex + 1
+                            : currentPos;
+
+                        return {
+                            ...player,
+                            currentPos,
+                            diff: prevPos - currentPos
+                        };
+                    }
+                );
+
+                if (!active) return;
+
                 setRankingList(ranking);
-                sessionStorage.setItem("podium", JSON.stringify(currentData));
+
+                // Salva somente os jogadores normalizados
+                sessionStorage.setItem(
+                    "podium",
+                    JSON.stringify(currentPlayers)
+                );
+
             } catch (err) {
                 console.error("Erro ao carregar o ranking:", err);
-                setError("Não foi possível carregar o ranking.");
+
+                if (active) {
+                    setError("Não foi possível carregar o ranking.");
+                }
             } finally {
-                setLoading(false);
+                if (active) {
+                    setLoading(false);
+                }
             }
         }
 
@@ -108,7 +142,13 @@ const RankingPage: React.FC = () => {
         }
 
         void fetchPodium();
+
+        return () => {
+            active = false;
+        };
+
     }, [roomCode]);
+
 
     return (
         <>
@@ -181,7 +221,7 @@ const RankingPage: React.FC = () => {
                             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                                 <AnimatePresence>
                                     {rankingList.map((player, index) => (
-                                        
+
                                         <motion.div
                                             key={player.player_id}
                                             layout
@@ -201,15 +241,14 @@ const RankingPage: React.FC = () => {
                                             <div className="flex items-center gap-3">
                                                 {/* Posição atual */}
                                                 <span
-                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${
-                                                        player.currentPos === 1
+                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${player.currentPos === 1
                                                             ? 'bg-[#FFC800] border-[#E5B200] text-[#7A5B00]'
                                                             : player.currentPos === 2
-                                                            ? 'bg-[#1CB0F6] border-[#0092D6] text-white'
-                                                            : player.currentPos === 3
-                                                            ? 'bg-[#D89E00] border-[#B88F00] text-white'
-                                                            : 'bg-white border-[#E5E5E5] text-[#AFAFAF]'
-                                                    }`}
+                                                                ? 'bg-[#1CB0F6] border-[#0092D6] text-white'
+                                                                : player.currentPos === 3
+                                                                    ? 'bg-[#D89E00] border-[#B88F00] text-white'
+                                                                    : 'bg-white border-[#E5E5E5] text-[#AFAFAF]'
+                                                        }`}
                                                 >
                                                     {player.currentPos}º
                                                 </span>
