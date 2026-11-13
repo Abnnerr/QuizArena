@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AXIOS } from '../../../service';
 
 type PlayerData = {
+    
     player_id: string | number;
     player_name: string;
     score: number;
@@ -57,6 +58,9 @@ const RankingPage: React.FC = () => {
                 const { data } = await AXIOS.get(`/player/${roomCode}/podium`);
                 const currentData: PlayerData[] = data?.data ?? data;
 
+
+                console.log(data);
+                
                 if (!Array.isArray(currentData)) {
                     setError("Formato de ranking inválido.");
                     return;
@@ -215,7 +219,7 @@ const RankingPage: React.FC = () => {
                                                 </span>
 
                                                 <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
-                                                    {player.player_name}
+                                                    {player.players.player_name}
                                                 </span>
                                             </div>
 
