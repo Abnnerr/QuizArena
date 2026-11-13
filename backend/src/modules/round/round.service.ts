@@ -107,5 +107,49 @@ export class RoundService {
             throw new AppError(500, 'Erro ao terminar e criar round')
         }
     }
+    // Verifica se o tempo terminou e impede novas respostas
+    async roundExpired(code: string, roundId: number) {
+        try {
 
+            console.log("service", code, roundId);
+
+            const room = await this.roomService.findRoom(code);
+
+            const round = await this.repo.findById(
+                room.room_id,
+            );
+
+            if (!round) {
+                throw new AppError(404, "Rodada não encontrada");
+            }
+
+            if (round.closed_at) {
+                return;
+            }
+
+            const openedAt = new Date(round.opened_at).getTime();
+
+            if (!Number.isFinite(openedAt)) {
+                throw new AppError(400, "Data de abertura inválida");
+            }
+
+            const elapsedSeconds =
+                (Date.now() - openedAt) / 1000;
+
+            if (elapsedSeconds < room.time_limit) {
+                return;
+            }
+
+            this.socket.roundExpired(code);
+
+        } catch (error) {
+            console.error("Erro ao terminar round", error);
+
+            if (error instanceof AppError) {
+                throw error;
+            }
+
+            throw new AppError(500, "Erro ao terminar round");
+        }
+    }
 }

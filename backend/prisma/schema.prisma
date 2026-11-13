@@ -65,6 +65,7 @@ model RoomPlayer {
   room_id     Int
   player_id   String
   score       Int          @default(0)
+  oldScore    Int          @default(0)
   joined_at   DateTime     @default(now())
   ready       Boolean      @default(false)
   powerUpUses PowerUpUse[]

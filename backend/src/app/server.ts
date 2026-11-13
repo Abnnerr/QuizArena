@@ -4,6 +4,7 @@ import http from "node:http"
 import { lobbyClear } from "../shared/utils/clearLobby.js";
 import { Server } from "socket.io";
 import { roomService } from "../containers/roomPlayer.container.js";
+import { roundService } from "../containers/round.container.js";
 
 
 const PORT = process.env["PORT"]
@@ -12,7 +13,7 @@ export const httpServer = http.createServer(app)
 
 export const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "https://quiz-arena-zeta-ten.vercel.app",
         credentials: true
     }
 })
@@ -35,6 +36,16 @@ io.on("connection", (socket) => {
             socket.leave(`room:${roomCode}`);
 
             io.to(`room:${roomCode}`).emit("room:update");
+        } catch (error) {
+            console.error("Erro ao sair da sala:", error);
+        }
+    });
+    socket.on("round:time_expired", async ({ roomCode, roundId }) => {
+        try {
+
+            console.log(roomCode, roundId);
+
+            await roundService.roundExpired(roomCode, Number(roundId))
         } catch (error) {
             console.error("Erro ao sair da sala:", error);
         }

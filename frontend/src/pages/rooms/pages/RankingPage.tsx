@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     BsArrowLeft,
     BsArrowRight,
@@ -17,6 +17,7 @@ interface PlayerData {
     player_name: string;
     score: number;
 }
+
 interface RankingWithDiff extends PlayerData {
     currentPos: number;
     prevPos: number;
@@ -27,10 +28,10 @@ const RankingPage: React.FC = () => {
     const navigate = useNavigate();
     const { roomCode, round } = useParams<{ roomCode: string; round: string; }>();
 
-    const [listToRender, setListToRender] = useState<RankingWithDiff[]>([]);
+    const [rankingList, setRankingList] = useState<RankingWithDiff[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [hasAnimated, setHasAnimated] = useState(false);
+    const [animateTrigger, setAnimateTrigger] = useState(false);
 
     async function createNewRound() {
         if (!roomCode || !round) return;
@@ -67,7 +68,6 @@ const RankingPage: React.FC = () => {
                     score: item.score
                 }));
 
-                // Recupera o pódio anterior do sessionStorage
                 const savedPodium = sessionStorage.getItem("podium");
                 let previousData: PlayerData[] = [];
 
@@ -82,7 +82,6 @@ const RankingPage: React.FC = () => {
 
                 const baselineData = previousData.length > 0 ? previousData : currentPlayers;
 
-                // Mapeia posições atuais e anteriores
                 const processedRanking: RankingWithDiff[] = currentPlayers.map((player, index) => {
                     const currentPos = index + 1;
 
@@ -104,23 +103,21 @@ const RankingPage: React.FC = () => {
 
                 if (!active) return;
 
-                // 1º PASSO: Renderiza a lista ordenada EXATAMENTE pela posição ANTIGA (prevPos)
-                const initialList = [...processedRanking].sort((a, b) => a.prevPos - b.prevPos);
-                setListToRender(initialList);
+                // Ordena sempre pela posição atual para exibir na tela
+                const sortedList = processedRanking.sort((a, b) => a.currentPos - b.currentPos);
+                
+                setRankingList(sortedList);
                 setLoading(false);
 
-                // Atualiza o sessionStorage para a próxima rodada
+                // Salva o pódio atual para a próxima rodada
                 sessionStorage.setItem("podium", JSON.stringify(currentPlayers));
 
-                // 2º PASSO: Após um breve respiro, muda para a ordenação ATUAL (currentPos)
-                // É isso que obriga o Framer Motion a animar o deslocamento dos cards!
+                // Dispara a animação logo após o carregamento
                 setTimeout(() => {
                     if (active) {
-                        const finalList = [...processedRanking].sort((a, b) => a.currentPos - b.currentPos);
-                        setListToRender(finalList);
-                        setHasAnimated(true);
+                        setAnimateTrigger(true);
                     }
-                }, 500);
+                }, 200);
 
             } catch (err) {
                 console.error("Erro ao carregar o ranking:", err);
@@ -205,99 +202,96 @@ const RankingPage: React.FC = () => {
                                     Calculando posições...
                                 </p>
                             </div>
-                        ) : listToRender.length === 0 ? (
+                        ) : rankingList.length === 0 ? (
                             <div className="text-center py-8 space-y-4">
                                 <p className="text-[#777777] font-black">Nenhum jogador pontuou ainda.</p>
                             </div>
                         ) : (
                             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-                                <AnimatePresence>
-                                    {listToRender.map((player) => {
-                                        const hasMovedUp = player.diff > 0;
-                                        const hasMovedDown = player.diff < 0;
+                                {rankingList.map((player) => {
+                                    const hasMovedUp = player.diff > 0;
+                                    const hasMovedDown = player.diff < 0;
 
-                                        return (
-                                            <motion.div
-                                                key={player.player_id}
-                                                layout
-                                                initial={{ opacity: 0, y: 15 }}
-                                                animate={{
-                                                    opacity: 1,
-                                                    y: 0,
-                                                    backgroundColor: hasAnimated && hasMovedUp ? "#F4FFEC" : hasAnimated && hasMovedDown ? "#FFF5F5" : "#F7F7F7"
-                                                }}
-                                                transition={{
-                                                    layout: {
-                                                        type: "spring",
-                                                        stiffness: 50, // Mola super suave para ver claramente os players trocando de lugar
-                                                        damping: 14,
-                                                    },
-                                                    opacity: { duration: 0.3 },
-                                                    backgroundColor: { duration: 0.8 }
-                                                }}
-                                                className={`border-2 border-b-4 rounded-2xl p-3.5 flex items-center justify-between shadow-xs transition-colors ${hasAnimated && hasMovedUp
+                                    // Calcula o deslocamento vertical exato baseado na diferença de posições (cada card tem ~65px de altura + gap)
+                                    const offsetY = animateTrigger ? 0 : player.diff * 72;
+
+                                    return (
+                                        <motion.div
+                                            key={player.player_id}
+                                            initial={{ y: offsetY, opacity: 0 }}
+                                            animate={{ 
+                                                y: 0, 
+                                                opacity: 1,
+                                                backgroundColor: animateTrigger && hasMovedUp ? "#F4FFEC" : animateTrigger && hasMovedDown ? "#FFF5F5" : "#F7F7F7" 
+                                            }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 70,
+                                                damping: 14,
+                                                opacity: { duration: 0.3 }
+                                            }}
+                                            className={`border-2 border-b-4 rounded-2xl p-3.5 flex items-center justify-between shadow-xs transition-colors ${
+                                                animateTrigger && hasMovedUp
                                                     ? "border-[#58CC02]"
-                                                    : hasAnimated && hasMovedDown
+                                                    : animateTrigger && hasMovedDown
                                                         ? "border-[#FF4B4B]"
                                                         : "border-[#E5E5E5]"
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <span
-                                                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${player.currentPos === 1
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <span
+                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${
+                                                        player.currentPos === 1
                                                             ? 'bg-[#FFC800] border-[#E5B200] text-[#7A5B00]'
                                                             : player.currentPos === 2
                                                                 ? 'bg-[#1CB0F6] border-[#0092D6] text-white'
                                                                 : player.currentPos === 3
                                                                     ? 'bg-[#D89E00] border-[#B88F00] text-white'
                                                                     : 'bg-white border-[#E5E5E5] text-[#AFAFAF]'
-                                                            }`}
-                                                    >
-                                                        {player.currentPos}º
-                                                    </span>
+                                                    }`}
+                                                >
+                                                    {player.currentPos}º
+                                                </span>
 
-                                                    <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
-                                                        {player.player_name}
-                                                    </span>
+                                                <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
+                                                    {player.player_name}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center min-w-[65px] justify-end">
+                                                    {hasMovedUp ? (
+                                                        <motion.span
+                                                            initial={{ scale: 0 }}
+                                                            animate={{ scale: animateTrigger ? 1 : 0 }}
+                                                            className="inline-flex items-center gap-0.5 text-[#2B7200] bg-[#D7FFB8] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#58CC02] border-b-4"
+                                                        >
+                                                            <BsArrowUpShort className="w-4 h-4 stroke-[2]" />
+                                                            <span>+{player.diff}</span>
+                                                        </motion.span>
+                                                    ) : hasMovedDown ? (
+                                                        <motion.span
+                                                            initial={{ scale: 0 }}
+                                                            animate={{ scale: animateTrigger ? 1 : 0 }}
+                                                            className="inline-flex items-center gap-0.5 text-[#A80000] bg-[#FFD2D2] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#FF4B4B] border-b-4"
+                                                        >
+                                                            <BsArrowDownShort className="w-4 h-4 stroke-[2]" />
+                                                            <span>{player.diff}</span>
+                                                        </motion.span>
+                                                    ) : (
+                                                        <span className="text-[#AFAFAF] px-2 py-1">
+                                                            <BsDash className="w-5 h-5" />
+                                                        </span>
+                                                    )}
                                                 </div>
 
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex items-center min-w-[65px] justify-end">
-                                                        {hasMovedUp ? (
-                                                            <motion.span
-                                                                initial={{ scale: 0, opacity: 0 }}
-                                                                animate={{ scale: hasAnimated ? 1 : 0, opacity: hasAnimated ? 1 : 0 }}
-                                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                                                className="inline-flex items-center gap-0.5 text-[#2B7200] bg-[#D7FFB8] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#58CC02] border-b-4"
-                                                            >
-                                                                <BsArrowUpShort className="w-4 h-4 stroke-[2]" />
-                                                                <span>+{player.diff}</span>
-                                                            </motion.span>
-                                                        ) : hasMovedDown ? (
-                                                            <motion.span
-                                                                initial={{ scale: 0, opacity: 0 }}
-                                                                animate={{ scale: hasAnimated ? 1 : 0, opacity: hasAnimated ? 1 : 0 }}
-                                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                                                className="inline-flex items-center gap-0.5 text-[#A80000] bg-[#FFD2D2] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#FF4B4B] border-b-4"
-                                                            >
-                                                                <BsArrowDownShort className="w-4 h-4 stroke-[2]" />
-                                                                <span>{player.diff}</span>
-                                                            </motion.span>
-                                                        ) : (
-                                                            <span className="text-[#AFAFAF] px-2 py-1">
-                                                                <BsDash className="w-5 h-5" />
-                                                            </span>
-                                                        )}
-                                                    </div>
-
-                                                    <span className="text-xs sm:text-sm font-black text-[#777777] min-w-[55px] text-right">
-                                                        {player.score} pts
-                                                    </span>
-                                                </div>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </AnimatePresence>
+                                                <span className="text-xs sm:text-sm font-black text-[#777777] min-w-[55px] text-right">
+                                                    {player.score} pts
+                                                </span>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
                             </div>
                         )}
 

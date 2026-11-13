@@ -234,18 +234,23 @@ const useRoomLive = () => {
         };
 
         const skiped = (data: any) => {
-
             if (data.target === player?.player_id) {
                 setSkip(data.skiped)
                 return
             }
             return
         }
+
+        const expired = () => {
+            setTimeLeft(0)
+            setAnswered(true)
+        }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
         socket.on("room:finished", roomFinished);
         socket.on("room:powerfifty", handlePowerFifty);
         socket.on("room:skip", skiped);
+        socket.on("room:expired", expired)
 
         if (!socket.connected) {
             socket.connect();
@@ -261,6 +266,8 @@ const useRoomLive = () => {
             socket.off("room:finished", roomFinished);
             socket.off("room:powerfifty", handlePowerFifty);
             socket.off("room:skip", skiped);
+            socket.off("room:expired", expired)
+
         };
     }, [roomCode, player?.player_id]);
 
@@ -276,6 +283,19 @@ const useRoomLive = () => {
 
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
+
+
+    useEffect(() => {
+        if (!question || !isHost || timeLeft !== 0) return;
+
+
+        console.log("questionid", question);
+
+        socket.emit("round:time_expired", {
+            roomCode,
+            roundId: question.id
+        });
+    }, [timeLeft, isHost, roomCode, question]);
 
     // Envia resposta.
     const handleAnswer = async (answerId: number) => {

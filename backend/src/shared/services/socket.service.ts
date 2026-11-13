@@ -42,4 +42,8 @@ export class SocketService {
             skiped
         })
     }
+
+    roundExpired(roomCode: string) {
+        io.to(`room:${roomCode}`).emit('room:expired')
+    }
 }
