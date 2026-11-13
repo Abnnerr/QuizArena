@@ -13,7 +13,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AXIOS } from '../../../service';
 
 type PlayerData = {
-    
     player_id: string | number;
     player_name: string;
     score: number;
@@ -58,14 +57,13 @@ const RankingPage: React.FC = () => {
                 const { data } = await AXIOS.get(`/player/${roomCode}/podium`);
                 const currentData: PlayerData[] = data?.data ?? data;
 
-
-                console.log(data);
-                
                 if (!Array.isArray(currentData)) {
                     setError("Formato de ranking inválido.");
                     return;
                 }
 
+                console.log(data);
+                
                 const savedPodium = sessionStorage.getItem("podium");
                 let previousData: PlayerData[] = [];
 
@@ -93,8 +91,6 @@ const RankingPage: React.FC = () => {
                         diff,
                     };
                 });
-                console.log(ranking);
-                
                 setRankingList(ranking);
                 sessionStorage.setItem("podium", JSON.stringify(currentData));
             } catch (err) {
@@ -219,7 +215,7 @@ const RankingPage: React.FC = () => {
                                                 </span>
 
                                                 <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
-                                                    {player.players.player_name}
+                                                    {player.player_name}
                                                 </span>
                                             </div>
 
