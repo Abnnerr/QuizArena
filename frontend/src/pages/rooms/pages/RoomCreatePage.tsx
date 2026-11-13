@@ -50,7 +50,7 @@ const RoomCreatePage: React.FC = () => {
                     {/* Topbar: Botão Voltar + Tag */}
                     <div className="flex items-center justify-between">
                         <Link
-                            to="/dashboard"
+                            to="/"
                             className="inline-flex items-center gap-1.5 bg-[#1E1E1E] hover:bg-[#282828] border-2 border-[#2A2A2A] border-b-4 text-[#AAAAAA] hover:text-[#F3F4F6] px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer shadow-sm"
                         >
                             <BiArrowBack className="w-4 h-4 text-[#888888]" />
