@@ -63,8 +63,7 @@ export class RoomService implements IRoomService {
         try {
             const room = await this.repo.findByRoom(undefined, roomCode)
 
-            console.log(userName);
-            
+
 
             if (!room) {
                 throw new AppError(404, 'sala nao encontrada')
@@ -72,16 +71,19 @@ export class RoomService implements IRoomService {
             if (room.room_status !== 'LOBBY') {
                 throw new AppError(400, "A sala não está aberta");
             }
-            const countPLayer = await this.playerService.countPlayers(room?.room_id!)
+
+            const [, countPlayer] = await Promise.all([
+                this.playerService.findPlayerRoom(userName, room?.room_id!),
+                this.playerService.countPlayers(room?.room_id!)
+            ])
 
 
-
-            if (countPLayer >= room?.max_players) {
+            if (countPlayer >= room?.max_players) {
                 throw new AppError(400, 'sala esta cheia')
             }
 
 
-            await this.playerService.findPlayerRoom(userName, room?.room_id!)
+
             //cria o player
             const player = await this.playerService.createPlayer(userName)
 
