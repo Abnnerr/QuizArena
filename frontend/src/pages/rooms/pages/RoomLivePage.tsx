@@ -168,16 +168,25 @@ const RoomLivePage = () => {
                     )}
 
                     {/* Alternativas */}
+
+                    {/* Alternativas */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 my-auto shrink-0">
                         {question?.alternatives.map((alternative: any, index: number) => {
+
                             const style = ALTERNATIVE_STYLES[index % ALTERNATIVE_STYLES.length];
                             const IconComponent = style.icon;
 
                             const isSelected = selectedAnswer === alternative.id;
+
                             const isEliminated = hiddenAlternativeIds?.includes(alternative.id);
 
-                            const isCorrect = correctAlternative === alternative.id;
-                            const showCorrect = correctAlternative !== null && isCorrect;
+                            // Compara os IDs como números
+                            const isCorrect =
+                                correctAlternative !== null &&
+                                Number(correctAlternative) === Number(alternative.id);
+
+                            // Verifica se a rodada já terminou
+                            const roundFinished = correctAlternative !== null;
 
                             return (
                                 <button
@@ -190,32 +199,64 @@ const RoomLivePage = () => {
                                         answered ||
                                         timeLeft <= 0 ||
                                         isEliminated ||
-                                        correctAlternative !== null
+                                        roundFinished
                                     }
                                     onClick={() => handleAnswer(alternative.id)}
-                                    className={`min-h-[64px] sm:min-h-[110px] rounded-xl sm:rounded-2xl p-3 sm:p-5 flex items-center justify-center font-black text-xs sm:text-lg transition-all duration-300
-                    ${showCorrect
-                                            ? "!bg-green-500 !border-green-700 !text-white ring-4 ring-green-300 animate-pulse"
+                                    className={`
+                    min-h-[64px] sm:min-h-[110px]
+                    rounded-xl sm:rounded-2xl
+                    p-3 sm:p-5
+                    flex items-center justify-center
+                    font-black text-xs sm:text-lg
+                    transition-all duration-300
+
+                    ${isCorrect
+                                            ? "!bg-green-500 !border-green-700 !text-white ring-4 ring-green-300 scale-[1.02]"
                                             : style.color
                                         }
-                    ${isSelected || skip
+
+                    ${!roundFinished && (isSelected || skip)
                                             ? "translate-y-1 border-b-0 ring-4 ring-[#1CB0F6]/50"
-                                            : isHost
-                                                ? "opacity-90 cursor-default"
-                                                : "active:border-b-0 active:translate-y-1 cursor-pointer"
+                                            : ""
                                         }
-                    ${isEliminated ? "opacity-30 grayscale cursor-not-allowed" : ""}
-                    ${answered && !isSelected && !showCorrect ? "opacity-30 grayscale-[50%]" : ""}
-                    ${correctAlternative !== null && !showCorrect ? "opacity-40 grayscale" : ""}
+
+                    ${isHost
+                                            ? "opacity-90 cursor-default"
+                                            : "active:border-b-0 active:translate-y-1 cursor-pointer"
+                                        }
+
+                    ${isEliminated && !roundFinished
+                                            ? "opacity-30 grayscale cursor-not-allowed"
+                                            : ""
+                                        }
+
+                    ${answered && !isSelected && !isCorrect
+                                            ? "opacity-30 grayscale-[50%]"
+                                            : ""
+                                        }
+
+                    ${roundFinished && !isCorrect
+                                            ? "opacity-40 grayscale"
+                                            : ""
+                                        }
+
                     disabled:cursor-not-allowed
                 `}
                                 >
-                                    <div className={`flex items-center gap-2.5 sm:gap-4 min-w-0 w-full ${isHost ? "justify-start" : "justify-center"}`}>
+                                    <div
+                                        className={`flex items-center gap-2.5 sm:gap-4 min-w-0 w-full ${isHost ? "justify-start" : "justify-center"
+                                            }`}
+                                    >
                                         <div className="w-9 h-9 sm:w-14 sm:h-14 shrink-0 rounded-lg sm:rounded-xl bg-black/20 border-b-2 border-black/30 flex items-center justify-center">
-                                            {showCorrect
-                                                ? <span className="text-white text-2xl">✓</span>
-                                                : <IconComponent className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
-                                            }
+
+                                            {isCorrect ? (
+                                                <span className="text-white text-2xl font-black">
+                                                    ✓
+                                                </span>
+                                            ) : (
+                                                <IconComponent className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
+                                            )}
+
                                         </div>
 
                                         {isHost && (
@@ -223,11 +264,13 @@ const RoomLivePage = () => {
                                                 {alternative.text}
                                             </span>
                                         )}
+
                                     </div>
                                 </button>
                             );
                         })}
                     </div>
+
 
                     {isHost && (
                         <div
