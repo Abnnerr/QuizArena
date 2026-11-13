@@ -115,13 +115,16 @@ export class RoundService {
 
             const room = await this.roomService.findRoom(code);
 
+
             const round = await this.repo.findById(
                 room.room_id,
+                roundId
             );
-
             if (!round) {
                 throw new AppError(404, "Rodada não encontrada");
             }
+
+            const alternativeCorret = await this.roomService.findAlternatives(round?.question_id!)
 
             if (round.closed_at) {
                 return;
@@ -140,7 +143,7 @@ export class RoundService {
                 return;
             }
 
-            this.socket.roundExpired(code);
+            this.socket.roundExpired(code, alternativeCorret);
 
         } catch (error) {
             console.error("Erro ao terminar round", error);

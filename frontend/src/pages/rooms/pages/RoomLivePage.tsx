@@ -49,7 +49,8 @@ const RoomLivePage = () => {
         hiddenAlternativeIds,
         skip,
         isHost,
-        players
+        players,
+        correctAlternative
     } = useRoomLive();
 
 
@@ -63,8 +64,8 @@ const RoomLivePage = () => {
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 className={`w-full min-h-[100dvh] bg-[#121212] text-[#F3F4F6] font-['Nunito',sans-serif] flex flex-col justify-between relative overflow-x-hidden select-none outline-none transition-all duration-300 ${skip
-                        ? "ring-4 sm:ring-8 ring-inset ring-[#1CB0F6] shadow-[inset_0_0_50px_rgba(28,176,246,0.3)]"
-                        : ""
+                    ? "ring-4 sm:ring-8 ring-inset ring-[#1CB0F6] shadow-[inset_0_0_50px_rgba(28,176,246,0.3)]"
+                    : ""
                     }`}
             >
                 {/* Overlay de Efeito SKIP (Setas animadas descendo) */}
@@ -106,8 +107,8 @@ const RoomLivePage = () => {
                     <div className="h-2.5 sm:h-3 w-full bg-[#2A2A2A] relative overflow-hidden z-20 shrink-0">
                         <div
                             className={`h-full transition-all duration-1000 ease-linear ${isCriticalTime
-                                    ? "bg-[#FF4B4B] animate-pulse"
-                                    : "bg-[#FFC800]"
+                                ? "bg-[#FF4B4B] animate-pulse"
+                                : "bg-[#FFC800]"
                                 }`}
                             style={{
                                 width: `${Math.max(0, progress)}%`,
@@ -127,8 +128,8 @@ const RoomLivePage = () => {
                                     type="button"
                                     onClick={() => setSelectedPowerUp(item)}
                                     className={`py-2 px-1.5 sm:px-3.5 rounded-2xl flex items-center justify-center gap-1.5 font-black text-[11px] sm:text-sm transition-all shadow-sm border-2 border-b-4 truncate ${item.used
-                                            ? "bg-[#1E1E1E] border-[#333333] text-[#666666] cursor-not-allowed opacity-50"
-                                            : "bg-[#1E1E1E] hover:bg-[#282828] border-[#FFC800]/60 border-b-[#FFC800] text-[#FFC800] cursor-pointer active:border-b-2 active:translate-y-0.5"
+                                        ? "bg-[#1E1E1E] border-[#333333] text-[#666666] cursor-not-allowed opacity-50"
+                                        : "bg-[#1E1E1E] hover:bg-[#282828] border-[#FFC800]/60 border-b-[#FFC800] text-[#FFC800] cursor-pointer active:border-b-2 active:translate-y-0.5"
                                         }`}
                                 >
                                     <BsLightningFill className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${item.used ? "text-[#666666]" : "text-[#FFC800]"}`} />
@@ -171,8 +172,12 @@ const RoomLivePage = () => {
                         {question?.alternatives.map((alternative: any, index: number) => {
                             const style = ALTERNATIVE_STYLES[index % ALTERNATIVE_STYLES.length];
                             const IconComponent = style.icon;
+
                             const isSelected = selectedAnswer === alternative.id;
                             const isEliminated = hiddenAlternativeIds?.includes(alternative.id);
+
+                            const isCorrect = correctAlternative === alternative.id;
+                            const showCorrect = correctAlternative !== null && isCorrect;
 
                             return (
                                 <button
@@ -184,25 +189,33 @@ const RoomLivePage = () => {
                                         skip ||
                                         answered ||
                                         timeLeft <= 0 ||
-                                        isEliminated
+                                        isEliminated ||
+                                        correctAlternative !== null
                                     }
                                     onClick={() => handleAnswer(alternative.id)}
-                                    className={`min-h-[64px] sm:min-h-[110px] rounded-xl sm:rounded-2xl p-3 sm:p-5 flex items-center justify-center font-black text-xs sm:text-lg transition-all duration-75 ${style.color} ${isSelected || skip
+                                    className={`min-h-[64px] sm:min-h-[110px] rounded-xl sm:rounded-2xl p-3 sm:p-5 flex items-center justify-center font-black text-xs sm:text-lg transition-all duration-300
+                    ${showCorrect
+                                            ? "!bg-green-500 !border-green-700 !text-white ring-4 ring-green-300 animate-pulse"
+                                            : style.color
+                                        }
+                    ${isSelected || skip
                                             ? "translate-y-1 border-b-0 ring-4 ring-[#1CB0F6]/50"
                                             : isHost
                                                 ? "opacity-90 cursor-default"
                                                 : "active:border-b-0 active:translate-y-1 cursor-pointer"
-                                        } ${isEliminated
-                                            ? "opacity-30 grayscale cursor-not-allowed"
-                                            : ""
-                                        } ${answered && !isSelected
-                                            ? "opacity-30 grayscale-[50%]"
-                                            : ""
-                                        } disabled:cursor-not-allowed`}
+                                        }
+                    ${isEliminated ? "opacity-30 grayscale cursor-not-allowed" : ""}
+                    ${answered && !isSelected && !showCorrect ? "opacity-30 grayscale-[50%]" : ""}
+                    ${correctAlternative !== null && !showCorrect ? "opacity-40 grayscale" : ""}
+                    disabled:cursor-not-allowed
+                `}
                                 >
                                     <div className={`flex items-center gap-2.5 sm:gap-4 min-w-0 w-full ${isHost ? "justify-start" : "justify-center"}`}>
                                         <div className="w-9 h-9 sm:w-14 sm:h-14 shrink-0 rounded-lg sm:rounded-xl bg-black/20 border-b-2 border-black/30 flex items-center justify-center">
-                                            <IconComponent className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
+                                            {showCorrect
+                                                ? <span className="text-white text-2xl">✓</span>
+                                                : <IconComponent className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
+                                            }
                                         </div>
 
                                         {isHost && (
@@ -219,8 +232,8 @@ const RoomLivePage = () => {
                     {isHost && (
                         <div
                             className={`w-full py-2.5 sm:py-2 rounded-2xl border-2 border-b-4 flex items-center justify-center gap-2 font-black transition-all shadow-sm shrink-0 ${isCriticalTime
-                                    ? "border-[#FF4B4B] bg-[#3B1515] text-[#FF6B6B] animate-bounce"
-                                    : "border-[#FFC800]/60 bg-[#1E1E1E] text-[#FFC800]"
+                                ? "border-[#FF4B4B] bg-[#3B1515] text-[#FF6B6B] animate-bounce"
+                                : "border-[#FFC800]/60 bg-[#1E1E1E] text-[#FFC800]"
                                 }`}
                         >
                             <BsClockHistory className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
@@ -356,8 +369,8 @@ const RoomLivePage = () => {
 
                             <div
                                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mx-auto flex items-center justify-center border-2 border-b-4 shadow-sm ${answered
-                                        ? "bg-[#1B3808] border-[#58CC02] text-[#58CC02]"
-                                        : "bg-[#3B1515] border-[#FF4B4B] text-[#FF4B4B]"
+                                    ? "bg-[#1B3808] border-[#58CC02] text-[#58CC02]"
+                                    : "bg-[#3B1515] border-[#FF4B4B] text-[#FF4B4B]"
                                     }`}
                             >
                                 <BsClockHistory className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse" />

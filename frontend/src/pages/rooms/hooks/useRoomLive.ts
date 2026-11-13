@@ -50,6 +50,8 @@ const useRoomLive = () => {
 
     const isHost = Boolean(user);
 
+
+    const [correctAlternative, setCorrectAlternative] = useState<number | null>(null);
     const [players, setPlayers] = useState([])
     const [skip, setSkip] = useState<boolean>(false)
     const [selectedPowerUp, setSelectedPowerUp] = useState<any | null>(null);
@@ -241,8 +243,9 @@ const useRoomLive = () => {
             return
         }
 
-        const expired = () => {
+        const expired = (data: any) => {
             setTimeLeft(0)
+            setCorrectAlternative(data.alternativeCorrect.alternative_id)
         }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
@@ -287,10 +290,9 @@ const useRoomLive = () => {
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0) return;
 
-
         socket.emit("round:time_expired", {
             roomCode,
-            roundId: question.id
+            roundId: round
         });
     }, [timeLeft, isHost, roomCode, question]);
 
@@ -394,7 +396,8 @@ const useRoomLive = () => {
         usingPowerUp,
         skip,
         isHost,
-        players
+        players,
+        correctAlternative
     };
 };
 

@@ -26,7 +26,7 @@ export class RoomService implements IRoomService {
     }
 
     //Cria a sala
-    async createRoom(user: AuthPayload, dados: RoomCreateDTO ): Promise<string> {
+    async createRoom(user: AuthPayload, dados: RoomCreateDTO): Promise<string> {
         try {
             logger.info(
                 { userId: user.id },
@@ -193,8 +193,8 @@ export class RoomService implements IRoomService {
             throw new AppError(500, 'Erro entrar na sala')
         }
     }
-    //encontra alternativas
-    async findAlternatives(questionId: number, alternativeId: number) {
+    //encontra alternativa correta
+    async findAlternatives(questionId: number, alternativeId?: number): Promise<any> {
         try {
             const alternatives = await this.repo.findAlternative(questionId, alternativeId)
             return alternatives
