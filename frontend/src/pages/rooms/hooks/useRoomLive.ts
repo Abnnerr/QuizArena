@@ -247,7 +247,7 @@ const useRoomLive = () => {
             console.log(data);
             
             setTimeLeft(0)
-            setCorrectAlternative(data.alternativeCorrect.alternative_id)
+            setCorrectAlternative(data.alternative.alternative_id)
         }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
