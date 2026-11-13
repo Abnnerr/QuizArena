@@ -76,8 +76,8 @@ export class PlayerService {
             console.log(playerId, roomCode, ready);
 
             const room = await this.roomService.findRoom(roomCode)
-
             const isReady = await this.repo.readyPlayer(playerId, room.room_id, ready)
+            
             if (!isReady) {
                 throw new AppError(400, 'Erro ao player ficar pronto')
             }

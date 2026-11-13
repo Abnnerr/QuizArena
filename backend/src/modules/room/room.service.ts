@@ -73,9 +73,14 @@ export class RoomService implements IRoomService {
                 throw new AppError(400, 'sala esta cheia')
             }
             const player = await this.playerService.createPlayer(userName)
-            await this.playerService.findPlayerRoom(player.player_id, room?.room_id!)
-            await this.repo.joinRoom(player.player_id, room.room_id)
+
+            await Promise.all([
+                this.playerService.findPlayerRoom(player.player_id, room?.room_id!),
+                this.repo.joinRoom(player.player_id, room.room_id)
+            ])
+
             this.socket.lobby(room.room_code)
+
             return {
                 player_id: player.player_id,
                 player_name: player.player_name
@@ -91,8 +96,12 @@ export class RoomService implements IRoomService {
     async leaveRoom(id: string, roomCode: string): Promise<void> {
         try {
             const room = await this.repo.findByRoom(undefined, roomCode)
-            await this.repo.leaveRoom(id, room?.room_id!)
-            await this.playerService.deletePlayer(id)
+
+            await Promise.all([
+                this.repo.leaveRoom(id, room?.room_id!),
+                this.playerService.deletePlayer(id)
+            ])
+
             this.socket.leaveRoom(room?.room_code!)
         } catch (error) {
             if (error instanceof AppError) {
@@ -118,9 +127,11 @@ export class RoomService implements IRoomService {
             }
             const question = await this.serviceQuestion.findQuestion(room.room_id, 1)
 
-            await this.servicePower.createPowerPlayers(room.room_id)
-            await this.repoRound.createRound(room.room_id, question?.question_id!)
-            await this.repo.roomUpdate(room.room_id, "LIVE")
+            await Promise.all([
+                this.servicePower.createPowerPlayers(room.room_id),
+                this.repoRound.createRound(room.room_id, question?.question_id!),
+                this.repo.roomUpdate(room.room_id, "LIVE")
+            ])
 
             this.socket.roundStarted(room.room_code)
         } catch (error) {
