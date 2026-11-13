@@ -107,7 +107,7 @@ const RankingPage: React.FC = () => {
                         return {
                             ...player,
                             currentPos,
-                            diff: prevPos - currentPos
+                            diff: prevPos - currentPos,
                         };
                     }
                 );

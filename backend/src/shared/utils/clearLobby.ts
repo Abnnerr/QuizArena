@@ -51,7 +51,7 @@ export function lobbyClear() {
         } catch (error) {
             console.error("Erro na limpeza do lobby:", error);
         }
-    }, 120_000);
+    }, 60_000);
 
     return () => clearInterval(interval);
 }
