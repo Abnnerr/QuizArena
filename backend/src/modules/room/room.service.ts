@@ -74,10 +74,10 @@ export class RoomService implements IRoomService {
             }
             const player = await this.playerService.createPlayer(userName)
 
-            await Promise.all([
-                this.playerService.findPlayerRoom(player.player_id, room?.room_id!),
-                this.repo.joinRoom(player.player_id, room.room_id)
-            ])
+
+            await this.playerService.findPlayerRoom(player.player_id, room?.room_id!)
+            await this.repo.joinRoom(player.player_id, room.room_id)
+
 
             this.socket.lobby(room.room_code)
 

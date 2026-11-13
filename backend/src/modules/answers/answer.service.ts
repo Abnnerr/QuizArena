@@ -22,7 +22,9 @@ export class AnswerService {
             console.log(roomCode, roundId, playerId, alternativeId);
             const room = await this.roomService.findRoom(roomCode);
 
+
             const round = await this.roundService.findRound(room.room_code);
+
 
             const [power, powerSkip, alternative] = await Promise.all([
                 this.powerService.findPowerPlayer(playerId, room.room_id, 'DOUBLE_XP'),
@@ -38,14 +40,15 @@ export class AnswerService {
             if (skip) {
                 throw new AppError(400, 'Erro vc pulou')
             }
-            
+
             let scores = 0;
             const timeLimit = room.time_limit;
             if (alternative.is_correct) {
                 const answeredAt = Date.now();
-                const openedAt = new Date(round.opened_at).getTime();
+                const openedAt = new Date(round.round_opened).getTime();
                 const elapsedSeconds = Math.max(0, (answeredAt - openedAt) / 1000);
                 const remainingSeconds = Math.max(0, Math.min(timeLimit, timeLimit - elapsedSeconds));
+
 
 
                 const strategy = ScoreFactory.execute(room.room_mode);
@@ -58,6 +61,16 @@ export class AnswerService {
                 const multiplier = power?.position === room.position && power.used === true ? 2 : 1;
 
                 scores = applyMultiplier(baseScore, multiplier);
+
+                // console.log({
+                //     opened_at: round?.opened_at,
+                //     opened_at_timestamp: new Date(round?.opened_at).getTime(),
+                //     time_limit: room?.time_limit,
+                //     baseScore,
+                //     scores,
+                //     elapsedSeconds,
+                //     remainingSeconds
+                // });
             } else if (room.room_mode === 'HARDCORE') {
                 scores = -30
             }

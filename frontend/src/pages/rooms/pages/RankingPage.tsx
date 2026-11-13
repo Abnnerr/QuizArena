@@ -1,43 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useNavigate, useParams } from 'react-router';
-import { BiTrophy } from 'react-icons/bi';
+import React, { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { useNavigate, useParams } from "react-router";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    BsArrowRight,
     BsArrowLeft,
+    BsArrowRight,
     BsArrowUpShort,
     BsArrowDownShort,
-    BsDash,
-} from 'react-icons/bs';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AXIOS } from '../../../service';
+    BsDash
+} from "react-icons/bs";
+import { BiTrophy } from "react-icons/bi";
+import { AXIOS } from "../../../service";
 
-type PlayerData = {
+interface PlayerData {
     player_id: string | number;
     player_name: string;
     score: number;
-    position?: number;
-};
-
-type RankingWithDiff = PlayerData & {
+}
+interface RankingWithDiff extends PlayerData {
     currentPos: number;
+    prevPos: number;
     diff: number;
-};
+}
 
 const RankingPage: React.FC = () => {
     const navigate = useNavigate();
     const { roomCode, round } = useParams<{ roomCode: string; round: string; }>();
 
-    const [rankingList, setRankingList] = useState<RankingWithDiff[]>([]);
+    const [listToRender, setListToRender] = useState<RankingWithDiff[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [hasAnimated, setHasAnimated] = useState(false);
 
     async function createNewRound() {
         if (!roomCode || !round) return;
 
         try {
-
-
             const { data } = await AXIOS.post(`/round/${roomCode}/roundFinished`, {
                 round_id: Number(round)
             });
@@ -51,35 +49,26 @@ const RankingPage: React.FC = () => {
         }
     }
 
-
     useEffect(() => {
         let active = true;
 
         async function fetchPodium() {
             try {
-                const { data } = await AXIOS.get(
-                    `/player/${roomCode}/podium`
-                );
-
-                // Extrai os jogadores da resposta
+                const { data } = await AXIOS.get(`/player/${roomCode}/podium`);
                 const currentData = data?.data;
 
                 if (!Array.isArray(currentData)) {
                     throw new Error("Formato de ranking inválido.");
                 }
 
-                // Normaliza os dados recebidos
-                const currentPlayers: PlayerData[] = currentData.map(
-                    (item: any) => ({
-                        player_id: item.player_id,
-                        player_name: item.players.player_name,
-                        score: item.score
-                    })
-                );
+                const currentPlayers: PlayerData[] = currentData.map((item: any) => ({
+                    player_id: item.player_id,
+                    player_name: item.players.player_name,
+                    score: item.score
+                }));
 
-                // Recupera o ranking anterior
+                // Recupera o pódio anterior do sessionStorage
                 const savedPodium = sessionStorage.getItem("podium");
-
                 let previousData: PlayerData[] = [];
 
                 if (savedPodium) {
@@ -91,45 +80,52 @@ const RankingPage: React.FC = () => {
                     }
                 }
 
-                // Calcula as posições e diferenças
-                const ranking: RankingWithDiff[] = currentPlayers.map(
-                    (player, index) => {
-                        const currentPos = index + 1;
+                const baselineData = previousData.length > 0 ? previousData : currentPlayers;
 
-                        const previousIndex = previousData.findIndex(
-                            prev => prev.player_id === player.player_id
-                        );
+                // Mapeia posições atuais e anteriores
+                const processedRanking: RankingWithDiff[] = currentPlayers.map((player, index) => {
+                    const currentPos = index + 1;
 
-                        const prevPos = previousIndex !== -1
-                            ? previousIndex + 1
-                            : currentPos;
+                    const previousIndex = baselineData.findIndex(
+                        prev => prev.player_id === player.player_id
+                    );
 
-                        return {
-                            ...player,
-                            currentPos,
-                            diff: prevPos - currentPos,
-                        };
-                    }
-                );
+                    const prevPos = previousIndex !== -1
+                        ? previousIndex + 1
+                        : currentPos;
+
+                    return {
+                        ...player,
+                        currentPos,
+                        prevPos,
+                        diff: prevPos - currentPos
+                    };
+                });
 
                 if (!active) return;
 
-                setRankingList(ranking);
+                // 1º PASSO: Renderiza a lista ordenada EXATAMENTE pela posição ANTIGA (prevPos)
+                const initialList = [...processedRanking].sort((a, b) => a.prevPos - b.prevPos);
+                setListToRender(initialList);
+                setLoading(false);
 
-                // Salva somente os jogadores normalizados
-                sessionStorage.setItem(
-                    "podium",
-                    JSON.stringify(currentPlayers)
-                );
+                // Atualiza o sessionStorage para a próxima rodada
+                sessionStorage.setItem("podium", JSON.stringify(currentPlayers));
+
+                // 2º PASSO: Após um breve respiro, muda para a ordenação ATUAL (currentPos)
+                // É isso que obriga o Framer Motion a animar o deslocamento dos cards!
+                setTimeout(() => {
+                    if (active) {
+                        const finalList = [...processedRanking].sort((a, b) => a.currentPos - b.currentPos);
+                        setListToRender(finalList);
+                        setHasAnimated(true);
+                    }
+                }, 500);
 
             } catch (err) {
                 console.error("Erro ao carregar o ranking:", err);
-
                 if (active) {
                     setError("Não foi possível carregar o ranking.");
-                }
-            } finally {
-                if (active) {
                     setLoading(false);
                 }
             }
@@ -149,7 +145,6 @@ const RankingPage: React.FC = () => {
 
     }, [roomCode]);
 
-
     return (
         <>
             <Helmet>
@@ -158,7 +153,6 @@ const RankingPage: React.FC = () => {
 
             <main className="min-h-screen bg-[#F7F7F7] text-[#4B4B4B] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden select-none font-['Nunito',sans-serif]">
 
-                {/* Background Dot Pattern */}
                 <div
                     className="absolute inset-0 pointer-events-none opacity-40 z-0"
                     style={{
@@ -169,7 +163,6 @@ const RankingPage: React.FC = () => {
 
                 <div className="w-full max-w-xl relative z-10 space-y-6 my-auto">
 
-                    {/* Topo com Botão Voltar e Badge */}
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate(-1)}
@@ -185,7 +178,6 @@ const RankingPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Card Principal do Ranking */}
                     <section className="bg-white border-2 border-[#E5E5E5] border-b-8 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
 
                         <div className="text-center">
@@ -193,7 +185,7 @@ const RankingPage: React.FC = () => {
                                 Ranking Parcial
                             </h1>
                             <p className="text-[#777777] font-extrabold text-xs sm:text-sm mt-1">
-                                Acompanhe os jogadores trocando de posição lentamente!
+                                Veja quem subiu e quem desceu na tabela!
                             </p>
                         </div>
 
@@ -213,83 +205,102 @@ const RankingPage: React.FC = () => {
                                     Calculando posições...
                                 </p>
                             </div>
-                        ) : rankingList.length === 0 ? (
+                        ) : listToRender.length === 0 ? (
                             <div className="text-center py-8 space-y-4">
                                 <p className="text-[#777777] font-black">Nenhum jogador pontuou ainda.</p>
                             </div>
                         ) : (
                             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                                 <AnimatePresence>
-                                    {rankingList.map((player, index) => (
+                                    {listToRender.map((player) => {
+                                        const hasMovedUp = player.diff > 0;
+                                        const hasMovedDown = player.diff < 0;
 
-                                        <motion.div
-                                            key={player.player_id}
-                                            layout
-                                            initial={{ opacity: 0, y: 30 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -30 }}
-                                            transition={{
-                                                layout: {
-                                                    type: "spring",
-                                                    stiffness: 120, // Mais suave e lento
-                                                    damping: 20,    // Menos rígido para fluir devagar
-                                                },
-                                                opacity: { duration: 0.6, delay: index * 0.15 }, // Entrada cadenciada por item
-                                            }}
-                                            className="bg-[#F7F7F7] border-2 border-[#E5E5E5] border-b-4 rounded-2xl p-3.5 flex items-center justify-between shadow-xs"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                {/* Posição atual */}
-                                                <span
-                                                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${player.currentPos === 1
+                                        return (
+                                            <motion.div
+                                                key={player.player_id}
+                                                layout
+                                                initial={{ opacity: 0, y: 15 }}
+                                                animate={{
+                                                    opacity: 1,
+                                                    y: 0,
+                                                    backgroundColor: hasAnimated && hasMovedUp ? "#F4FFEC" : hasAnimated && hasMovedDown ? "#FFF5F5" : "#F7F7F7"
+                                                }}
+                                                transition={{
+                                                    layout: {
+                                                        type: "spring",
+                                                        stiffness: 50, // Mola super suave para ver claramente os players trocando de lugar
+                                                        damping: 14,
+                                                    },
+                                                    opacity: { duration: 0.3 },
+                                                    backgroundColor: { duration: 0.8 }
+                                                }}
+                                                className={`border-2 border-b-4 rounded-2xl p-3.5 flex items-center justify-between shadow-xs transition-colors ${hasAnimated && hasMovedUp
+                                                    ? "border-[#58CC02]"
+                                                    : hasAnimated && hasMovedDown
+                                                        ? "border-[#FF4B4B]"
+                                                        : "border-[#E5E5E5]"
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span
+                                                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black border-b-2 ${player.currentPos === 1
                                                             ? 'bg-[#FFC800] border-[#E5B200] text-[#7A5B00]'
                                                             : player.currentPos === 2
                                                                 ? 'bg-[#1CB0F6] border-[#0092D6] text-white'
                                                                 : player.currentPos === 3
                                                                     ? 'bg-[#D89E00] border-[#B88F00] text-white'
                                                                     : 'bg-white border-[#E5E5E5] text-[#AFAFAF]'
-                                                        }`}
-                                                >
-                                                    {player.currentPos}º
-                                                </span>
+                                                            }`}
+                                                    >
+                                                        {player.currentPos}º
+                                                    </span>
 
-                                                <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
-                                                    {player.player_name}
-                                                </span>
-                                            </div>
-
-                                            <div className="flex items-center gap-4">
-                                                {/* Badge de Subida ou Descida animada */}
-                                                <div className="flex items-center min-w-[65px] justify-end">
-                                                    {player.diff > 0 ? (
-                                                        <span className="inline-flex items-center gap-0.5 text-[#2B7200] bg-[#D7FFB8] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#58CC02] border-b-4">
-                                                            <BsArrowUpShort className="w-4 h-4 stroke-[2]" />
-                                                            <span>+{player.diff}</span>
-                                                        </span>
-                                                    ) : player.diff < 0 ? (
-                                                        <span className="inline-flex items-center gap-0.5 text-[#A80000] bg-[#FFD2D2] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#FF4B4B] border-b-4">
-                                                            <BsArrowDownShort className="w-4 h-4 stroke-[2]" />
-                                                            <span>{player.diff}</span>
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-[#AFAFAF] px-2 py-1">
-                                                            <BsDash className="w-5 h-5" />
-                                                        </span>
-                                                    )}
+                                                    <span className="font-black text-sm sm:text-base text-[#4B4B4B]">
+                                                        {player.player_name}
+                                                    </span>
                                                 </div>
 
-                                                {/* Pontuação */}
-                                                <span className="text-xs sm:text-sm font-black text-[#777777] min-w-[55px] text-right">
-                                                    {player.score} pts
-                                                </span>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex items-center min-w-[65px] justify-end">
+                                                        {hasMovedUp ? (
+                                                            <motion.span
+                                                                initial={{ scale: 0, opacity: 0 }}
+                                                                animate={{ scale: hasAnimated ? 1 : 0, opacity: hasAnimated ? 1 : 0 }}
+                                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                                className="inline-flex items-center gap-0.5 text-[#2B7200] bg-[#D7FFB8] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#58CC02] border-b-4"
+                                                            >
+                                                                <BsArrowUpShort className="w-4 h-4 stroke-[2]" />
+                                                                <span>+{player.diff}</span>
+                                                            </motion.span>
+                                                        ) : hasMovedDown ? (
+                                                            <motion.span
+                                                                initial={{ scale: 0, opacity: 0 }}
+                                                                animate={{ scale: hasAnimated ? 1 : 0, opacity: hasAnimated ? 1 : 0 }}
+                                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                                className="inline-flex items-center gap-0.5 text-[#A80000] bg-[#FFD2D2] px-2 py-1 rounded-xl text-xs font-black border-2 border-[#FF4B4B] border-b-4"
+                                                            >
+                                                                <BsArrowDownShort className="w-4 h-4 stroke-[2]" />
+                                                                <span>{player.diff}</span>
+                                                            </motion.span>
+                                                        ) : (
+                                                            <span className="text-[#AFAFAF] px-2 py-1">
+                                                                <BsDash className="w-5 h-5" />
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <span className="text-xs sm:text-sm font-black text-[#777777] min-w-[55px] text-right">
+                                                        {player.score} pts
+                                                    </span>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
                                 </AnimatePresence>
                             </div>
                         )}
 
-                        {/* Botão de Próxima Rodada */}
                         <div className="pt-2">
                             <button
                                 onClick={createNewRound}
