@@ -245,9 +245,11 @@ const useRoomLive = () => {
 
         const expired = (data: any) => {
             console.log(data);
-            
+
             setTimeLeft(0)
-            setCorrectAlternative(data.alternative.alternative_id)
+            setCorrectAlternative(
+                data.alternative?.alternative_id ?? null
+            );
         }
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
