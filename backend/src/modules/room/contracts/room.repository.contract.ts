@@ -8,7 +8,7 @@ export type IRoomRepository = {
     leaveRoom: (id: string, roomId: number) => Promise<void>
     countQuestions: (id: number) => Promise<number>
     roomUpdate: (id: number, status?: string) => Promise<void>
-    findAlternative: (iquestionId: number, alternativeId: number) => Promise<any>
+    findAlternative: (iquestionId: number, alternativeId?: number) => Promise<any>
     findAlternativeIncorret: (questionId: number) => Promise<any>
     limparRoom: (roomId: number, roundId: number) => Promise<void>
 }

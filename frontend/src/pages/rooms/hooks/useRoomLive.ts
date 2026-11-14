@@ -50,6 +50,8 @@ const useRoomLive = () => {
 
     const isHost = Boolean(user);
 
+
+    const [correctAlternative, setCorrectAlternative] = useState<number | null>(null);
     const [players, setPlayers] = useState([])
     const [skip, setSkip] = useState<boolean>(false)
     const [selectedPowerUp, setSelectedPowerUp] = useState<any | null>(null);
@@ -240,10 +242,20 @@ const useRoomLive = () => {
             }
             return
         }
+        const expired = (data: any) => {
+            console.log("Rodada expirada:", data);
 
-        const expired = () => {
-            setTimeLeft(0)
-        }
+            const alternativeId = data?.alternative?.alternative_id;
+
+            if (alternativeId == null) {
+                console.error("Alternativa correta não encontrada:", data);
+                return;
+            }
+
+            setTimeLeft(0);
+            setCorrectAlternative(Number(alternativeId));
+        };
+        
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
         socket.on("room:finished", roomFinished);
@@ -287,10 +299,9 @@ const useRoomLive = () => {
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0) return;
 
-
         socket.emit("round:time_expired", {
             roomCode,
-            roundId: question.id
+            roundId: round
         });
     }, [timeLeft, isHost, roomCode, question]);
 
@@ -394,7 +405,8 @@ const useRoomLive = () => {
         usingPowerUp,
         skip,
         isHost,
-        players
+        players,
+        correctAlternative
     };
 };
 
