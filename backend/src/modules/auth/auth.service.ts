@@ -225,6 +225,7 @@ export class AuthService {
             try {
                 const result = await this.repo.findUser(
                     undefined,
+                    undefined,
                     user.id
                 );
 
@@ -233,7 +234,7 @@ export class AuthService {
                         userId: user.id
                     });
 
-                    throw new AppError(404, "Usuário não encontrado");
+                    throw new AppError(401, "Usuário não encontrado");
                 }
 
                 const { user_password: _, Role: __, ...rest } = result;
