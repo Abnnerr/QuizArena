@@ -46,7 +46,7 @@ router.get(
 // Limpar sala, players, roomPlayers, answers e rounds
 router.delete(
     "/:roomCode/:roundId/limpar",
-    RateLimit.limit(2, 5),
+    RateLimit.limit(5, 5),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROOM_DELETE", "admin", "host"),
     roomController.limparRoom
