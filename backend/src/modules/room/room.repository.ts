@@ -85,7 +85,7 @@ export class RoomRepository implements IRoomRepository {
         }
     }
 
-    async countQuestions(id: number): Promise<number> {
+    async countQuestions(id: number): Promise<number>{
         try {
             return prisma.roomQuestion.count({
                 where: {
@@ -97,7 +97,7 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
-    async roomUpdate(id: number, status?: string): Promise<any> {
+    async roomUpdate(id: number, status?: string): Promise<Rooms> {
         try {
             const room = await prisma.rooms.findFirst({
                 where: {
@@ -118,7 +118,7 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
-    async findAlternative(questionId: number, alternativeId?: number) {
+    async findAlternative(questionId: number, alternativeId?: number): Promise<{ alternative_id: number } | null> {
         try {
             return await prisma.alternatives.findFirst({
                 where: {
@@ -130,14 +130,14 @@ export class RoomRepository implements IRoomRepository {
                 },
                 select: {
                     alternative_id: true,
-                    is_correct: true
+                    is
                 }
             })
         } catch (error) {
             throw error
         }
     }
-    async findAlternativeIncorret(questionId: number): Promise<any> {
+    async findAlternativeIncorret(questionId: number): Promise<{ alternative_id: number }[]> {
         try {
             const alternatives = await prisma.alternatives.findMany({
                 where: {
@@ -151,6 +151,50 @@ export class RoomRepository implements IRoomRepository {
             return alternatives
                 .sort(() => Math.random() - 0.5)
                 .slice(0, 2);
+        } catch (error) {
+            throw error
+        }
+    }
+    async getAnswerStatistics(roundId: number, questionId: number): Promise<{
+        alternativeId: number;
+        isCorrect: boolean;
+        count: number;
+    }[]> {
+        try {
+            const [alternatives, answers] = await Promise.all([
+                prisma.alternatives.findMany({
+                    where: {
+                        question_id: questionId
+                    },
+                    select: {
+                        alternative_id: true,
+                        is_correct: true
+                    }
+                }),
+
+                prisma.answers.groupBy({
+                    by: ["alternative_id"],
+                    where: {
+                        round_id: roundId
+                    },
+                    _count: {
+                        alternative_id: true
+                    }
+                })
+            ]);
+
+            const answerMap = new Map(
+                answers.map(answer => [
+                    answer.alternative_id,
+                    answer._count.alternative_id
+                ])
+            );
+
+            return alternatives.map(alternative => ({
+                alternativeId: alternative.alternative_id,
+                isCorrect: alternative.is_correct,
+                count: answerMap.get(alternative.alternative_id) ?? 0
+            }));
         } catch (error) {
             throw error
         }

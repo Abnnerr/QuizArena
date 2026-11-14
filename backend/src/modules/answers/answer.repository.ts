@@ -1,9 +1,9 @@
 import { prisma } from "../../db/index.js";
+import type { IAnswerRepository } from "./contracts/answer.repository.contract.js";
 
-export class AnswerRepository {
-    async createAnswer(roundId: number, playerId: string, alternativeId: number, points: number) {
-        console.log(roundId, playerId, alternativeId, points);
-        
+export class AnswerRepository implements IAnswerRepository {
+    async createAnswer(roundId: number, playerId: string, alternativeId: number, points: number): Promise<void> {
+
         try {
             await prisma.answers.create({
                 data: {

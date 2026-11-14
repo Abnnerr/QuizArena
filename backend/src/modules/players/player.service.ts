@@ -1,22 +1,25 @@
 
 import { AppError } from "../../error/AppError.js";
-import type { PlayerRepository } from "./player.repository.js";
-import type { RoomPlayer } from "@prisma/client";
+import type { Players, RoomPlayer } from "@prisma/client";
 import type { SocketService } from "../../shared/services/socket.service.js";
 import type { IRoomService } from "../room/contracts/room.service.contract.js";
-import type { PowerRepository } from "../powers/powers.repository.js";
 import type { RoomService } from "../room/room.service.js";
-import type { RoundRepository } from "../round/round.repository.js";
 import { PowerUpFactory } from "./services/powerup.factory.js";
+import { Logger } from "../../shared/services/logger.service.js";
+import { measure } from "../../observability/measure.js";
+import type { IPlayerService } from "./contracts/player.service.contract.js";
+import type { IPlayerRepository } from "./contracts/player.respository.contract.js";
+import type { IPowerRepository } from "../powers/contracts/power.repository.contract.js";
+import type { IRoundRepository } from "../round/contracts/round.repository.contract.js";
 
 
-export class PlayerService {
+export class PlayerService implements IPlayerService {
     private roomService!: IRoomService;
 
     constructor(
-        private readonly repo: PlayerRepository,
-        private readonly repoPower: PowerRepository,
-        private readonly repoRound: RoundRepository,
+        private readonly repo: IPlayerRepository,
+        private readonly repoPower: IPowerRepository,
+        private readonly repoRound: IRoundRepository,
         private readonly socket: SocketService
     ) { }
 
@@ -26,154 +29,278 @@ export class PlayerService {
         this.roomService = roomService;
     }
 
-
+    // Conta jogadores
     async countPlayers(roomId: number): Promise<number> {
-        try {
-            const players = await this.repo.countPlayers(roomId)
+        return measure("PlayerService.countPlayers", async () => {
+            try {
+                return await this.repo.countPlayers(roomId);
+            } catch (error) {
+                if (error instanceof AppError) throw error;
 
-            return players
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
+                Logger.error("PlayerService", "countPlayers.failed", error, {
+                    roomId
+                });
+
+                throw new AppError(500, "Erro ao contar players");
             }
-            throw new AppError(500, 'Erro ao contar players')
-        }
+        });
     }
-    async createPlayer(name: string) {
-        try {
-            let player = await this.repo.findPlayer(name)
-            if (player) {
-                throw new AppError(409, "Esse nome já está em uso");
+    // Cria jogador
+    async createPlayer(name: string): Promise<Players> {
+        return measure("PlayerService.createPlayer", async () => {
+            try {
+                Logger.info("PlayerService", "createPlayer.started", {
+                    playerName: name
+                });
+
+                const player = await this.repo.findPlayer(name);
+
+                if (player) {
+                    Logger.warn("PlayerService", "createPlayer.name_already_used", {
+                        playerName: name
+                    });
+
+                    throw new AppError(409, "Esse nome já está em uso");
+                }
+
+                const newPlayer = await this.repo.create(name);
+
+                Logger.info("PlayerService", "createPlayer.completed", {
+                    playerId: newPlayer.player_id
+                });
+
+                return newPlayer;
+
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+
+                Logger.error("PlayerService", "createPlayer.failed", error);
+
+                throw new AppError(500, "Erro ao criar player");
             }
-            return await this.repo.create(name)
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro ao criar player')
-        }
+        });
     }
+    // Verifica se o jogador já está na sala
     async findPlayerRoom(username: string, roomId: number): Promise<RoomPlayer | null> {
-        try {
-            const player = await this.repo.findPlayerRoom(username, roomId)
+        return measure("PlayerService.findPlayerRoom", async () => {
+            try {
+                const player = await this.repo.findPlayerRoom(username, roomId);
 
-            if (player) {
-                throw new AppError(400, 'player ja esta na sala')
-            }
+                if (player) {
+                    Logger.warn("PlayerService", "findPlayerRoom.already_in_room", {
+                        roomId,
+                        playerId: player.player_id
+                    });
 
-            return player
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
+                    throw new AppError(400, "Player já está na sala");
+                }
+
+                return player;
+
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+
+                Logger.error("PlayerService", "findPlayerRoom.failed", error, {
+                    roomId
+                });
+
+                throw new AppError(500, "Erro ao verificar player na sala");
             }
-            throw new AppError(500, 'Erro ao criar player')
-        }
+        });
     }
-
-    //player fica pronto ou nao
+    // Player fica pronto ou não
     async readyPlayer(playerId: string, roomCode: string, ready: boolean): Promise<void> {
-        try {
-            console.log(playerId, roomCode, ready);
+        return measure("PlayerService.readyPlayer", async () => {
+            try {
+                Logger.info("PlayerService", "readyPlayer.started", {
+                    playerId,
+                    roomCode,
+                    ready
+                });
 
-            const room = await this.roomService.findRoom(roomCode)
-            const isReady = await this.repo.readyPlayer(playerId, room.room_id, ready)
+                const room = await this.roomService.findRoom(roomCode);
 
-            if (!isReady) {
-                throw new AppError(400, 'Erro ao player ficar pronto')
+                const isReady = await this.repo.readyPlayer(
+                    playerId,
+                    room.room_id,
+                    ready
+                );
+
+                if (!isReady) {
+                    throw new AppError(400, "Erro ao player ficar pronto");
+                }
+
+                this.socket.playerReady(
+                    room.room_code,
+                    isReady.player_id,
+                    isReady.ready
+                );
+
+                Logger.info("PlayerService", "readyPlayer.completed", {
+                    playerId,
+                    roomId: room.room_id,
+                    ready: isReady.ready
+                });
+
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+
+                Logger.error("PlayerService", "readyPlayer.failed", error, {
+                    playerId,
+                    roomCode
+                });
+
+                throw new AppError(500, "Erro ao atualizar status do player");
             }
-
-            this.socket.playerReady(room?.room_code!, isReady.player_id, isReady.ready)
-        } catch (error) {
-            console.log(error);
-
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro ao ready player')
-        }
+        });
     }
 
-    async updatePlayerScore(roomId: number, playerId: string, scores: number) {
-        try {
-            const playerScore = await this.repo.playerScore(playerId)
+    async updatePlayerScore(roomId: number, playerId: string, scores: number): Promise<void> {
+        return measure("PlayerService.updatePlayerScore", async () => {
+            try {
+                Logger.info("PlayerService", "updatePlayerScore.started", {
+                    roomId,
+                    playerId,
+                    points: scores
+                });
 
-            scores += playerScore?.score! + scores
+                const playerScore = await this.repo.playerScore(playerId);
 
-            if (scores < 0) {
-                throw new AppError(400, 'Scores negativo')
+                const totalScore = (playerScore?.score ?? 0) + scores;
+
+                if (totalScore < 0) {
+                    throw new AppError(400, "Score negativo");
+                }
+
+                await this.repo.updatePlayerScore(
+                    roomId,
+                    playerId,
+                    totalScore
+                );
+
+                Logger.info("PlayerService", "updatePlayerScore.completed", {
+                    roomId,
+                    playerId,
+                    totalScore
+                });
+
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+                Logger.error("PlayerService", "updatePlayerScore.failed", error, {
+                    roomId,
+                    playerId
+                });
+                throw new AppError(500, "Erro ao atualizar pontuação do player");
             }
-            await this.repo.updatePlayerScore(roomId, playerId, scores)
-        } catch (error) {
-
-        }
+        });
     }
-    async deletePlayer(id: string) {
-        try {
-            await this.repo.deletePlayer(id)
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
+
+    // Exclui jogador
+    async deletePlayer(id: string): Promise<void> {
+        return measure("PlayerService.deletePlayer", async () => {
+            try {
+                await this.repo.deletePlayer(id);
+
+                Logger.info("PlayerService", "deletePlayer.completed", {
+                    playerId: id
+                });
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+                Logger.error("PlayerService", "deletePlayer.failed", error, {
+                    playerId: id
+                });
+                throw new AppError(500, "Erro ao excluir player");
             }
-            throw new AppError(500, 'Erro ao criar player')
-        }
+        });
     }
 
-    async findPodium(code: string) {
-        try {
-            const room = await this.roomService.findRoom(code)
-            const players = await this.repo.findPlayers(room.room_id)
 
-            return players
-        } catch (error) {
-            if (error instanceof AppError) {
-                throw error
+    // Encontra o pódio
+    async findPodium(code: string): Promise<(RoomPlayer & { players: { player_id: string; player_name: string; }; })[]> {
+        return measure("PlayerService.findPodium", async () => {
+            try {
+                const room = await this.roomService.findRoom(code);
+
+                const players = await this.repo.findPlayers(room.room_id);
+
+                Logger.info("PlayerService", "findPodium.completed", {
+                    roomId: room.room_id,
+                    playersCount: players.length
+                });
+
+                return players;
+
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+                Logger.error("PlayerService", "findPodium.failed", error, {
+                    roomCode: code
+                });
+                throw new AppError(500, "Erro ao buscar pódio");
             }
-            throw new AppError(500, 'Erro ao criar player')
-        }
+        });
     }
 
-    //usa um power
-    async powerUp(code: string, playerId: string, powerId: number, targetPlayerId?: string) {
-        try {
 
+    // Usa um power-up
+    async powerUp(code: string, playerId: string, powerId: number, targetPlayerId?: string): Promise<void> {
+        return measure("PlayerService.powerUp", async () => {
+            try {
+                Logger.info("PlayerService", "powerUp.started", {
+                    roomCode: code,
+                    playerId,
+                    powerId,
+                    targetPlayerId
+                });
 
-            const room = await this.roomService.findRoom(code);
+                const room = await this.roomService.findRoom(code);
 
-            const [power, round] = await Promise.all([
-                this.repoPower.findPowerById(powerId),
-                this.repoRound.findById(room.room_id)
-            ])
+                const [power, round] = await Promise.all([
+                    this.repoPower.findPowerById(powerId),
+                    this.repoRound.findById(room.room_id)
+                ]);
 
-            if (!power) {
-                throw new AppError(404, "PowerUp não encontrado");
+                if (!power) {
+                    throw new AppError(404, "PowerUp não encontrado");
+                }
+
+                if (!round) {
+                    throw new AppError(404, "Rodada não encontrada");
+                }
+
+                const strategy = PowerUpFactory.execute(power.powerup_type);
+
+                await strategy({
+                    code,
+                    playerId,
+                    roomId: room.room_id,
+                    powerId: power.powerup_id,
+                    position: room.position + 1,
+                    roundId: round.round_id,
+                    questionId: round.question_id,
+                    targetPlayerId,
+                    repoPower: this.repoPower,
+                    roomService: this.roomService,
+                    socket: this.socket
+                });
+
+                Logger.info("PlayerService", "powerUp.completed", {
+                    roomId: room.room_id,
+                    playerId,
+                    powerId,
+                    powerType: power.powerup_type
+                });
+
+            } catch (error) {
+                if (error instanceof AppError) throw error;
+
+                Logger.error("PlayerService", "powerUp.failed", error, {
+                    roomCode: code,
+                    playerId,
+                    powerId
+                });
+
+                throw new AppError(500, "Erro ao utilizar power-up");
             }
-            if (!round) {
-                throw new AppError(404, "Rodada não encontrada");
-            }
-
-            const strategy = PowerUpFactory.execute(power.powerup_type)
-
-            await strategy({
-                code,
-                playerId,
-                roomId: room.room_id,
-                powerId: power.powerup_id,
-                position: room.position + 1,
-                roundId: round.round_id,
-                questionId: round.question_id,
-                targetPlayerId,
-                repoPower: this.repoPower,
-                roomService: this.roomService,
-                socket: this.socket
-            })
-
-        } catch (error) {
-            console.log(error);
-
-            if (error instanceof AppError) {
-                throw error
-            }
-            throw new AppError(500, 'Erro ao criar player')
-        }
+        });
     }
 }

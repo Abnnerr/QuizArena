@@ -1,7 +1,8 @@
 import type { Players, RoomPlayer } from "@prisma/client";
 import { prisma } from "../../db/index.js";
+import type { IPlayerRepository } from "./contracts/player.respository.contract.js";
 
-export class PlayerRepository {
+export class PlayerRepository implements IPlayerRepository {
 
     async countPlayers(id: number): Promise<number> {
         try {
@@ -54,7 +55,7 @@ export class PlayerRepository {
         }
     }
 
-    async findPlayers(roomId: number) {
+    async findPlayers(roomId: number): Promise<(RoomPlayer & { players: { player_id: string; player_name: string; }; })[]> {
         try {
             return await prisma.roomPlayer.findMany({
                 where: {
@@ -76,7 +77,7 @@ export class PlayerRepository {
             throw error
         }
     }
-    async readyPlayer(id: string, roomId: number, ready: boolean): Promise<any> {
+    async readyPlayer(id: string, roomId: number, ready: boolean): Promise<RoomPlayer> {
         try {
             return await prisma.roomPlayer.update({
                 where: {
@@ -95,7 +96,7 @@ export class PlayerRepository {
             throw error
         }
     }
-    async playerScore(player_id: string): Promise<any> {
+    async playerScore(player_id: string): Promise<{ score: number } | null> {
         try {
             return await prisma.roomPlayer.findFirst({
                 where: {
@@ -108,7 +109,7 @@ export class PlayerRepository {
             throw error
         }
     }
-    async updatePlayerScore(roomId: number, playerId: string, score: number) {
+    async updatePlayerScore(roomId: number, playerId: string, score: number): Promise<void> {
         try {
             await prisma.roomPlayer.update({
                 where: {
@@ -126,7 +127,7 @@ export class PlayerRepository {
             throw error
         }
     }
-    async deletePlayer(id: string) {
+    async deletePlayer(id: string): Promise<void> {
         try {
             await prisma.players.delete({
                 where: {

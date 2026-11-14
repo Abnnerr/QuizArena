@@ -1,8 +1,9 @@
 
 import { prisma } from "../../db/index.js"
+import type { IRoundRepository } from "./contracts/round.repository.contract.js";
 import type { RoundWithQuestion, RoundWithRelations } from "./dto/round.dto.js"
 
-export class RoundRepository {
+export class RoundRepository implements IRoundRepository {
     async createRound(roomId: number, questionId: number): Promise<RoundWithQuestion> {
         try {
             return await prisma.round.create({
@@ -89,7 +90,7 @@ export class RoundRepository {
             },
         });
     }
-    async updateRound(roundId: number) {
+    async updateRound(roundId: number): Promise<void> {
         try {
             await prisma.round.update({
                 where: {

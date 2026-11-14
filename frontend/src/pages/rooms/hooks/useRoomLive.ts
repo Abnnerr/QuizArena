@@ -40,7 +40,11 @@ interface PowerFiftyPayload {
         alternative_text?: string;
     }>;
 }
-
+interface AlternativeStatistics {
+    alternativeId: number;
+    isCorrect: boolean;
+    count: number;
+}
 const useRoomLive = () => {
     const { roomCode } = useParams<{ roomCode: string }>();
     const navigate = useNavigate();
@@ -50,7 +54,7 @@ const useRoomLive = () => {
 
     const isHost = Boolean(user);
 
-
+    const [alternativeStatistics, setAlternativeStatistics] = useState<AlternativeStatistics[]>([]);
     const [correctAlternative, setCorrectAlternative] = useState<number | null>(null);
     const [players, setPlayers] = useState([])
     const [skip, setSkip] = useState<boolean>(false)
@@ -116,26 +120,19 @@ const useRoomLive = () => {
             ),
         });
 
-        setSkip(data.skip)
+        setSkip(data.skip);
         setRound(data.round_id);
+
+        // CORREÇÃO: Reseta o estado da alternativa correta da rodada anterior
+        setCorrectAlternative(null);
 
         const duration = Number(data.time_limit ?? QUESTION_TIME);
         const start = new Date(data.round_opened).getTime();
         const serverNow = new Date(data.server_now).getTime();
 
         const elapsed = Math.floor((serverNow - start) / 1000);
-
         const remaining = Math.max(0, duration - elapsed);
 
-
-        console.log({
-            round_opened: data.round_opened,
-            parsedDate: new Date(data.round_opened).toString(),
-            serverNow: new Date(data.server_now).toString(),
-            now: new Date().toString(),
-            difference: (Date.now() - new Date(data.round_opened).getTime()) / 1000,
-            time_limit: data.time_limit
-        });
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
@@ -178,11 +175,8 @@ const useRoomLive = () => {
                 `/player/${roomCode}/podium`
             );
 
-            const plays = dataPlayers.data.map((item: any) => item.players).filter((item: any) => item.player_id !== player?.player_id)
-            console.log(plays);
-
-            setPlayers(plays)
-
+            const plays = dataPlayers.data.map((item: any) => item.players).filter((item: any) => item.player_id !== player?.player_id);
+            setPlayers(plays);
 
             sessionStorage.setItem("podium", JSON.stringify(dataPlayers));
 
@@ -219,11 +213,6 @@ const useRoomLive = () => {
         const handlePowerFifty = (data: PowerFiftyPayload) => {
             const currentPlayerId = getPlayerId();
 
-            // console.log("Payload recebido:", data);
-            // console.log("Alternativas:", data.alternatives);
-            // console.log("É array?", Array.isArray(data.alternatives));
-
-
             if (data.playerId !== currentPlayerId) {
                 return;
             }
@@ -237,31 +226,35 @@ const useRoomLive = () => {
 
         const skiped = (data: any) => {
             if (data.target === player?.player_id) {
-                setSkip(data.skiped)
-                return
+                setSkip(data.skiped);
+                return;
             }
-            return
-        }
+            return;
+        };
         const expired = (data: any) => {
             console.log("Rodada expirada:", data);
 
-            const alternativeId = data?.alternative?.alternative_id;
+            const alternatives: AlternativeStatistics[] = data?.alternative ?? [];
 
-            if (alternativeId == null) {
-                console.error("Alternativa correta não encontrada:", data);
+            if (!alternatives.length) {
+                console.error("Estatísticas não encontradas:", data);
                 return;
             }
 
             setTimeLeft(0);
-            setCorrectAlternative(Number(alternativeId));
+            setAlternativeStatistics(alternatives);
+
+            const correct = alternatives.find(item => item.isCorrect);
+
+            setCorrectAlternative(correct?.alternativeId ?? null);
         };
-        
+
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
         socket.on("room:finished", roomFinished);
         socket.on("room:powerfifty", handlePowerFifty);
         socket.on("room:skip", skiped);
-        socket.on("room:expired", expired)
+        socket.on("room:expired", expired);
 
         if (!socket.connected) {
             socket.connect();
@@ -277,8 +270,7 @@ const useRoomLive = () => {
             socket.off("room:finished", roomFinished);
             socket.off("room:powerfifty", handlePowerFifty);
             socket.off("room:skip", skiped);
-            socket.off("room:expired", expired)
-
+            socket.off("room:expired", expired);
         };
     }, [roomCode, player?.player_id]);
 
@@ -379,6 +371,7 @@ const useRoomLive = () => {
         }
         setSelectedPowerUp(null);
     };
+
     const progress = (timeLeft / questionTime) * 100;
     const isCriticalTime = timeLeft <= 5;
 
@@ -406,7 +399,8 @@ const useRoomLive = () => {
         skip,
         isHost,
         players,
-        correctAlternative
+        correctAlternative,
+        alternativeStatistics
     };
 };
 

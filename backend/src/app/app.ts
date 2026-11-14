@@ -2,23 +2,13 @@ import express from 'express'
 import cors from 'cors'
 import routes from "./routes.js"
 import helmet from 'helmet'
-import crypto from "node:crypto";
 import cookieParser from "cookie-parser"
-import { pinoHttp } from 'pino-http'
-import { logger } from '../shared/utils/logger.js'
+import { loggerMiddleware } from '../middlewares/logger.middleware.js';
 
 const app = express()
 
-app.use(pinoHttp({
-    logger,
-
-    genReqId: (req) => {
-        return req.headers["x-request-id"]?.toString()
-            || crypto.randomUUID();
-    }
-}));
-
 app.use(express.json({ limit: '100kb', strict: true }))
+app.use(loggerMiddleware);
 app.use(cookieParser());
 // app.use(RateLimit.limit(100, 15))
 app.use(helmet())

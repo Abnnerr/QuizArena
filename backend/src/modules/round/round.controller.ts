@@ -1,12 +1,13 @@
 import type { Request, Response } from "express";
 import { AppError } from "../../error/AppError.js";
 import { HttpResponse } from "../../shared/response/httpResponse.js";
-import type { RoundService } from "./round.service.js";
 import type { ResponseDTO } from "../../types/generic.js";
 import type { FinishedDTO } from "./schema/finished.schema.js";
+import type { IRoundController } from "./contracts/round.controller.contract.js";
+import type { IRoundService } from "./contracts/round.service.contract.js";
 
-export class RoundController {
-    constructor(private readonly service: RoundService) {
+export class RoundController implements IRoundController {
+    constructor(private readonly service: IRoundService) {
         this.roundFinished = this.roundFinished.bind(this)
         this.findRound = this.findRound.bind(this)
     }
@@ -32,7 +33,7 @@ export class RoundController {
             return HttpResponse.success(res, 201, "Round terminado e novo criado")
         } catch (error) {
             console.log(error);
-            
+
             if (error instanceof AppError) {
                 return HttpResponse.warning(res, error.status, error.message)
             }

@@ -2,23 +2,28 @@ import { Router } from "express";
 import { ZodMiddleware } from "../../middlewares/zod.middleware.js";
 import { readySchema } from "./schema/playerReady.schema.js";
 import { playerController } from "../../containers/roomPlayer.container.js";
+import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router()
-
-
-router.get('/:roomCode/podium',
+// Buscar o pódio
+router.get(
+    "/:roomCode/podium",
+    RateLimit.limit(30, 1),
     playerController.findPodium
-)
+);
 
-//player ready
-router.patch('/:playerId/:roomCode/ready',
-    // RateLimit.limit(4, 3),
-    ZodMiddleware.validate(readySchema, 'body'),
+// Player ready
+router.patch(
+    "/:playerId/:roomCode/ready",
+    RateLimit.limit(4, 1),
+    ZodMiddleware.validate(readySchema, "body"),
     playerController.ready
-)
+);
 
-router.post('/:roomCode/:playerId/:powerId/powerup',
-    // RateLimit.limit(4, 3),
+// Utilizar power-up
+router.post(
+    "/:roomCode/:playerId/:powerId/powerup",
+    RateLimit.limit(5, 1),
     playerController.powerUp
-)
+);
 export default router

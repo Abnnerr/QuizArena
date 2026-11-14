@@ -64,3 +64,25 @@ export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
 });
 
 export type RoundWithRelations = Prisma.RoundGetPayload<typeof roundWithRelations>;
+
+
+
+
+export interface RoundResponseDTO {
+    round_id: number;
+    round_opened: Date;
+    server_now: Date;
+    question_id: number;
+    question_text: string;
+    alternatives: RoundWithRelations["questions"]["alternatives"];
+    time_limit: number;
+    count_questions: number;
+    position: number;
+    powers?: {
+        powerup_id: number;
+        powerup_type: string;
+        descricao: string;
+        used: boolean;
+    }[];
+    skip: boolean;
+}

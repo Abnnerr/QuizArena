@@ -1,12 +1,13 @@
 import type { Request, Response } from "express"
 import type { ResponseDTO } from "../../types/generic.js"
-import type { PlayerService } from "./player.service.js"
 import { HttpResponse } from "../../shared/response/httpResponse.js"
 import { AppError } from "../../error/AppError.js"
 import type { ReadyDTO } from "./schema/playerReady.schema.js"
+import type { IPlayerService } from "./contracts/player.service.contract.js"
+import type { IPlayerController } from "./contracts/player.controller.contract.js"
 
-export class PlayerController {
-    constructor(private readonly service: PlayerService) {
+export class PlayerController implements IPlayerController {
+    constructor(private readonly service: IPlayerService) {
         this.ready = this.ready.bind(this)
         this.findPodium = this.findPodium.bind(this)
         this.powerUp = this.powerUp.bind(this)

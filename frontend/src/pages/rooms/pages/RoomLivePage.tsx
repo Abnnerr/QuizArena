@@ -50,7 +50,8 @@ const RoomLivePage = () => {
         skip,
         isHost,
         players,
-        correctAlternative
+        correctAlternative,
+        alternativeStatistics
     } = useRoomLive();
 
 
@@ -103,19 +104,19 @@ const RoomLivePage = () => {
                 />
 
                 {/* Barra Superior de Progresso */}
-                {isHost && (
-                    <div className="h-2.5 sm:h-3 w-full bg-[#2A2A2A] relative overflow-hidden z-20 shrink-0">
-                        <div
-                            className={`h-full transition-all duration-1000 ease-linear ${isCriticalTime
-                                ? "bg-[#FF4B4B] animate-pulse"
-                                : "bg-[#FFC800]"
-                                }`}
-                            style={{
-                                width: `${Math.max(0, progress)}%`,
-                            }}
-                        />
-                    </div>
-                )}
+
+                <div className="h-2.5 sm:h-3 w-full bg-[#2A2A2A] relative overflow-hidden z-20 shrink-0">
+                    <div
+                        className={`h-full transition-all duration-1000 ease-linear ${isCriticalTime
+                            ? "bg-[#FF4B4B] animate-pulse"
+                            : "bg-[#FFC800]"
+                            }`}
+                        style={{
+                            width: `${Math.max(0, progress)}%`,
+                        }}
+                    />
+                </div>
+
 
                 <section className="flex-1 w-full max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 flex flex-col justify-between relative z-10 gap-3 sm:gap-6 my-auto">
                     {/* Cabeçalho Fixo: Power-ups em cima */}
@@ -140,52 +141,49 @@ const RoomLivePage = () => {
                     </div>
 
                     {/* Enunciado do Host */}
-                    {isHost && (
-                        <div className="flex-1 min-h-[120px] sm:min-h-[180px] max-h-[220px] sm:max-h-none flex items-center justify-center text-center bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-4 sm:border-b-8 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-lg relative overflow-y-auto">
-                            <div className="relative z-10 w-full">
-                                {loading ? (
-                                    <div className="space-y-2 sm:space-y-3">
-                                        <div className="inline-block w-6 h-6 sm:w-8 sm:h-8 border-4 border-[#1CB0F6] border-t-transparent rounded-full animate-spin" />
-                                        <p className="text-[#888888] text-xs sm:text-lg font-black uppercase tracking-wider">
-                                            Carregando partida...
-                                        </p>
-                                    </div>
-                                ) : error ? (
-                                    <p className="text-[#FF4B4B] text-base sm:text-xl font-black">
-                                        {error}
-                                    </p>
-                                ) : question ? (
-                                    <h1 className="text-[#F3F4F6] text-base sm:text-3xl lg:text-4xl font-black leading-snug tracking-tight break-words">
-                                        {question.text}
-                                    </h1>
-                                ) : (
-                                    <p className="text-[#888888] text-sm sm:text-xl font-black uppercase tracking-wider">
-                                        Aguardando a próxima pergunta...
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    )}
 
-                    {/* Alternativas */}
+                    <div className="flex-1 min-h-[120px] sm:min-h-[180px] max-h-[220px] sm:max-h-none flex items-center justify-center text-center bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-4 sm:border-b-8 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-lg relative overflow-y-auto">
+                        <div className="relative z-10 w-full">
+                            {loading ? (
+                                <div className="space-y-2 sm:space-y-3">
+                                    <div className="inline-block w-6 h-6 sm:w-8 sm:h-8 border-4 border-[#1CB0F6] border-t-transparent rounded-full animate-spin" />
+                                    <p className="text-[#888888] text-xs sm:text-lg font-black uppercase tracking-wider">
+                                        Carregando partida...
+                                    </p>
+                                </div>
+                            ) : error ? (
+                                <p className="text-[#FF4B4B] text-base sm:text-xl font-black">
+                                    {error}
+                                </p>
+                            ) : question ? (
+                                <h1 className="text-[#F3F4F6] text-base sm:text-3xl lg:text-4xl font-black leading-snug tracking-tight break-words">
+                                    {question.text}
+                                </h1>
+                            ) : (
+                                <p className="text-[#888888] text-sm sm:text-xl font-black uppercase tracking-wider">
+                                    Aguardando a próxima pergunta...
+                                </p>
+                            )}
+                        </div>
+                    </div>
 
                     {/* Alternativas */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 my-auto shrink-0">
                         {question?.alternatives.map((alternative: any, index: number) => {
-
                             const style = ALTERNATIVE_STYLES[index % ALTERNATIVE_STYLES.length];
                             const IconComponent = style.icon;
 
                             const isSelected = selectedAnswer === alternative.id;
-
                             const isEliminated = hiddenAlternativeIds?.includes(alternative.id);
 
-                            // Compara os IDs como números
+                            const statistics = alternativeStatistics.find(
+                                item => Number(item.alternativeId) === Number(alternative.id)
+                            );
+
                             const isCorrect =
                                 correctAlternative !== null &&
                                 Number(correctAlternative) === Number(alternative.id);
 
-                            // Verifica se a rodada já terminou
                             const roundFinished = correctAlternative !== null;
 
                             return (
@@ -209,10 +207,11 @@ const RoomLivePage = () => {
                     flex items-center justify-center
                     font-black text-xs sm:text-lg
                     transition-all duration-300
+                    ${style.color}
 
                     ${isCorrect
-                                            ? "!bg-green-500 !border-green-700 !text-white ring-4 ring-green-300 scale-[1.02]"
-                                            : style.color
+                                            ? "ring-4 ring-white/90 scale-[1.02] shadow-lg z-10"
+                                            : ""
                                         }
 
                     ${!roundFinished && (isSelected || skip)
@@ -236,7 +235,7 @@ const RoomLivePage = () => {
                                         }
 
                     ${roundFinished && !isCorrect
-                                            ? "opacity-40 grayscale"
+                                            ? "opacity-35 grayscale"
                                             : ""
                                         }
 
@@ -248,7 +247,6 @@ const RoomLivePage = () => {
                                             }`}
                                     >
                                         <div className="w-9 h-9 sm:w-14 sm:h-14 shrink-0 rounded-lg sm:rounded-xl bg-black/20 border-b-2 border-black/30 flex items-center justify-center">
-
                                             {isCorrect ? (
                                                 <span className="text-white text-2xl font-black">
                                                     ✓
@@ -256,15 +254,18 @@ const RoomLivePage = () => {
                                             ) : (
                                                 <IconComponent className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
                                             )}
-
                                         </div>
 
-                                        {isHost && (
-                                            <span className="flex-1 min-w-0 whitespace-normal break-words text-left text-white tracking-wide text-xs sm:text-base leading-snug">
-                                                {alternative.text}
+                                        <span className="flex-1 min-w-0 whitespace-normal break-words text-left text-white tracking-wide text-xs sm:text-base leading-snug">
+                                            {alternative.text}
+                                        </span>
+
+                                        {/* Quantidade de respostas */}
+                                        {roundFinished && (
+                                            <span className="shrink-0 text-white font-black text-xs sm:text-base bg-black/20 rounded-lg px-2 py-1">
+                                                {statistics?.count ?? 0}
                                             </span>
                                         )}
-
                                     </div>
                                 </button>
                             );
@@ -406,7 +407,7 @@ const RoomLivePage = () => {
                 )}
 
                 {/* Overlay de Tempo Esgotado / Aguardando Host (Apenas para Players) */}
-                {!isHost && !loading && question && timeLeft <= 0 && (
+                {/* {!isHost && !loading && question && timeLeft <= 0 && (
                     <div className="fixed inset-0 bg-[#121212]/90 backdrop-blur-md z-40 flex items-center justify-center p-4 animate-in fade-in duration-300">
                         <div className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-5 shadow-2xl">
 
@@ -439,7 +440,7 @@ const RoomLivePage = () => {
 
                         </div>
                     </div>
-                )}
+                )} */}
             </main>
         </>
     );

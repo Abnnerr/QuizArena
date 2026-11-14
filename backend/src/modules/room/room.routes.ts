@@ -7,45 +7,49 @@ import { roomCreateSchema } from "./schema/roomCreate.schema.js";
 import { joinSchema } from "./schema/roomJoin.schema.js";
 import { roomController } from "../../containers/roomPlayer.container.js";
 
+const router = Router();
 
-const router = Router()
-
-
-//Criar a Sala e as questoes
-router.post('/create',
+// Criar a sala e as questões
+router.post(
+    "/create",
     RateLimit.limit(4, 3),
     AuthMiddleware.validate,
-    PolicyMiddleware.ensureRolePermission('ROOM_CREATE', 'admin', 'host'),
-    ZodMiddleware.validate(roomCreateSchema, 'body'),
+    PolicyMiddleware.ensureRolePermission("ROOM_CREATE", "admin", "host"),
+    ZodMiddleware.validate(roomCreateSchema, "body"),
     roomController.create
-)
+);
 
-//Criar o player na RoomPlayer
-router.post('/join/:name',
-    // RateLimit.limit(6, 1),
-    ZodMiddleware.validate(joinSchema, 'body'),
+// Criar o player na RoomPlayer
+router.post(
+    "/join/:name",
+    RateLimit.limit(6, 1),
+    ZodMiddleware.validate(joinSchema, "body"),
     roomController.join
-)
+);
 
-
-//Econtrar a sala e trazer todos os player dela
-router.get('/:name',
+// Encontrar a sala e trazer todos os players
+router.get(
+    "/:name",
+    RateLimit.limit(60, 2),
     roomController.findRoom
-)
+);
 
-//Iniciar a Sala
-router.get('/:id/start',
-    // RateLimit.limit(4, 3),
+// Iniciar a sala
+router.get(
+    "/:id/start",
+    RateLimit.limit(4, 3),
     AuthMiddleware.validate,
-    PolicyMiddleware.ensureRolePermission('ROOM_START', 'admin', 'host'),
+    PolicyMiddleware.ensureRolePermission("ROOM_START", "admin", "host"),
     roomController.start
-)
+);
 
-
-
-//limpar Room/players/roomplayers/answers/round
-router.delete('/:roomCode/:roundId/limpar', 
+// Limpar sala, players, roomPlayers, answers e rounds
+router.delete(
+    "/:roomCode/:roundId/limpar",
+    RateLimit.limit(2, 5),
+    AuthMiddleware.validate,
+    PolicyMiddleware.ensureRolePermission("ROOM_DELETE", "admin", "host"),
     roomController.limparRoom
-) 
+);
 
 export default router

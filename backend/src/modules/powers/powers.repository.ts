@@ -1,10 +1,11 @@
-import type {  PowerupType } from "@prisma/client";
+import type { PowerUp, PowerupType, PowerUpUse } from "@prisma/client";
 import { prisma } from "../../db/index.js"
+import type { IPowerRepository } from "./contracts/power.repository.contract.js";
 
-export class PowerRepository {
+export class PowerRepository implements IPowerRepository {
 
 
-    async powerPlayers(ids: string[], roomId: number) {
+    async powerPlayers(ids: string[], roomId: number): Promise<{ count: number }> {
         try {
 
             const powerups = await prisma.powerUp.findMany({
@@ -26,7 +27,7 @@ export class PowerRepository {
         }
     }
 
-    async findPowerById(id: number) {
+    async findPowerById(id: number): Promise<PowerUp | null> {
         try {
             return await prisma.powerUp.findUnique({
                 where: {
@@ -37,7 +38,7 @@ export class PowerRepository {
             throw error
         }
     }
-    async findPowerPlayer(playerId: string, roomId: number, namePower?: PowerupType) {
+    async findPowerPlayer(playerId: string, roomId: number, namePower?: PowerupType): Promise<PowerUpUse | null> {
         try {
             return await prisma.powerUpUse.findFirst({
                 where: {
@@ -55,7 +56,7 @@ export class PowerRepository {
             throw error
         }
     }
-    async updatePower(playerId: string, roomId: number, powerId: number, position?: number, roundId?: number, targetPlayer?: string) {
+    async updatePower(playerId: string, roomId: number, powerId: number, position?: number, roundId?: number, targetPlayer?: string): Promise<PowerUpUse> {
         try {
             return await prisma.powerUpUse.update({
                 where: {
@@ -75,7 +76,7 @@ export class PowerRepository {
             throw error
         }
     }
-    async findPowerTarget(playerId: string, roomId: number, roundId: number, power: PowerupType) {
+    async findPowerTarget(playerId: string, roomId: number, roundId: number, power: PowerupType): Promise<PowerUpUse | null> {
         try {
 
             console.log(playerId, roomId, roundId);

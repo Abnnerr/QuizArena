@@ -1,9 +1,11 @@
 
+import type { RoomQuestion } from "@prisma/client"
 import { prisma } from "../../db/index.js"
+import type { IQuestionRepository } from "./contracts/question.repository.contract.js"
 import type { QuestionCreateDTO } from "./dto/question.dto.js"
 
 
-export class QuestionRepository {
+export class QuestionRepository implements IQuestionRepository {
     async create(dados: QuestionCreateDTO[]): Promise<number[]> {
         try {
             return await prisma.$transaction(async (tx) => {
@@ -35,10 +37,9 @@ export class QuestionRepository {
         }
     }
 
-    async findQuestion(roomId: number, position: number): Promise<any> {
+    async findQuestion(roomId: number, position: number): Promise<RoomQuestion | null> {
         try {
 
-            console.log(roomId, position);
 
             const a = await prisma.roomQuestion.findFirst({
                 where: {
@@ -47,7 +48,6 @@ export class QuestionRepository {
                 }
             });
 
-            console.log(a);
             return a
         } catch (error) {
             throw error
