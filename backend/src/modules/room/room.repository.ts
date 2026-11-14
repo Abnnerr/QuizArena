@@ -85,7 +85,7 @@ export class RoomRepository implements IRoomRepository {
         }
     }
 
-    async countQuestions(id: number): Promise<number>{
+    async countQuestions(id: number): Promise<number> {
         try {
             return prisma.roomQuestion.count({
                 where: {
@@ -118,24 +118,19 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
     }
-    async findAlternative(questionId: number, alternativeId?: number): Promise<{ alternative_id: number } | null> {
-        try {
-            return await prisma.alternatives.findFirst({
-                where: {
-                    question_id: questionId,
-                    ...(alternativeId ?
-                        { alternative_id: alternativeId } :
-                        { is_correct: true }
-                    )
-                },
-                select: {
-                    alternative_id: true,
-                    is
-                }
-            })
-        } catch (error) {
-            throw error
-        }
+    async findAlternative(questionId: number, alternativeId?: number): Promise<{ alternative_id: number; is_correct: boolean } | null> {
+        return await prisma.alternatives.findFirst({
+            where: {
+                question_id: questionId,
+                ...(alternativeId !== undefined
+                    ? { alternative_id: alternativeId }
+                    : { is_correct: true })
+            },
+            select: {
+                alternative_id: true,
+                is_correct: true
+            }
+        });
     }
     async findAlternativeIncorret(questionId: number): Promise<{ alternative_id: number }[]> {
         try {
