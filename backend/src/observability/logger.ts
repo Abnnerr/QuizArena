@@ -22,7 +22,20 @@ const transport = pino.transport({
             target: 'pino/file',
             options: { destination: 1 },
         },
+
     ],
 });
 
-export const logger = pino(transport);
+export const logger = pino(
+    {
+        redact: {
+            paths: [
+                "req.headers.cookie",
+                "req.headers.authorization",
+                "res.headers.set-cookie",
+            ],
+            censor: "[REDACTED]",
+        },
+    },
+    transport
+);
