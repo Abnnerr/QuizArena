@@ -4,6 +4,6 @@ import type { UserWithRole } from "../dto/auth.dto.js";
 
 export type IAuthRepository = {
     register: (dados: RegisterDTO) => Promise<Users>
-    findUser: (email?: string, id?: string) => Promise<UserWithRole>
+    findUser: (email?: string, id?: string) => Promise<UserWithRole | null>
     reset: (id: string, password: string) => Promise<Users>
 }
