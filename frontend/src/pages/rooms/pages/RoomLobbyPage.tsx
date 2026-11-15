@@ -19,8 +19,7 @@ import { preloadRoomLivePage } from "../../../routes/Paths";
 
 const SKIP_COLOR = "#1CB0F6";
 const HOST_COLOR = "#E9B94F";
-const READY_COLOR = "#43AD83";
-const DANGER_COLOR = "#E36F75";
+
 
 const RoomLobbyPage = () => {
     const { colors } = useTheme();
