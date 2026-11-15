@@ -48,46 +48,72 @@ const RoomLobbyPage = () => {
     } = useLobby({ roomCode });
 
     const isHost = user?.user_id === room?.host_id;
+
     useEffect(() => {
         preloadRoomLivePage();
     }, []);
-    // Gerenciamento do autoplay e desbloqueio por clique
+
     useEffect(() => {
         const audio = audioRef.current;
+
         if (!audio) return;
+
+        let isMounted = true;
 
         audio.volume = 0.80;
         audio.loop = true;
+        audio.muted = isMuted;
+
+        const handleFirstInteraction = () => {
+            if (!isMounted || isMuted) return;
+
+            audio.play()
+                .then(() => {
+                    if (isMounted) {
+                        setIsPlaying(true);
+                    }
+                })
+                .catch((err) => {
+                    console.log("Erro ao reproduzir áudio:", err);
+                });
+
+            window.removeEventListener("click", handleFirstInteraction);
+        };
 
         audio.play()
             .then(() => {
-                setIsPlaying(true);
+                if (isMounted) {
+                    setIsPlaying(true);
+                }
             })
             .catch(() => {
-                const handleFirstInteraction = () => {
-                    audio.play()
-                        .then(() => {
-                            setIsPlaying(true);
-                            setIsMuted(false);
-                        })
-                        .catch((err) =>
-                            console.log("Erro ao reproduzir áudio:", err)
-                        );
-
-                    window.removeEventListener("click", handleFirstInteraction);
-                };
-
                 window.addEventListener("click", handleFirstInteraction);
             });
+
+        // Executado ao sair do lobby
+        return () => {
+            isMounted = false;
+
+            window.removeEventListener("click", handleFirstInteraction);
+
+            audio.pause();
+            audio.currentTime = 0;
+
+            setIsPlaying(false);
+        };
     }, []);
 
+    // Alternar mute
     const toggleMute = () => {
-        if (!audioRef.current) return;
+        const audio = audioRef.current;
 
-        audioRef.current.muted = !isMuted;
-        setIsMuted(!isMuted);
+        if (!audio) return;
+
+        const nextMuted = !isMuted;
+
+        audio.muted = nextMuted;
+        setIsMuted(nextMuted);
     };
-
     const handleCopyCode = async () => {
         if (!roomCode) return;
 
@@ -814,8 +840,8 @@ const RoomLobbyPage = () => {
                                             "
                                             style={{
                                                 width: `${room.players.length > 0
-                                                        ? (room.players.filter((p: any) => p.ready).length / room.players.length) * 100
-                                                        : 0
+                                                    ? (room.players.filter((p: any) => p.ready).length / room.players.length) * 100
+                                                    : 0
                                                     }%`,
                                                 backgroundColor: colors.success,
                                             }}
