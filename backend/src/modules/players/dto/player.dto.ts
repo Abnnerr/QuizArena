@@ -11,7 +11,7 @@ export interface PowerUpContext {
     roundId: number;
     questionId: number;
     targetPlayerId?: string | undefined;
-
+    userName: string | undefined
     repoPower: PowerRepository;
     roomService: IRoomService;
     socket: SocketService;

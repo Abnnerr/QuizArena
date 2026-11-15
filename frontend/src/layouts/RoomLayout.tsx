@@ -1,41 +1,103 @@
+
 import { Link, Outlet } from "react-router";
+import { useTheme } from "../contexts/ThemeContext";
 
 const RoomLayout = () => {
-    return (
-        <div className="min-h-screen bg-[#FFFFFF] text-[#4B4B4B] flex flex-col justify-between relative overflow-x-hidden select-none font-['Nunito',sans-serif]">
+    const { colors } = useTheme();
 
-            <div
-                className="absolute inset-0 pointer-events-none opacity-25 z-0"
+    return (
+        <div
+            className="
+                h-dvh w-full
+                flex flex-col relative
+                overflow-hidden
+                select-none
+                font-['Nunito',sans-serif]
+            "
+            style={{
+                backgroundColor: colors.background,
+                color: colors.text,
+            }}
+        >
+            {/* HEADER FIXO */}
+            <header
+                className="
+                    w-full shrink-0
+                    border-b-2
+                    py-3 px-4 sm:px-10
+                    flex items-center justify-between
+                    relative z-20
+                "
                 style={{
-                    backgroundImage: 'radial-gradient(#E5E5E5 2px, transparent 2px)',
-                    backgroundSize: '24px 24px'
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
                 }}
-            />
-            <header className="w-full border-b-2 border-[#E5E5E5] bg-white py-3 px-4 sm:px-10 flex items-center justify-between relative z-20">
+            >
                 <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-white rounded-xl border-2 border-[#E5E5E5] border-b-4 p-1 shadow-sm flex items-center justify-center transition-transform group-hover:scale-105">
-                        <img src="/favicon-quiz.png" alt="QuizArena" className="h-full w-full object-contain" />
+                    <div
+                        className="
+                            w-10 h-10 rounded-xl
+                            border-2 border-b-4
+                            p-1 shadow-sm
+                            flex items-center justify-center
+                            transition-transform group-hover:scale-105
+                        "
+                        style={{
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                        }}
+                    >
+                        <img
+                            src="/favicon-quiz.png"
+                            alt="QuizArena"
+                            className="h-full w-full object-contain"
+                        />
                     </div>
-                    <span className="text-xl sm:text-2xl font-black text-[#4B4B4B] tracking-tight">
+
+                    <span
+                        className="text-xl sm:text-2xl font-black tracking-tight"
+                        style={{ color: colors.text }}
+                    >
                         QuizArena
                     </span>
                 </Link>
             </header>
 
-            <main className="w-full flex-1 flex flex-col relative z-10">
+            {/* CONTEÚDO COM SCROLL */}
+            <main
+                className="
+                    w-full flex-1 min-h-0
+                    relative z-10
+                    overflow-y-auto overflow-x-hidden
+                "
+            >
                 <Outlet />
             </main>
 
-            <footer className="w-full border-t-2 border-[#E5E5E5] bg-white p-4 sm:px-10 relative z-20">
+            {/* FOOTER FIXO */}
+            <footer
+                className="
+                    w-full shrink-0
+                    border-t-2
+                    p-4 sm:px-10
+                    relative z-20
+                "
+                style={{
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                }}
+            >
                 <div className="max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
-
-                    <div className="text-center sm:text-left text-xs sm:text-sm font-black text-[#AFAFAF]">
+                    <div
+                        className="text-center sm:text-left text-xs sm:text-sm font-black"
+                        style={{ color: colors.muted }}
+                    >
                         <p>© 2026 QuizArena</p>
                     </div>
                 </div>
             </footer>
         </div>
     );
-}
+};
 
 export default RoomLayout;

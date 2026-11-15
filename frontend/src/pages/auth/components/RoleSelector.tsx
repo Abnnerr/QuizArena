@@ -1,39 +1,80 @@
 
-import React from 'react';
+import React from "react";
+import { useTheme } from "../../../contexts/ThemeContext";
 
 interface RoleSelectorProps {
     role: number;
     setRole: (role: number) => void;
 }
 
-export const RoleSelector: React.FC<RoleSelectorProps> = ({ role, setRole }) => {
+export const RoleSelector: React.FC<RoleSelectorProps> = ({
+    role,
+    setRole,
+}) => {
+    const { colors } = useTheme();
+
+    const roles = [
+        {
+            id: 1,
+            label: "Jogador",
+            color: "#398BF3",
+            background: "#398BF318",
+        },
+        {
+            id: 2,
+            label: "Host",
+            color: "#D89E00",
+            background: "#D89E0018",
+        },
+    ];
+
     return (
         <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-zinc-300 mb-2">
+            <label
+                className="
+                    block text-xs font-black
+                    uppercase tracking-wider mb-2
+                "
+                style={{ color: colors.muted }}
+            >
                 Escolha seu perfil
             </label>
-            <div className="grid grid-cols-2 gap-3">
-                <button
-                    type="button"
-                    onClick={() => setRole(1)}
-                    className={`flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-2xl border-2 font-extrabold text-xs transition-all duration-150 active:translate-y-1 ${role === 1
-                            ? 'bg-[#1368CE] border-[#398bf3] text-white shadow-[0_4px_0_0_#0C4488]'
-                            : 'bg-black/30 border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white'
-                        }`}
-                >
-                    <span>Jogador</span>
-                </button>
 
-                <button
-                    type="button"
-                    onClick={() => setRole(2)}
-                    className={`flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-2xl border-2 font-extrabold text-xs transition-all duration-150 active:translate-y-1 ${role === 2
-                            ? 'bg-[#D89E00] border-[#f1b719] text-white shadow-[0_4px_0_0_#966e00]'
-                            : 'bg-black/30 border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white'
-                        }`}
-                >
-                    <span>Host</span>
-                </button>
+            <div className="grid grid-cols-2 gap-3">
+                {roles.map((item) => {
+                    const selected = role === item.id;
+
+                    return (
+                        <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setRole(item.id)}
+                            aria-pressed={selected}
+                            className="
+                                flex flex-col items-center justify-center
+                                gap-1.5 py-3 px-3
+                                rounded-2xl border-2 border-b-4
+                                font-extrabold text-xs
+                                transition-all duration-150
+                                active:translate-y-1
+                                cursor-pointer
+                            "
+                            style={{
+                                backgroundColor: selected
+                                    ? item.background
+                                    : colors.surface,
+                                borderColor: selected
+                                    ? item.color
+                                    : colors.border,
+                                color: selected
+                                    ? item.color
+                                    : colors.muted,
+                            }}
+                        >
+                            <span>{item.label}</span>
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );

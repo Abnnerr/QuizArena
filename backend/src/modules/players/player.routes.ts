@@ -22,7 +22,7 @@ router.patch(
 
 // Utilizar power-up
 router.post(
-    "/:roomCode/:playerId/:powerId/powerup",
+    "/:roomCode/:playerId/:powerId/:userName/powerup",
     RateLimit.limit(5, 1),
     playerController.powerUp
 );

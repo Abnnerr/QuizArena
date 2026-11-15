@@ -35,11 +35,11 @@ export class PlayerController implements IPlayerController {
             return HttpResponse.warning(res, 500, error.message)
         }
     }
-    async powerUp(req: Request<{ roomCode: string, playerId: string, powerId: string }, {}, { target: string }, {}>, res: Response<ResponseDTO>): Promise<Response> {
+    async powerUp(req: Request<{ roomCode: string, playerId: string, powerId: string, userName: string }, {}, { target: string }, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
 
             const { target } = req.body || {};
-            await this.service.powerUp(req.params.roomCode, req.params.playerId, Number(req.params.powerId), target)
+            await this.service.powerUp(req.params.roomCode, req.params.playerId, Number(req.params.powerId), target, req.params.userName)
             return HttpResponse.success(res, 200, 'players encontrados')
         } catch (error: any) {
             console.log(error);

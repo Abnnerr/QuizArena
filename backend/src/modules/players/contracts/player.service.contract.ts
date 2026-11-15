@@ -39,6 +39,7 @@ export type IPlayerService = {
         code: string,
         playerId: string,
         powerId: number,
-        targetPlayerId?: string
+        targetPlayerId?: string,
+        userName?: string
     ): Promise<void>;
 }

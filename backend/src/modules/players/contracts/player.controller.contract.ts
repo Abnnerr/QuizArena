@@ -15,7 +15,7 @@ export interface IPlayerController {
 
     powerUp(
         req: Request<
-            { roomCode: string; playerId: string; powerId: string },
+            { roomCode: string; playerId: string; powerId: string, userName: string },
             {},
             { target: string },
             {}

@@ -1,3 +1,4 @@
+
 import { Helmet } from "react-helmet-async";
 import {
     BsTriangleFill,
@@ -8,24 +9,30 @@ import {
     BsLightningFill,
     BsX,
     BsChevronDown,
+    BsVolumeMuteFill,
+    BsVolumeUpFill,
 } from "react-icons/bs";
 import useRoomLive from "../hooks/useRoomLive";
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "../../../contexts/ThemeContext";
+
+const SKIP_COLOR = "#1CB0F6";
 
 const ALTERNATIVE_STYLES = [
     {
-        color: "bg-[#E21B3C] hover:bg-[#c41532] text-white border-2 border-b-4 border-[#9E1328]",
+        color: "bg-[#E21B3C] hover:bg-[#c41532] text-white border-[#9E1328]",
         icon: BsTriangleFill,
     },
     {
-        color: "bg-[#1368CE] hover:bg-[#0f53a8] text-white border-2 border-b-4 border-[#0B3E7A]",
+        color: "bg-[#1368CE] hover:bg-[#0f53a8] text-white border-[#0B3E7A]",
         icon: BsDiamondFill,
     },
     {
-        color: "bg-[#D89E00] hover:bg-[#b08100] text-white border-2 border-b-4 border-[#805E00]",
+        color: "bg-[#D89E00] hover:bg-[#b08100] text-white border-[#805E00]",
         icon: BsCircleFill,
     },
     {
-        color: "bg-[#26890C] hover:bg-[#1f6e0a] text-white border-2 border-b-4 border-[#174F07]",
+        color: "bg-[#26890C] hover:bg-[#1f6e0a] text-white border-[#174F07]",
         icon: BsSquareFill,
     },
 ];
@@ -51,9 +58,157 @@ const RoomLivePage = () => {
         isHost,
         players,
         correctAlternative,
-        alternativeStatistics
+        alternativeStatistics,
+        playerNameUsed
     } = useRoomLive();
 
+    const { colors } = useTheme();
+
+
+
+    const [isMusicMuted, setIsMusicMuted] = useState(() => {
+        const savedMute = localStorage.getItem("mute_ambient:live");
+
+        return savedMute !== null ? JSON.parse(savedMute) : false;
+    });
+
+    const prevHiddenCountRef = useRef(0);
+    const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+
+    // Salva a posição atual da música
+    const saveMusicPosition = () => {
+        const audio = bgMusicRef.current;
+
+        if (!audio || !Number.isFinite(audio.currentTime)) return;
+
+        localStorage.setItem(
+            "live_music_position",
+            JSON.stringify(audio.currentTime)
+        );
+    };
+
+    // Controla a música e restaura a posição salva
+    useEffect(() => {
+        const audio = bgMusicRef.current;
+
+        if (!audio) return;
+
+        audio.volume = 0.15;
+        audio.loop = true;
+
+        const restoreMusic = () => {
+            const savedPosition = localStorage.getItem("live_music_position");
+
+            if (savedPosition !== null) {
+                const position = Number(JSON.parse(savedPosition));
+
+                if (
+                    Number.isFinite(position) &&
+                    position >= 0 &&
+                    position < audio.duration
+                ) {
+                    audio.currentTime = position;
+                }
+            }
+
+            if (isMusicMuted) {
+                audio.pause();
+            } else {
+                audio.play().catch((err) => {
+                    console.log("Autoplay bloqueado pelo navegador:", err);
+                });
+            }
+        };
+
+        if (audio.readyState >= 1) {
+            restoreMusic();
+        } else {
+            audio.addEventListener("loadedmetadata", restoreMusic, {
+                once: true,
+            });
+        }
+
+        return () => {
+            saveMusicPosition();
+
+            audio.removeEventListener("loadedmetadata", restoreMusic);
+            audio.pause();
+        };
+    }, [isMusicMuted]);
+
+    // Alterna o mute e salva a preferência
+    const toggleBackgroundMusic = () => {
+        setIsMusicMuted((currentMuted: boolean) => {
+            const nextMuted = !currentMuted;
+
+            localStorage.setItem(
+                "mute_ambient:live",
+                JSON.stringify(nextMuted)
+            );
+
+            return nextMuted;
+        });
+    };
+
+    // Efeitos sonoros
+    const playSound = (audioPath: string, volumeLevel = 0.4) => {
+        const sound = new Audio(audioPath);
+        sound.volume = volumeLevel;
+
+        sound.play().catch((err) =>
+            console.log("Erro ao reproduzir áudio:", err)
+        );
+    };
+
+    // Confirma o power-up e reproduz o som correspondente
+    const handleConfirmPowerUpWithSound = (
+        powerupId: any,
+        targetPlayerId?: any
+    ) => {
+        if (
+            selectedPowerUp?.powerup_type?.toUpperCase() === "DOUBLE_XP" ||
+            selectedPowerUp?.powerup_type?.toUpperCase() === "DOUBLEXP"
+        ) {
+            playSound("/xp.mp3");
+        }
+
+        onConfirmPowerUp(powerupId, targetPlayerId);
+    };
+
+    // Som de acerto e de pulo de rodada
+    useEffect(() => {
+        const roundFinished = correctAlternative !== null;
+
+        const playerAcertou =
+            roundFinished &&
+            selectedAnswer !== null &&
+            Number(selectedAnswer) === Number(correctAlternative);
+
+        if (playerAcertou) {
+            playSound("/acert.mp3");
+        }
+
+        if (skip) {
+            playSound("/skip.mp3");
+        }
+    }, [correctAlternative, selectedAnswer, skip]);
+
+    // Som do Fifty
+    useEffect(() => {
+        const currentCount = hiddenAlternativeIds?.length ?? 0;
+        const prevCount = prevHiddenCountRef.current;
+
+        if (currentCount > 0 && prevCount === 0) {
+            playSound("/fifty.mp3");
+        }
+
+        prevHiddenCountRef.current = currentCount;
+    }, [hiddenAlternativeIds]);
+
+    // Reseta o contador quando a pergunta mudar
+    useEffect(() => {
+        prevHiddenCountRef.current = 0;
+    }, [question?.id]);
 
     return (
         <>
@@ -61,123 +216,303 @@ const RoomLivePage = () => {
                 <title>QuizArena • Partida ao Vivo</title>
             </Helmet>
 
+            <audio ref={bgMusicRef} src="/ambiente.mp3" preload="auto" />
+
             <main
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
-                className={`w-full min-h-[100dvh] bg-[#121212] text-[#F3F4F6] font-['Nunito',sans-serif] flex flex-col justify-between relative overflow-x-hidden select-none outline-none transition-all duration-300 ${skip
-                    ? "ring-4 sm:ring-8 ring-inset ring-[#1CB0F6] shadow-[inset_0_0_50px_rgba(28,176,246,0.3)]"
-                    : ""
-                    }`}
+                className={`
+                    relative flex min-h-[100dvh] w-full flex-col
+                    overflow-x-hidden font-['Nunito',sans-serif]
+                    outline-none
+                    ${skip
+                        ? "ring-4 ring-inset shadow-[inset_0_0_50px_rgba(28,176,246,0.3)]"
+                        : ""
+                    }
+                `}
+                style={{
+                    backgroundColor: colors.background,
+                    color: colors.text,
+                    ...(skip ? { "--tw-ring-color": SKIP_COLOR } as React.CSSProperties : {}),
+                }}
             >
-                {/* Overlay de Efeito SKIP (Setas animadas descendo) */}
-                {skip && (
-                    <div className="fixed inset-0 pointer-events-none z-40 flex flex-col items-center justify-between p-4 sm:p-8 overflow-hidden duration-600">
-                        <div className="absolute inset-x-4 top-1/4 flex justify-between opacity-30 text-[#1CB0F6]">
-                            <BsChevronDown className="w-8 h-8 sm:w-12 sm:h-12 animate-bounce [animation-duration:1.2s]" />
-                            <BsChevronDown className="w-8 h-8 sm:w-12 sm:h-12 animate-bounce [animation-duration:1.2s] [animation-delay:200ms]" />
-                        </div>
-                        <div className="absolute inset-x-16 top-1/2 flex justify-between opacity-30 text-[#1CB0F6]">
-                            <BsChevronDown className="w-8 h-8 sm:w-12 sm:h-12 animate-bounce [animation-duration:1.2s] [animation-delay:400ms]" />
-                            <BsChevronDown className="w-8 h-8 sm:w-12 sm:h-12 animate-bounce [animation-duration:1.2s] [animation-delay:600ms]" />
-                        </div>
-
-                        <div className="flex flex-col items-center gap-1 text-[#1CB0F6] animate-pulse mb-4 bg-[#1E1E1E]/90 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-3 rounded-2xl border-2 border-[#1CB0F6] border-b-4 shadow-lg pointer-events-auto">
-                            <span className="font-black text-xs sm:text-sm uppercase tracking-wider text-white">
-                                Sua vez foi pulada!
-                            </span>
-                            <div className="flex gap-2">
-                                <BsChevronDown className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce [animation-delay:0ms]" />
-                                <BsChevronDown className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce [animation-delay:250ms]" />
-                                <BsChevronDown className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce [animation-delay:500ms]" />
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Background Dot Pattern Ajustado para Dark Mode */}
+                {/* Fundo */}
                 <div
-                    className="absolute inset-0 pointer-events-none opacity-15 z-0"
+                    className="pointer-events-none fixed inset-0 z-0 opacity-[0.10]"
                     style={{
-                        backgroundImage: "radial-gradient(#383838 2px, transparent 2px)",
+                        backgroundImage: `radial-gradient(${colors.pattern} 1.5px, transparent 1.5px)`,
                         backgroundSize: "24px 24px",
                     }}
                 />
 
-                {/* Barra Superior de Progresso */}
-
-                <div className="h-2.5 sm:h-3 w-full bg-[#2A2A2A] relative overflow-hidden z-20 shrink-0">
+                {/* Progresso da rodada */}
+                <div
+                    className="relative z-20 h-2 w-full shrink-0 sm:h-3"
+                    style={{ backgroundColor: colors.border }}
+                >
                     <div
-                        className={`h-full transition-all duration-1000 ease-linear ${isCriticalTime
-                            ? "bg-[#FF4B4B] animate-pulse"
-                            : "bg-[#FFC800]"
-                            }`}
+                        className={`
+                            h-full transition-all duration-1000 ease-linear
+                            ${isCriticalTime ? "animate-pulse" : ""}
+                        `}
                         style={{
                             width: `${Math.max(0, progress)}%`,
+                            backgroundColor: isCriticalTime
+                                ? colors.danger
+                                : colors.primary,
                         }}
                     />
                 </div>
 
+                {/* Conteúdo principal */}
+                <section className="
+                    relative z-10 mx-auto flex w-full max-w-5xl
+                    flex-1 flex-col gap-5 px-3 py-5
+                    sm:gap-7 sm:px-6 sm:py-7
+                    lg:gap-8 lg:px-8
+                ">
 
-                <section className="flex-1 w-full max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 flex flex-col justify-between relative z-10 gap-3 sm:gap-6 my-auto">
-                    {/* Cabeçalho Fixo: Power-ups em cima */}
-                    <div className="flex flex-col gap-2 w-full shrink-0">
-                        <div className="grid grid-cols-3 gap-2 w-full">
-                            {powerUp && powerUp.slice(0, 3).map((item: any, idx: number) => (
-                                <button
-                                    key={item.powerup_id ?? idx}
-                                    disabled={item.used === true}
-                                    type="button"
-                                    onClick={() => setSelectedPowerUp(item)}
-                                    className={`py-2 px-1.5 sm:px-3.5 rounded-2xl flex items-center justify-center gap-1.5 font-black text-[11px] sm:text-sm transition-all shadow-sm border-2 border-b-4 truncate ${item.used
-                                        ? "bg-[#1E1E1E] border-[#333333] text-[#666666] cursor-not-allowed opacity-50"
-                                        : "bg-[#1E1E1E] hover:bg-[#282828] border-[#FFC800]/60 border-b-[#FFC800] text-[#FFC800] cursor-pointer active:border-b-2 active:translate-y-0.5"
-                                        }`}
+                    {/* Cabeçalho */}
+                    <header className="flex w-full flex-col gap-3">
+
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p
+                                    className="
+                                        text-[10px] font-black uppercase
+                                        tracking-[0.2em] sm:text-xs
+                                    "
+                                    style={{ color: colors.muted }}
                                 >
-                                    <BsLightningFill className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${item.used ? "text-[#666666]" : "text-[#FFC800]"}`} />
-                                    <span className="capitalize truncate">{item.powerup_type}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Enunciado do Host */}
-
-                    <div className="flex-1 min-h-[120px] sm:min-h-[180px] max-h-[220px] sm:max-h-none flex items-center justify-center text-center bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-4 sm:border-b-8 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-lg relative overflow-y-auto">
-                        <div className="relative z-10 w-full">
-                            {loading ? (
-                                <div className="space-y-2 sm:space-y-3">
-                                    <div className="inline-block w-6 h-6 sm:w-8 sm:h-8 border-4 border-[#1CB0F6] border-t-transparent rounded-full animate-spin" />
-                                    <p className="text-[#888888] text-xs sm:text-lg font-black uppercase tracking-wider">
-                                        Carregando partida...
-                                    </p>
-                                </div>
-                            ) : error ? (
-                                <p className="text-[#FF4B4B] text-base sm:text-xl font-black">
-                                    {error}
+                                    Quiz Arena
                                 </p>
-                            ) : question ? (
-                                <h1 className="text-[#F3F4F6] text-base sm:text-3xl lg:text-4xl font-black leading-snug tracking-tight break-words">
+
+                                <h2
+                                    className="text-base font-black tracking-tight sm:text-xl"
+                                    style={{ color: colors.text }}
+                                >
+                                    Partida ao vivo
+                                </h2>
+                            </div>
+
+                            {/* Controles */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={toggleBackgroundMusic}
+                                    aria-label={
+                                        isMusicMuted
+                                            ? "Ligar música ambiente"
+                                            : "Desligar música ambiente"
+                                    }
+                                    className="
+                                        flex h-14 items-center justify-center gap-1.5
+                                        rounded-xl border-2 border-b-4
+                                        px-3 py-2 text-xs font-black
+                                        transition-all hover:brightness-110
+                                        active:translate-y-0.5 active:border-b-2
+                                        sm:px-4 sm:py-3 sm:text-sm
+                                    "
+                                    style={{
+                                        backgroundColor: colors.card,
+                                        borderColor: colors.border,
+                                        color: colors.primary,
+                                    }}
+                                >
+                                    {isMusicMuted
+                                        ? <BsVolumeMuteFill className="w-5 h-5" />
+                                        : <BsVolumeUpFill className="w-5 h-5" />
+                                    }
+                                </button>
+
+                                {isHost && (
+                                    <div
+                                        className="
+                                            flex items-center gap-2
+                                            rounded-xl border-2 border-b-4
+                                            px-3 py-2 sm:px-5 sm:py-3
+                                        "
+                                        style={{
+                                            backgroundColor: isCriticalTime
+                                                ? `${colors.danger}20`
+                                                : colors.card,
+                                            borderColor: isCriticalTime
+                                                ? colors.danger
+                                                : colors.primary,
+                                            color: isCriticalTime
+                                                ? colors.danger
+                                                : colors.primary,
+                                        }}
+                                    >
+                                        <BsClockHistory className="
+                                            h-4 w-4 shrink-0 sm:h-5 sm:w-5
+                                        " />
+
+                                        <span className="
+                                            whitespace-nowrap text-sm
+                                            font-black sm:text-xl
+                                        ">
+                                            {timeLeft}s
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Power-ups */}
+                        {powerUp && powerUp.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                {powerUp.slice(0, 3).map((item: any, idx: number) => (
+                                    <button
+                                        key={item.powerup_id ?? idx}
+                                        type="button"
+                                        disabled={item.used === true}
+                                        onClick={() => setSelectedPowerUp(item)}
+                                        className={`
+                                            flex min-h-[48px] min-w-0 items-center
+                                            justify-center gap-2 rounded-xl
+                                            border-2 border-b-4 px-2 py-2
+                                            text-[10px] font-black transition-all
+                                            sm:min-h-[58px] sm:rounded-2xl
+                                            sm:px-4 sm:text-sm
+                                            ${item.used
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "cursor-pointer hover:brightness-110 active:translate-y-0.5 active:border-b-2"
+                                            }
+                                        `}
+                                        style={{
+                                            backgroundColor: colors.card,
+                                            borderColor: item.used
+                                                ? colors.border
+                                                : colors.primary,
+                                            color: item.used
+                                                ? colors.muted
+                                                : colors.primary,
+                                        }}
+                                    >
+                                        <BsLightningFill
+                                            className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
+                                        />
+
+                                        <span className="truncate capitalize">
+                                            {item.powerup_type}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Pergunta */}
+                    <section
+                        className="
+                            flex min-h-[170px] w-full flex-1
+                            flex-col items-center justify-center
+                            rounded-2xl border-2 border-b-4
+                            px-4 py-7 text-center shadow-lg
+                            sm:min-h-[220px] sm:rounded-3xl
+                            sm:border-b-8 sm:px-10 sm:py-10
+                            lg:min-h-[250px]
+                        "
+                        style={{
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                        }}
+                    >
+                        {loading ? (
+                            <div className="flex flex-col items-center gap-4">
+                                <div
+                                    className="
+                                        h-8 w-8 animate-spin rounded-full
+                                        border-4 border-t-transparent
+                                        sm:h-10 sm:w-10
+                                    "
+                                    style={{
+                                        borderColor: SKIP_COLOR,
+                                        borderTopColor: "transparent",
+                                    }}
+                                />
+
+                                <p
+                                    className="
+                                        text-xs font-black uppercase
+                                        tracking-wider sm:text-base
+                                    "
+                                    style={{ color: colors.muted }}
+                                >
+                                    Carregando partida...
+                                </p>
+                            </div>
+                        ) : error ? (
+                            <p
+                                className="text-base font-black sm:text-xl"
+                                style={{ color: colors.danger }}
+                            >
+                                {error}
+                            </p>
+                        ) : question ? (
+                            <div className="w-full">
+                                <span
+                                    className="
+                                        mb-4 inline-block rounded-full
+                                        px-4 py-1.5 text-[10px]
+                                        font-black uppercase tracking-widest
+                                        sm:text-xs
+                                    "
+                                    style={{
+                                        backgroundColor: colors.surface,
+                                        color: colors.primary,
+                                    }}
+                                >
+                                    Pergunta
+                                </span>
+
+                                <h1
+                                    className="
+                                        break-words text-lg font-black
+                                        leading-snug tracking-tight
+                                        sm:text-2xl md:text-3xl lg:text-4xl
+                                    "
+                                    style={{ color: colors.text }}
+                                >
                                     {question.text}
                                 </h1>
-                            ) : (
-                                <p className="text-[#888888] text-sm sm:text-xl font-black uppercase tracking-wider">
-                                    Aguardando a próxima pergunta...
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                            </div>
+                        ) : (
+                            <p
+                                className="
+                                    text-sm font-black uppercase
+                                    tracking-wider sm:text-xl
+                                "
+                                style={{ color: colors.muted }}
+                            >
+                                Aguardando a próxima pergunta...
+                            </p>
+                        )}
+                    </section>
 
                     {/* Alternativas */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 my-auto shrink-0">
+                    <section className="
+                        grid w-full grid-cols-1 gap-3
+                        sm:grid-cols-2 sm:gap-4 lg:gap-5
+                    ">
                         {question?.alternatives.map((alternative: any, index: number) => {
-                            const style = ALTERNATIVE_STYLES[index % ALTERNATIVE_STYLES.length];
+                            const style = ALTERNATIVE_STYLES[
+                                index % ALTERNATIVE_STYLES.length
+                            ];
+
                             const IconComponent = style.icon;
 
                             const isSelected = selectedAnswer === alternative.id;
-                            const isEliminated = hiddenAlternativeIds?.includes(alternative.id);
+
+                            const isEliminated = hiddenAlternativeIds?.includes(
+                                alternative.id
+                            );
 
                             const statistics = alternativeStatistics.find(
-                                item => Number(item.alternativeId) === Number(alternative.id)
+                                item =>
+                                    Number(item.alternativeId) ===
+                                    Number(alternative.id)
                             );
 
                             const isCorrect =
@@ -201,68 +536,95 @@ const RoomLivePage = () => {
                                     }
                                     onClick={() => handleAnswer(alternative.id)}
                                     className={`
-                    min-h-[64px] sm:min-h-[110px]
-                    rounded-xl sm:rounded-2xl
-                    p-3 sm:p-5
-                    flex items-center justify-center
-                    font-black text-xs sm:text-lg
-                    transition-all duration-300
-                    ${style.color}
+                                        group relative flex min-h-[76px] w-full
+                                        items-center rounded-2xl border-2
+                                        border-b-4 p-3 text-left
+                                        transition-all duration-200
+                                        sm:min-h-[110px] sm:p-4
+                                        lg:min-h-[125px] lg:p-5
+                                        ${style.color}
 
-                    ${isCorrect
-                                            ? "ring-4 ring-white/90 scale-[1.02] shadow-lg z-10"
+                                        ${isCorrect
+                                            ? "z-10 scale-[1.02] ring-4 ring-white/90 shadow-xl"
                                             : ""
                                         }
 
-                    ${!roundFinished && (isSelected || skip)
-                                            ? "translate-y-1 border-b-0 ring-4 ring-[#1CB0F6]/50"
+                                        ${!roundFinished && (isSelected || skip)
+                                            ? "translate-y-1 border-b-2 ring-4 ring-[#1CB0F6]/50"
                                             : ""
                                         }
 
-                    ${isHost
-                                            ? "opacity-90 cursor-default"
-                                            : "active:border-b-0 active:translate-y-1 cursor-pointer"
+                                        ${isHost
+                                            ? "cursor-default"
+                                            : "cursor-pointer active:translate-y-1 active:border-b-2"
                                         }
 
-                    ${isEliminated && !roundFinished
-                                            ? "opacity-30 grayscale cursor-not-allowed"
+                                        ${isEliminated && !roundFinished
+                                            ? "cursor-not-allowed opacity-30 grayscale"
                                             : ""
                                         }
 
-                    ${answered && !isSelected && !isCorrect
-                                            ? "opacity-30 grayscale-[50%]"
+                                        ${answered && !isSelected && !isCorrect
+                                            ? "opacity-40 grayscale-[50%]"
                                             : ""
                                         }
 
-                    ${roundFinished && !isCorrect
+                                        ${roundFinished && !isCorrect
                                             ? "opacity-35 grayscale"
                                             : ""
                                         }
 
-                    disabled:cursor-not-allowed
-                `}
+                                        disabled:cursor-not-allowed
+                                    `}
                                 >
                                     <div
-                                        className={`flex items-center gap-2.5 sm:gap-4 min-w-0 w-full ${isHost ? "justify-start" : "justify-center"
-                                            }`}
+                                        className={`
+                                            flex w-full min-w-0 items-center
+                                            gap-3 sm:gap-4
+                                            ${isHost ? "justify-start" : "justify-center"}
+                                        `}
                                     >
-                                        <div className="w-9 h-9 sm:w-14 sm:h-14 shrink-0 rounded-lg sm:rounded-xl bg-black/20 border-b-2 border-black/30 flex items-center justify-center">
+                                        {/* Ícone */}
+                                        <div className="
+                                            flex h-10 w-10 shrink-0
+                                            items-center justify-center
+                                            rounded-xl border-b-2
+                                            border-black/30 bg-black/20
+                                            sm:h-14 sm:w-14 sm:rounded-2xl
+                                        ">
                                             {isCorrect ? (
-                                                <span className="text-white text-2xl font-black">
+                                                <span className="
+                                                    text-xl font-black text-white
+                                                    sm:text-3xl
+                                                ">
                                                     ✓
                                                 </span>
                                             ) : (
-                                                <IconComponent className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
+                                                <IconComponent className="
+                                                    h-5 w-5 text-white
+                                                    sm:h-7 sm:w-7
+                                                " />
                                             )}
                                         </div>
 
-                                        <span className="flex-1 min-w-0 whitespace-normal break-words text-left text-white tracking-wide text-xs sm:text-base leading-snug">
+                                        {/* Texto */}
+                                        <span className="
+                                            min-w-0 flex-1 break-words
+                                            text-sm font-black leading-snug
+                                            tracking-wide text-white
+                                            sm:text-base lg:text-lg
+                                        ">
                                             {alternative.text}
                                         </span>
 
-                                        {/* Quantidade de respostas */}
+                                        {/* Estatísticas */}
                                         {roundFinished && (
-                                            <span className="shrink-0 text-white font-black text-xs sm:text-base bg-black/20 rounded-lg px-2 py-1">
+                                            <span className="
+                                                shrink-0 rounded-lg
+                                                bg-black/20 px-2.5 py-1.5
+                                                text-xs font-black text-white
+                                                sm:text-base
+                                            ">
                                                 {statistics?.count ?? 0}
                                             </span>
                                         )}
@@ -270,177 +632,322 @@ const RoomLivePage = () => {
                                 </button>
                             );
                         })}
-                    </div>
+                    </section>
 
-
-                    {isHost && (
-                        <div
-                            className={`w-full py-2.5 sm:py-2 rounded-2xl border-2 border-b-4 flex items-center justify-center gap-2 font-black transition-all shadow-sm shrink-0 ${isCriticalTime
-                                ? "border-[#FF4B4B] bg-[#3B1515] text-[#FF6B6B] animate-bounce"
-                                : "border-[#FFC800]/60 bg-[#1E1E1E] text-[#FFC800]"
-                                }`}
-                        >
-                            <BsClockHistory className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                            <span className="text-base sm:text-2xl font-black leading-none">
-                                {timeLeft}s restantes
-                            </span>
+                    {/* Indicador para o jogador */}
+                    {!isHost && (
+                        <div className="pb-1 text-center">
+                            {answered ? (
+                                <p
+                                    className="
+                                        text-xs font-black uppercase
+                                        tracking-wider sm:text-sm
+                                    "
+                                    style={{ color: colors.success }}
+                                >
+                                    <span className="mr-1">✓</span>
+                                    Resposta enviada!
+                                </p>
+                            ) : skip ? (
+                                <p
+                                    className="
+                                        text-xs font-black uppercase
+                                        tracking-wider sm:text-sm
+                                    "
+                                    style={{ color: SKIP_COLOR }}
+                                >
+                                    Sua vez foi pulada nesta rodada
+                                </p>
+                            ) : timeLeft <= 0 ? (
+                                <p
+                                    className="
+                                        text-xs font-black uppercase
+                                        tracking-wider sm:text-sm
+                                    "
+                                    style={{ color: colors.danger }}
+                                >
+                                    Tempo esgotado!
+                                </p>
+                            ) : (
+                                <p
+                                    className="text-xs font-bold sm:text-sm"
+                                    style={{ color: colors.muted }}
+                                >
+                                    Escolha uma alternativa para responder
+                                </p>
+                            )}
                         </div>
                     )}
                 </section>
 
-                {/* VISUALIZAÇÃO RESPONSIVA DE POWER-UP (DARK THEME) */}
-                {selectedPowerUp && (
-                    <>
-                        {/* 1. MODAL CENTRALIZADO (DESKTOP - SM+) */}
-                        <div className="hidden sm:flex fixed inset-0 bg-black/75 z-50 items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-                            <div className="absolute inset-0" onClick={() => setSelectedPowerUp(null)} />
+                {/* Overlay de SKIP */}
+                {skip && (
+                    <div
+                        className="
+                            fixed inset-0 z-[60] flex items-center
+                            justify-center bg-black/75 p-4
+                            backdrop-blur-sm animate-in fade-in duration-200
+                        "
+                        role="alertdialog"
+                        aria-modal="true"
+                        aria-labelledby="skip-title"
+                    >
+                        <div
+                            className="
+                                w-full max-w-sm space-y-5 rounded-3xl
+                                border-2 border-b-8 p-6 text-center
+                                shadow-2xl animate-in zoom-in-95 duration-300
+                                sm:p-8
+                            "
+                            style={{
+                                backgroundColor: colors.card,
+                                borderColor: SKIP_COLOR,
+                            }}
+                        >
+                            <div
+                                className="
+                                    mx-auto flex h-16 w-16 items-center
+                                    justify-center rounded-2xl border-2
+                                    border-b-4
+                                "
+                                style={{
+                                    backgroundColor: `${SKIP_COLOR}18`,
+                                    borderColor: SKIP_COLOR,
+                                    color: SKIP_COLOR,
+                                }}
+                            >
+                                <BsChevronDown className="h-8 w-8 animate-bounce" />
+                            </div>
 
-                            <div className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-8 max-w-sm w-full shadow-2xl space-y-5 text-center relative z-10">
-                                <button
-                                    onClick={() => setSelectedPowerUp(null)}
-                                    className="absolute right-4 top-4 text-[#888888] hover:text-[#FFFFFF] p-1 cursor-pointer transition-colors"
+                            <div className="space-y-2">
+                                <h3
+                                    id="skip-title"
+                                    className="
+                                        text-xl font-black uppercase
+                                        tracking-wide
+                                    "
+                                    style={{ color: colors.text }}
                                 >
-                                    <BsX className="w-6 h-6" />
-                                </button>
+                                    Vez pulada!
+                                </h3>
 
-                                <div className="w-16 h-16 bg-[#282828] border-2 border-[#FFC800]/60 border-b-4 rounded-2xl mx-auto flex items-center justify-center text-[#FFC800] shadow-sm">
-                                    <BsLightningFill className="w-8 h-8" />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-black text-[#F3F4F6] uppercase tracking-wide">
-                                        {selectedPowerUp.powerup_type}
-                                    </h3>
-                                    <p className="text-sm font-extrabold text-[#AAAAAA] leading-relaxed">
-                                        {selectedPowerUp.descricao ?? selectedPowerUp.description ?? "Use este poder especial para obter vantagens estratégicas nesta rodada!"}
-                                    </p>
-
-                                    {selectedPowerUp.powerup_type === 'SKIP_TURN' && players && (
-                                        <div className="flex flex-col gap-2 pt-2 max-h-48 overflow-y-auto">
-                                            {players.map((item: any) => (
-                                                <button
-                                                    key={item?.player_id}
-                                                    type="button"
-                                                    onClick={() => onConfirmPowerUp(selectedPowerUp.powerup_id, item.player_id)}
-                                                    className="w-full bg-[#282828] hover:bg-[#333333] border-2 border-[#3A3A3A] border-b-4 text-[#F3F4F6] font-black p-2.5 rounded-xl text-sm transition-all active:border-b-2 active:translate-y-0.5 cursor-pointer"
-                                                >
-                                                    {item.player_name}
-                                                </button>
-                                            ))}
-                                        </div>
+                                <p
+                                    className="
+                                        text-sm font-extrabold leading-relaxed
+                                    "
+                                    style={{ color: colors.muted }}
+                                >
+                                    {playerNameUsed ? (
+                                        <>
+                                            <span style={{ color: colors.primary }}>
+                                                {playerNameUsed}
+                                            </span>{" "}
+                                            usou um poder e pulou a sua vez nesta rodada.
+                                        </>
+                                    ) : (
+                                        "Você teve sua rodada pulada por um efeito especial."
                                     )}
-                                </div>
+                                </p>
+                            </div>
 
-                                {selectedPowerUp.powerup_type !== 'SKIP_TURN' && (
-                                    <button
-                                        type="button"
-                                        onClick={() => onConfirmPowerUp(selectedPowerUp.powerup_id)}
-                                        className="w-full bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-3.5 rounded-2xl text-base uppercase tracking-wider cursor-pointer transition-all shadow-sm flex items-center justify-center gap-2"
-                                    >
-                                        <BsLightningFill className="w-5 h-5" />
-                                        <span>Usar Power-up</span>
-                                    </button>
-                                )}
+                            <div
+                                className="
+                                    h-2 w-full overflow-hidden rounded-full
+                                "
+                                style={{ backgroundColor: colors.surface }}
+                            >
+                                <div
+                                    className="
+                                        h-full w-full animate-pulse
+                                    "
+                                    style={{ backgroundColor: SKIP_COLOR }}
+                                />
                             </div>
                         </div>
+                    </div>
+                )}
 
-                        {/* 2. MINI-ABA INFERIOR / BOTTOM SHEET (MOBILE) */}
-                        <div className="flex sm:hidden fixed inset-0 bg-black/75 z-50 flex-col justify-end backdrop-blur-sm animate-in fade-in duration-200">
-                            <div className="flex-1" onClick={() => setSelectedPowerUp(null)} />
+                {/* Modal responsivo de Power-up */}
+                {selectedPowerUp && (
+                    <div
+                        className="
+                            fixed inset-0 z-50 flex items-end
+                            justify-center bg-black/75 p-0
+                            backdrop-blur-sm animate-in fade-in duration-200
+                            sm:items-center sm:p-4
+                        "
+                        onClick={() => setSelectedPowerUp(null)}
+                    >
+                        <div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="powerup-title"
+                            onClick={e => e.stopPropagation()}
+                            className="
+                                relative max-h-[85dvh] w-full max-w-md
+                                space-y-5 overflow-y-auto rounded-t-3xl
+                                border-t-4 p-5 shadow-2xl
+                                animate-in slide-in-from-bottom duration-300
+                                sm:rounded-3xl sm:border-2 sm:border-b-8
+                                sm:p-8 sm:animate-in sm:zoom-in-95
+                            "
+                            style={{
+                                backgroundColor: colors.card,
+                                borderColor: colors.primary,
+                            }}
+                        >
+                            {/* Indicador mobile */}
+                            <div
+                                className="
+                                    mx-auto h-1.5 w-12 rounded-full sm:hidden
+                                "
+                                style={{ backgroundColor: colors.border }}
+                            />
 
-                            <div className="bg-[#1E1E1E] border-t-4 border-[#2A2A2A] rounded-t-3xl p-5 w-full shadow-2xl space-y-4 animate-in slide-in-from-bottom duration-300 relative z-10 max-h-[80dvh] overflow-y-auto">
-                                <div className="w-10 h-1.5 bg-[#333333] rounded-full mx-auto mb-1" />
+                            {/* Fechar */}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedPowerUp(null)}
+                                aria-label="Fechar"
+                                className="
+                                    absolute right-4 top-4 rounded-lg p-2
+                                    transition-colors
+                                "
+                                style={{ color: colors.muted }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.backgroundColor = colors.surface;
+                                    e.currentTarget.style.color = colors.text;
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.backgroundColor = "transparent";
+                                    e.currentTarget.style.color = colors.muted;
+                                }}
+                            >
+                                <BsX className="h-6 w-6" />
+                            </button>
 
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#282828] border-2 border-[#FFC800]/60 border-b-4 rounded-xl flex items-center justify-center text-[#FFC800] shrink-0">
-                                            <BsLightningFill className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-base font-black text-[#F3F4F6] uppercase tracking-wide">
-                                                {selectedPowerUp.powerup_type}
-                                            </h3>
-                                            <p className="text-xs font-extrabold text-[#AAAAAA] mt-0.5">
-                                                {selectedPowerUp.descricao ?? selectedPowerUp.description ?? "Ative para ganhar vantagem na rodada atual!"}
-                                            </p>
-                                        </div>
-                                    </div>
+                            {/* Ícone */}
+                            <div
+                                className="
+                                    mx-auto flex h-14 w-14 items-center
+                                    justify-center rounded-2xl border-2
+                                    border-b-4 sm:h-16 sm:w-16
+                                "
+                                style={{
+                                    backgroundColor: colors.surface,
+                                    borderColor: colors.primary,
+                                    color: colors.primary,
+                                }}
+                            >
+                                <BsLightningFill className="h-7 w-7 sm:h-8 sm:w-8" />
+                            </div>
 
-                                    <button
-                                        onClick={() => setSelectedPowerUp(null)}
-                                        className="text-[#888888] hover:text-[#FFFFFF] p-1 cursor-pointer shrink-0"
+                            {/* Informações */}
+                            <div className="space-y-2 text-center">
+                                <h3
+                                    id="powerup-title"
+                                    className="
+                                        pr-6 text-lg font-black uppercase
+                                        tracking-wide sm:pr-0 sm:text-xl
+                                    "
+                                    style={{ color: colors.text }}
+                                >
+                                    {selectedPowerUp.powerup_type}
+                                </h3>
+
+                                <p
+                                    className="
+                                        text-xs font-extrabold leading-relaxed
+                                        sm:text-sm
+                                    "
+                                    style={{ color: colors.muted }}
+                                >
+                                    {selectedPowerUp.descricao ??
+                                        selectedPowerUp.description ??
+                                        "Use este poder especial para obter vantagens estratégicas nesta rodada!"}
+                                </p>
+                            </div>
+
+                            {/* Seleção de jogador para SKIP */}
+                            {selectedPowerUp.powerup_type === "SKIP_TURN" && players && (
+                                <div className="space-y-3">
+                                    <p
+                                        className="
+                                            text-center text-xs font-black
+                                            uppercase tracking-wider
+                                        "
+                                        style={{ color: colors.primary }}
                                     >
-                                        <BsX className="w-6 h-6" />
-                                    </button>
-                                </div>
+                                        Escolha um jogador
+                                    </p>
 
-                                {selectedPowerUp.powerup_type === 'SKIP_TURN' && players && (
-                                    <div className="flex flex-col gap-2 pt-1 max-h-40 overflow-y-auto">
+                                    <div className="
+                                        flex max-h-52 flex-col gap-2
+                                        overflow-y-auto pr-1
+                                    ">
                                         {players.map((item: any) => (
                                             <button
                                                 key={item?.player_id}
                                                 type="button"
-                                                onClick={() => onConfirmPowerUp(selectedPowerUp.powerup_id, item.player_id)}
-                                                className="w-full bg-[#282828] active:bg-[#333333] border-2 border-[#3A3A3A] border-b-4 text-[#F3F4F6] font-black p-2.5 rounded-xl text-xs"
+                                                onClick={() =>
+                                                    onConfirmPowerUp(
+                                                        selectedPowerUp.powerup_id,
+                                                        item.player_id
+                                                    )
+                                                }
+                                                className="
+                                                    w-full rounded-xl border-2
+                                                    border-b-4 p-3 text-left
+                                                    text-sm font-black
+                                                    transition-all
+                                                    hover:brightness-110
+                                                    active:translate-y-0.5
+                                                    active:border-b-2
+                                                "
+                                                style={{
+                                                    backgroundColor: colors.surface,
+                                                    borderColor: colors.border,
+                                                    color: colors.text,
+                                                }}
                                             >
                                                 {item.player_name}
                                             </button>
                                         ))}
                                     </div>
-                                )}
+                                </div>
+                            )}
 
-                                {selectedPowerUp.powerup_type !== 'SKIP_TURN' && (
-                                    <div className="pt-1">
-                                        <button
-                                            type="button"
-                                            onClick={() => onConfirmPowerUp(selectedPowerUp.powerup_id)}
-                                            className="w-full bg-[#58CC02] hover:bg-[#61E002] border-b-4 border-[#46A302] active:border-b-0 active:translate-y-1 text-white font-black py-3 rounded-xl text-sm uppercase tracking-wider cursor-pointer transition-all shadow-sm flex items-center justify-center gap-2"
-                                        >
-                                            <BsLightningFill className="w-4 h-4" />
-                                            <span>Ativar Poder Agora</span>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {/* Overlay de Tempo Esgotado / Aguardando Host (Apenas para Players) */}
-                {/* {!isHost && !loading && question && timeLeft <= 0 && (
-                    <div className="fixed inset-0 bg-[#121212]/90 backdrop-blur-md z-40 flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="bg-[#1E1E1E] border-2 border-[#2A2A2A] border-b-8 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-5 shadow-2xl">
-
-                            <div
-                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mx-auto flex items-center justify-center border-2 border-b-4 shadow-sm ${answered
-                                    ? "bg-[#1B3808] border-[#58CC02] text-[#58CC02]"
-                                    : "bg-[#3B1515] border-[#FF4B4B] text-[#FF4B4B]"
-                                    }`}
-                            >
-                                <BsClockHistory className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse" />
-                            </div>
-
-                            <div className="space-y-2">
-                                <h2 className="text-xl sm:text-2xl font-black text-[#F3F4F6] tracking-tight">
-                                    {answered ? "Resposta Registrada!" : "Tempo Esgotado!"}
-                                </h2>
-                                <p className="text-xs sm:text-sm font-extrabold text-[#AAAAAA] leading-relaxed">
-                                    {answered
-                                        ? "Boa! Agora é só aguardar o host liberar o placar ou a próxima rodada."
-                                        : "O relógio zerou! Aguarde o host iniciar a próxima rodada."}
-                                </p>
-                            </div>
-
-                            <div className="bg-[#151515] border-2 border-[#2A2A2A] rounded-2xl py-3 px-4 flex items-center justify-center gap-3">
-                                <div className="w-4 h-4 border-2 border-[#1CB0F6] border-t-transparent rounded-full animate-spin shrink-0" />
-                                <span className="text-xs font-black uppercase tracking-wider text-[#1CB0F6]">
-                                    Aguardando o host...
-                                </span>
-                            </div>
-
+                            {/* Ativar outros poderes */}
+                            {selectedPowerUp.powerup_type !== "SKIP_TURN" && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleConfirmPowerUpWithSound(
+                                            selectedPowerUp.powerup_id
+                                        )
+                                    }
+                                    className="
+                                        flex w-full items-center
+                                        justify-center gap-2 rounded-2xl
+                                        border-b-4 py-3.5 text-sm
+                                        font-black uppercase tracking-wider
+                                        text-white shadow-sm transition-all
+                                        hover:brightness-110
+                                        active:translate-y-1 active:border-b-0
+                                        sm:text-base
+                                    "
+                                    style={{
+                                        backgroundColor: colors.success,
+                                        borderColor: colors.success,
+                                    }}
+                                >
+                                    <BsLightningFill className="h-5 w-5" />
+                                    Usar Power-up
+                                </button>
+                            )}
                         </div>
                     </div>
-                )} */}
+                )}
             </main>
         </>
     );

@@ -106,7 +106,7 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
         void fetchRoom();
         const joinRoom = () => socket.emit("room:join", roomCode);
         const handleUpdate = () => void fetchRoom();
-        const startRoom = () => void navigate(`/room/${roomCode}/start`);
+        const startRoom = () => void navigate(`/room/${roomCode}/live`);
         const returnHome = ({ playerId }: { playerId: string }) => {
             if (playerId !== player?.player_id) return
             clearPlayer()

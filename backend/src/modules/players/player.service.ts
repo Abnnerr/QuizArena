@@ -242,7 +242,7 @@ export class PlayerService implements IPlayerService {
 
 
     // Usa um power-up
-    async powerUp(code: string, playerId: string, powerId: number, targetPlayerId?: string): Promise<void> {
+    async powerUp(code: string, playerId: string, powerId: number, targetPlayerId?: string, userName?: string): Promise<void> {
         return measure("PlayerService.powerUp", async () => {
             try {
                 Logger.info("PlayerService", "powerUp.started", {
@@ -280,6 +280,7 @@ export class PlayerService implements IPlayerService {
                     targetPlayerId,
                     repoPower: this.repoPower,
                     roomService: this.roomService,
+                    userName: userName,
                     socket: this.socket
                 });
 

@@ -54,6 +54,7 @@ const useRoomLive = () => {
 
     const isHost = Boolean(user);
 
+    const [playerNameUsed, setPlayerNameUsed] = useState(null)
     const [alternativeStatistics, setAlternativeStatistics] = useState<AlternativeStatistics[]>([]);
     const [correctAlternative, setCorrectAlternative] = useState<number | null>(null);
     const [players, setPlayers] = useState([])
@@ -227,6 +228,7 @@ const useRoomLive = () => {
         const skiped = (data: any) => {
             if (data.target === player?.player_id) {
                 setSkip(data.skiped);
+                setPlayerNameUsed(data.userName)
                 return;
             }
             return;
@@ -337,7 +339,7 @@ const useRoomLive = () => {
             setUsingPowerUp(true);
 
             const { data } = await AXIOS.post(
-                `/player/${roomCode}/${getPlayerId()}/${powerupId}/powerup`,
+                `/player/${roomCode}/${getPlayerId()}/${powerupId}/${player?.player_name}/powerup`,
                 targetPlayer ? { target: targetPlayer } : undefined
             );
 
@@ -400,7 +402,8 @@ const useRoomLive = () => {
         isHost,
         players,
         correctAlternative,
-        alternativeStatistics
+        alternativeStatistics,
+        playerNameUsed
     };
 };
 

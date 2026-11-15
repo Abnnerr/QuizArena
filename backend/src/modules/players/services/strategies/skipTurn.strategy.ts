@@ -10,5 +10,5 @@ export async function skipTurn(dados: PowerUpContext) {
         dados.targetPlayerId
     )
 
-    dados.socket.powerSkipTurn(dados.code, true, dados.targetPlayerId!)
+    dados.socket.powerSkipTurn(dados.code, true, dados.targetPlayerId!, dados.userName!)
 }
