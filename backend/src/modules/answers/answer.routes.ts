@@ -6,10 +6,11 @@ import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router()
 
-router.post('/:roomCode/createAnswer',
+router.post(
+    '/:roomCode/createAnswer',
     RateLimit.limit(50, 1),
     ZodMiddleware.validate(createAnswerSchema, 'body'),
     answerController.createAnswer
-)
+);
 
 export default router

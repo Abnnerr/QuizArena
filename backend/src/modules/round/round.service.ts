@@ -123,7 +123,7 @@ export class RoundService implements IRoundService {
         });
     }
 
-    async roundFinished(roomCode: string, round_id: number): Promise<void> {
+    async roundFinished(roomCode: string, round_id: number, playerId: string): Promise<void> {
         return measure("RoundService.roundFinished", async () => {
             const context = "RoundService";
 
@@ -135,10 +135,14 @@ export class RoundService implements IRoundService {
 
                 const room = await this.roomService.updateRoomPosition(roomCode);
 
+
                 const question = await this.questionService.findQuestion(
                     room.room_id,
                     room.position
                 );
+                if (room.host_user_id !== playerId) {
+                    throw new AppError(403, "Você não tem permissão para finalizar esta rodada")
+                }
 
                 await Promise.all([
                     this.repo.updateRound(round_id),

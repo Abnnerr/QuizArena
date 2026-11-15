@@ -29,7 +29,8 @@ export class RoundController implements IRoundController {
     }
     async roundFinished(req: Request<{ roomCode: string }, {}, FinishedDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
-            await this.service.roundFinished(req.params.roomCode, req.body.round_id)
+            const id = req.user?.id
+            await this.service.roundFinished(req.params.roomCode, req.body.round_id, id!)
             return HttpResponse.success(res, 201, "Round terminado e novo criado")
         } catch (error) {
             console.log(error);

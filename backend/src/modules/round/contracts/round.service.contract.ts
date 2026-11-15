@@ -8,7 +8,8 @@ export type IRoundService = {
 
     roundFinished(
         roomCode: string,
-        round_id: number
+        round_id: number,
+        playerId: string
     ): Promise<void>;
 
     roundExpired(

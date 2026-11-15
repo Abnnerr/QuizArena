@@ -3,6 +3,8 @@ import roundController from "../../containers/round.container.js";
 import { ZodMiddleware } from "../../middlewares/zod.middleware.js";
 import { finishedSchema } from "./schema/finished.schema.js";
 import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
+import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
+import { PolicyMiddleware } from "../../middlewares/policy.middleware.js";
 // import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router()
@@ -23,6 +25,8 @@ router.get(
 router.post(
     "/:roomCode/roundFinished",
     RateLimit.limit(5, 1),
+    AuthMiddleware.validate,
+    PolicyMiddleware.ensureRolePermission("ROUND_FINISH", "admin", "host"),
     ZodMiddleware.validate(finishedSchema, "body"),
     roundController.roundFinished
 );
