@@ -49,7 +49,8 @@ describe("RoundService", () => {
         room_code: "ABC123",
         room_name: "Sala teste",
         time_limit: 10,
-        position: 1
+        position: 1,
+        host_user_id: "host-1"
     } as unknown as Rooms;
 
     const roundMock = {
@@ -274,7 +275,7 @@ describe("RoundService", () => {
             repo.createRound.mockResolvedValue({});
 
             await expect(
-                service.roundFinished("ABC123", 10)
+                service.roundFinished("ABC123", 10, "host-1")
             ).resolves.toBeUndefined();
 
             expect(roomService.updateRoomPosition).toHaveBeenCalledWith(
@@ -299,7 +300,7 @@ describe("RoundService", () => {
             );
 
             await expect(
-                service.roundFinished("ABC123", 10)
+                service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Sala não encontrada");
 
             expect(repo.updateRound).not.toHaveBeenCalled();
@@ -317,7 +318,7 @@ describe("RoundService", () => {
             );
 
             await expect(
-                service.roundFinished("ABC123", 10)
+                service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Pergunta não encontrada");
         });
 
@@ -327,7 +328,7 @@ describe("RoundService", () => {
             );
 
             await expect(
-                service.roundFinished("ABC123", 10)
+                service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Erro ao terminar e criar round");
         });
 
@@ -344,7 +345,7 @@ describe("RoundService", () => {
             );
 
             await expect(
-                service.roundFinished("ABC123", 10)
+                service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Erro ao terminar e criar round");
         });
     });
