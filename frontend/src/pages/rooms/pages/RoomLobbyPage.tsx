@@ -1,30 +1,36 @@
 
-import { useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
-import { useNavigate, useParams } from "react-router";
-import { BiUser, BiCrown, BiCopy, BiCheck } from "react-icons/bi";
+import { useLocation, useNavigate, useParams } from "react-router";
 import {
-    BsPlayFill,
     BsArrowLeft,
     BsShieldCheck,
     BsVolumeMuteFill,
-    BsVolumeUpFill
+    BsVolumeUpFill,
+    BsPlayFill,
 } from "react-icons/bs";
-
-import { useLobby } from "../hooks/useLobby";
+import {
+    BiCrown,
+    BiCheck,
+    BiCopy,
+    BiUser,
+} from "react-icons/bi";
+import { Helmet } from "react-helmet-async";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../contexts/hooks/useAuth";
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
-import { useTheme } from "../../../contexts/ThemeContext";
+import { useLobby } from "../hooks/useLobby";
 import { preloadRoomLivePage } from "../../../routes/Paths";
 
-const SKIP_COLOR = "#1CB0F6";
-const HOST_COLOR = "#E9B94F";
 
+const HOST_COLOR = "#F5C542";
+const SKIP_COLOR = "#1CB0F6";
 
 const RoomLobbyPage = () => {
     const { colors } = useTheme();
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const isMutedRef = useRef(false);
+
     const [isMuted, setIsMuted] = useState(false);
     const [, setIsPlaying] = useState(false);
 
@@ -32,6 +38,7 @@ const RoomLobbyPage = () => {
     const { player } = usePlayer();
 
     const navigate = useNavigate();
+    const location = useLocation();
     const { roomCode } = useParams<{ roomCode: string }>();
 
     const [copied, setCopied] = useState(false);
@@ -44,28 +51,55 @@ const RoomLobbyPage = () => {
         error,
         startRoom,
         toggleReady,
-        toggleLeave
+        toggleLeave,
     } = useLobby({ roomCode });
 
     const isHost = user?.user_id === room?.host_id;
 
+    // Pré-carrega a página da partida
     useEffect(() => {
         preloadRoomLivePage();
     }, []);
 
+    // Mantém a referência do mute atualizada
+    useEffect(() => {
+        isMutedRef.current = isMuted;
+
+        if (audioRef.current) {
+            audioRef.current.muted = isMuted;
+        }
+    }, [isMuted]);
+
+    // Gerenciamento da música conforme a rota
     useEffect(() => {
         const audio = audioRef.current;
 
         if (!audio) return;
 
+        const isLobbyPage =
+            location.pathname === `/room/${roomCode}/lobby`;
+
+        // Não está no lobby: interrompe a música
+        if (!isLobbyPage) {
+            audio.pause();
+            audio.currentTime = 0;
+            setIsPlaying(false);
+            return;
+        }
+
         let isMounted = true;
 
-        audio.volume = 0.80;
+        audio.volume = 0.8;
         audio.loop = true;
-        audio.muted = isMuted;
+        audio.muted = isMutedRef.current;
 
         const handleFirstInteraction = () => {
-            if (!isMounted || isMuted) return;
+            window.removeEventListener(
+                "pointerdown",
+                handleFirstInteraction
+            );
+
+            if (!isMounted || isMutedRef.current) return;
 
             audio.play()
                 .then(() => {
@@ -74,46 +108,47 @@ const RoomLobbyPage = () => {
                     }
                 })
                 .catch((err) => {
-                    console.log("Erro ao reproduzir áudio:", err);
+                    console.error("Erro ao reproduzir áudio:", err);
                 });
-
-            window.removeEventListener("click", handleFirstInteraction);
         };
 
-        audio.play()
-            .then(() => {
-                if (isMounted) {
-                    setIsPlaying(true);
-                }
-            })
-            .catch(() => {
-                window.addEventListener("click", handleFirstInteraction);
-            });
+        if (!isMutedRef.current) {
+            audio.play()
+                .then(() => {
+                    if (isMounted) {
+                        setIsPlaying(true);
+                    }
+                })
+                .catch(() => {
+                    if (isMounted) {
+                        window.addEventListener(
+                            "pointerdown",
+                            handleFirstInteraction,
+                            { once: true }
+                        );
+                    }
+                });
+        }
 
-        // Executado ao sair do lobby
+        // Executado ao sair do lobby ou desmontar o componente
         return () => {
             isMounted = false;
 
-            window.removeEventListener("click", handleFirstInteraction);
+            window.removeEventListener(
+                "pointerdown",
+                handleFirstInteraction
+            );
 
             audio.pause();
             audio.currentTime = 0;
-
-            setIsPlaying(false);
         };
-    }, []);
+    }, [location.pathname, roomCode]);
 
     // Alternar mute
     const toggleMute = () => {
-        const audio = audioRef.current;
-
-        if (!audio) return;
-
-        const nextMuted = !isMuted;
-
-        audio.muted = nextMuted;
-        setIsMuted(nextMuted);
+        setIsMuted((current) => !current);
     };
+
     const handleCopyCode = async () => {
         if (!roomCode) return;
 
@@ -141,7 +176,7 @@ const RoomLobbyPage = () => {
     };
 
     const hostStyle: React.CSSProperties = {
-        backgroundColor: `${HOST_COLOR}`,
+        backgroundColor: HOST_COLOR,
         borderColor: "#C69B00",
         color: "#7A5B00",
     };
@@ -158,7 +193,12 @@ const RoomLobbyPage = () => {
                 <title>QuizArena • Sala de Espera</title>
             </Helmet>
 
-            <audio ref={audioRef} src="/lobby.mp3" preload="auto" />
+            <audio
+                ref={audioRef}
+                src="/lobby.mp3"
+                preload="auto"
+                loop
+            />
 
             <main
                 className="
@@ -200,12 +240,12 @@ const RoomLobbyPage = () => {
 
                         <div className="flex items-center gap-2">
                             <div
-                                className={`
+                                className="
                                     hidden sm:inline-flex items-center
                                     gap-2 font-black px-4 py-2.5
                                     rounded-2xl text-xs tracking-wider
                                     uppercase border-b-4
-                                `}
+                                "
                                 style={isHost ? hostStyle : playerStyle}
                             >
                                 {isHost
@@ -839,10 +879,11 @@ const RoomLobbyPage = () => {
                                                 transition-all duration-500
                                             "
                                             style={{
-                                                width: `${room.players.length > 0
-                                                    ? (room.players.filter((p: any) => p.ready).length / room.players.length) * 100
-                                                    : 0
-                                                    }%`,
+                                                width: `${
+                                                    room.players.length > 0
+                                                        ? (room.players.filter((p: any) => p.ready).length / room.players.length) * 100
+                                                        : 0
+                                                }%`,
                                                 backgroundColor: colors.success,
                                             }}
                                         />
