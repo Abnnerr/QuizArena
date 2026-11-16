@@ -17,6 +17,7 @@ import PodioPage from "../pages/rooms/pages/PodioPage";
 import PageLayout from "../layouts/PageLayout";
 import RoomLayout from "../layouts/RoomLayout";
 import { lazy, Suspense } from "react";
+import PublicLayout from "../layouts/PublicLayout";
 
 
 export const preloadRoomLivePage = () => {
@@ -48,9 +49,12 @@ const Paths = () => {
                             </Route>
                         </Route>
                     </Route>
-                    <Route path="/:roomCode/:round/ranking" element={<RankingPage />} />
-                    <Route path="/:roomCode/:round/podio" element={<PodioPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
+
+                    <Route element={<PublicLayout />}>
+                        <Route path="/:roomCode/:round/ranking" element={<RankingPage />} />
+                        <Route path="/:roomCode/:round/podio" element={<PodioPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                    </Route>
                 </Routes>
             </Suspense>
         </BrowserRouter>

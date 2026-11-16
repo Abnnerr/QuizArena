@@ -65,6 +65,7 @@ const PodioPage: React.FC = () => {
     };
 
     return (
+
         <>
             <Helmet>
                 <title>QuizArena • Fim de Partida • Pódio Final</title>
@@ -72,54 +73,33 @@ const PodioPage: React.FC = () => {
 
             <div
                 className="
-                    w-full flex-1 min-h-0
-                    flex flex-col items-center
-                    overflow-y-auto overflow-x-hidden
-                    px-4 py-5 sm:py-6
-                    font-['Nunito',sans-serif]
-                    select-none
-                "
+            w-full flex-1 min-h-0
+            flex flex-col items-center
+            overflow-y-auto overflow-x-hidden
+            px-4 py-6 sm:px-6 sm:py-8
+            font-['Nunito',sans-serif]
+            select-none
+        "
             >
-                <div className="w-full max-w-xl relative z-10 space-y-6 my-auto shrink-0">
+                <div className="w-full max-w-4xl relative z-10 space-y-8 my-auto shrink-0">
 
                     {/* Topo */}
-                    <div className="flex items-center justify-between gap-3">
-                        <button
-                            onClick={() => navigate("/")}
-                            className="
-                                inline-flex items-center gap-2
-                                border-2 border-b-4
-                                font-black px-4 py-2.5
-                                rounded-2xl text-xs sm:text-sm
-                                tracking-wider uppercase
-                                transition-all active:border-b-2
-                                active:translate-y-0.5
-                                cursor-pointer shadow-sm
-                            "
-                            style={{
-                                ...surfaceStyle,
-                                color: colors.muted
-                            }}
-                        >
-                            <BsArrowLeft className="w-5 h-5" />
-                            <span>Início</span>
-                        </button>
-
+                    <div className="flex justify-center">
                         <div
                             className="
-                                inline-flex items-center gap-2
-                                font-black px-4 py-2.5
-                                rounded-2xl text-xs sm:text-sm
-                                uppercase tracking-wider
-                                border-2 border-b-4 shadow-sm
-                            "
+                        inline-flex items-center gap-2
+                        font-black px-5 py-3
+                        rounded-2xl text-sm sm:text-base
+                        uppercase tracking-wider
+                        border-2 border-b-4 shadow-sm
+                    "
                             style={{
                                 backgroundColor: `${colors.primary}25`,
                                 color: colors.primary,
                                 borderColor: colors.primary
                             }}
                         >
-                            <BiTrophy className="w-5 h-5" />
+                            <BiTrophy className="w-6 h-6" />
                             <span>Pódio Final</span>
                         </div>
                     </div>
@@ -127,29 +107,29 @@ const PodioPage: React.FC = () => {
                     {/* Card principal */}
                     <section
                         className="
-                            border-2 border-b-8
-                            rounded-3xl p-6 sm:p-8
-                            shadow-sm space-y-6 text-center
-                        "
+                    border-2 border-b-8
+                    rounded-3xl p-6 sm:p-10 lg:p-12
+                    shadow-sm space-y-8 text-center
+                "
                         style={cardStyle}
                     >
 
                         <div>
                             <h1
                                 className="
-                                    text-2xl sm:text-3xl
-                                    font-black tracking-tight
-                                "
+                            text-3xl sm:text-4xl lg:text-5xl
+                            font-black tracking-tight
+                        "
                                 style={{ color: colors.text }}
                             >
-                                Partida Finalizada! 🏆
+                                Partida Finalizada!
                             </h1>
 
                             <p
                                 className="
-                                    font-extrabold text-xs
-                                    sm:text-sm mt-1
-                                "
+                            font-extrabold text-sm
+                            sm:text-base mt-2
+                        "
                                 style={mutedStyle}
                             >
                                 Revelando os grandes campeões da arena...
@@ -160,11 +140,11 @@ const PodioPage: React.FC = () => {
                             <div
                                 role="alert"
                                 className="
-                                    border-2 border-b-4
-                                    p-4 rounded-2xl
-                                    text-xs sm:text-sm
-                                    font-black text-center
-                                "
+                            border-2 border-b-4
+                            p-4 rounded-2xl
+                            text-sm sm:text-base
+                            font-black text-center
+                        "
                                 style={dangerStyle}
                             >
                                 {error}
@@ -172,13 +152,13 @@ const PodioPage: React.FC = () => {
                         )}
 
                         {loading ? (
-                            <div className="text-center py-12 space-y-3">
+                            <div className="text-center py-16 space-y-4">
                                 <div
                                     className="
-                                        inline-block w-10 h-10
-                                        border-4 border-t-transparent
-                                        rounded-full animate-spin
-                                    "
+                                inline-block w-14 h-14
+                                border-4 border-t-transparent
+                                rounded-full animate-spin
+                            "
                                     style={{
                                         borderColor: colors.primary,
                                         borderTopColor: "transparent"
@@ -187,18 +167,18 @@ const PodioPage: React.FC = () => {
 
                                 <p
                                     className="
-                                        font-black text-xs
-                                        uppercase tracking-wider
-                                    "
+                                font-black text-sm
+                                uppercase tracking-wider
+                            "
                                     style={mutedStyle}
                                 >
                                     Calculando pódio final...
                                 </p>
                             </div>
                         ) : topThree.length === 0 ? (
-                            <div className="text-center py-8 space-y-4">
+                            <div className="text-center py-12 space-y-4">
                                 <p
-                                    className="font-black"
+                                    className="font-black text-base"
                                     style={mutedStyle}
                                 >
                                     Nenhum jogador pontuou na partida.
@@ -207,10 +187,10 @@ const PodioPage: React.FC = () => {
                         ) : (
                             <div
                                 className="
-                                    grid grid-cols-3 gap-3
-                                    items-end pt-6 pb-2
-                                    min-h-[260px]
-                                "
+                            grid grid-cols-3 gap-3 sm:gap-6
+                            items-end pt-8 pb-4
+                            min-h-[340px] sm:min-h-[430px]
+                        "
                             >
                                 {orderedPodium.map(
                                     ({ player, originalIndex }: any) => {
@@ -239,10 +219,10 @@ const PodioPage: React.FC = () => {
                                                 : podiumColors.third;
 
                                         const podiumHeight = isFirst
-                                            ? "min-h-[220px] sm:min-h-[250px]"
+                                            ? "min-h-[280px] sm:min-h-[340px] lg:min-h-[380px]"
                                             : isSecond
-                                                ? "min-h-[180px] sm:min-h-[210px]"
-                                                : "min-h-[150px] sm:min-h-[180px]";
+                                                ? "min-h-[230px] sm:min-h-[280px] lg:min-h-[310px]"
+                                                : "min-h-[190px] sm:min-h-[230px] lg:min-h-[260px]";
 
                                         return (
                                             <div
@@ -268,20 +248,20 @@ const PodioPage: React.FC = () => {
                                                                 damping: 16
                                                             }}
                                                             className={`
-                                                                flex flex-col
-                                                                items-center
-                                                                justify-between
-                                                                p-3 sm:p-5
-                                                                rounded-3xl
-                                                                border-2 border-b-8
-                                                                text-center
-                                                                transition-all
-                                                                ${podiumHeight}
-                                                                ${isFirst
-                                                                    ? "shadow-lg z-10 -translate-y-2"
+                                                        flex flex-col
+                                                        items-center
+                                                        justify-between
+                                                        p-3 sm:p-5 lg:p-6
+                                                        rounded-3xl
+                                                        border-2 border-b-8
+                                                        text-center
+                                                        transition-all
+                                                        ${podiumHeight}
+                                                        ${isFirst
+                                                                    ? "shadow-lg z-10 -translate-y-3"
                                                                     : ""
                                                                 }
-                                                            `}
+                                                    `}
                                                             style={{
                                                                 backgroundColor: medalStyle.background,
                                                                 borderColor: medalStyle.border
@@ -291,15 +271,13 @@ const PodioPage: React.FC = () => {
                                                             {/* Medalha */}
                                                             <div
                                                                 className="
-                                                                    w-12 h-12
-                                                                    shrink-0
-                                                                    rounded-2xl
-                                                                    flex items-center
-                                                                    justify-center
-                                                                    font-black
-                                                                    shadow-sm
-                                                                    border-2 border-b-4
-                                                                "
+                                                            w-14 h-14 sm:w-20 sm:h-20
+                                                            shrink-0 rounded-2xl
+                                                            flex items-center
+                                                            justify-center
+                                                            font-black shadow-sm
+                                                            border-2 border-b-4
+                                                        "
                                                                 style={{
                                                                     backgroundColor: medalStyle.icon,
                                                                     borderColor: medalStyle.iconBorder,
@@ -309,23 +287,23 @@ const PodioPage: React.FC = () => {
                                                                 {isFirst ? (
                                                                     <BiCrown
                                                                         className={`
-                                                                            w-7 h-7
-                                                                            ${isFirst ? "animate-bounce" : ""}
-                                                                        `}
+                                                                    w-9 h-9 sm:w-12 sm:h-12
+                                                                    ${isFirst ? "animate-bounce" : ""}
+                                                                `}
                                                                     />
                                                                 ) : (
-                                                                    <BiMedal className="w-6 h-6" />
+                                                                    <BiMedal className="w-8 h-8 sm:w-11 sm:h-11" />
                                                                 )}
                                                             </div>
 
                                                             {/* Informações do jogador */}
-                                                            <div className="w-full space-y-1 my-auto">
+                                                            <div className="w-full space-y-2 my-auto py-3">
                                                                 <span
                                                                     className="
-                                                                        block font-black
-                                                                        text-xs sm:text-sm
-                                                                        uppercase tracking-wider
-                                                                    "
+                                                                block font-black
+                                                                text-xs sm:text-base
+                                                                uppercase tracking-wider
+                                                            "
                                                                     style={mutedStyle}
                                                                 >
                                                                     {originalIndex + 1}º Lugar
@@ -333,10 +311,10 @@ const PodioPage: React.FC = () => {
 
                                                                 <span
                                                                     className="
-                                                                        block font-black
-                                                                        text-sm sm:text-lg
-                                                                        truncate w-full px-1
-                                                                    "
+                                                                block font-black
+                                                                text-sm sm:text-xl lg:text-2xl
+                                                                truncate w-full px-1
+                                                            "
                                                                     style={{ color: colors.text }}
                                                                 >
                                                                     {playerName}
@@ -346,17 +324,18 @@ const PodioPage: React.FC = () => {
                                                             {/* Pontuação */}
                                                             <div
                                                                 className="
-                                                                    border-2 rounded-xl
-                                                                    py-1.5 px-2 sm:px-3
-                                                                    w-full shadow-sm
-                                                                "
+                                                            border-2 rounded-xl
+                                                            py-2 sm:py-3
+                                                            px-2 sm:px-4
+                                                            w-full shadow-sm
+                                                        "
                                                                 style={surfaceStyle}
                                                             >
                                                                 <span
                                                                     className="
-                                                                        text-xs sm:text-sm
-                                                                        font-black
-                                                                    "
+                                                                text-sm sm:text-lg
+                                                                font-black
+                                                            "
                                                                     style={{ color: colors.muted }}
                                                                 >
                                                                     {player.score} pts
@@ -378,23 +357,23 @@ const PodioPage: React.FC = () => {
                             <button
                                 onClick={clearRoom}
                                 className="
-                                    w-full border-b-4
-                                    active:border-b-0
-                                    active:translate-y-1
-                                    text-white font-black
-                                    py-4 rounded-2xl
-                                    flex items-center justify-center
-                                    gap-3 text-lg uppercase
-                                    tracking-wider cursor-pointer
-                                    transition-all shadow-sm
-                                "
+                            w-full border-b-4
+                            active:border-b-0
+                            active:translate-y-1
+                            text-white font-black
+                            py-5 sm:py-6 rounded-2xl
+                            flex items-center justify-center
+                            gap-3 text-base sm:text-xl uppercase
+                            tracking-wider cursor-pointer
+                            transition-all shadow-sm
+                        "
                                 style={{
                                     backgroundColor: colors.success,
                                     borderColor: `${colors.success}CC`
                                 }}
                             >
                                 <span>Encerrar Partida</span>
-                                <BsArrowRight className="w-6 h-6" />
+                                <BsArrowRight className="w-6 h-6 sm:w-7 sm:h-7" />
                             </button>
                         </div>
                     </section>
