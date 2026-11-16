@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router";
 import { motion } from "framer-motion";
 import {
-    BsArrowLeft,
     BsArrowRight,
     BsArrowUpShort,
     BsArrowDownShort,
@@ -175,10 +174,6 @@ const RankingPage: React.FC = () => {
         borderColor: colors.border
     };
 
-    const surfaceStyle = {
-        backgroundColor: colors.surface,
-        borderColor: colors.border
-    };
 
     const mutedStyle = {
         color: colors.muted

@@ -2,7 +2,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { BiCrown, BiMedal, BiTrophy } from "react-icons/bi";
-import { BsArrowRight, BsArrowLeft } from "react-icons/bs";
+import { BsArrowRight } from "react-icons/bs";
 import { motion, AnimatePresence } from "framer-motion";
 import usePodio from "../hooks/usePodio";
 import { useTheme } from "../../../contexts/ThemeContext";
@@ -15,7 +15,6 @@ const PodioPage: React.FC = () => {
         loading,
         topThree,
         clearRoom,
-        navigate
     } = usePodio();
 
     const { colors } = useTheme();
