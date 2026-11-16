@@ -45,7 +45,7 @@ const HomeLayout: React.FC = () => {
                     </div>
 
                     <span
-                        className="text-xl sm:text-2xl font-black tracking-tight"
+                        className="hidden sm:inline text-xl sm:text-2xl font-black tracking-tight"
                         style={{ color: colors.text }}
                     >
                         Quiz<span className="text-[#1CB0F6]">Arena</span>
