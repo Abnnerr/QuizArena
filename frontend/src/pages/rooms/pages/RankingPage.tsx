@@ -340,12 +340,7 @@ const RankingPage: React.FC = () => {
                                         ? 0
                                         : (player.prevPos - player.currentPos) * 72;
 
-                                    const movementStyle = animateTrigger && hasMovedUp
-                                        ? successStyle
-                                        : animateTrigger && hasMovedDown
-                                            ? dangerStyle
-                                            : surfaceStyle;
-
+                                   
                                     return (
                                         <motion.div
                                             key={player.player_id}
