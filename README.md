@@ -1,59 +1,173 @@
-# Quiz Arena
+# QuizArena
 
-## Estrutura do Projeto
+QuizArena é uma plataforma de quiz multiplayer inspirada em jogos como Kahoot, na qual os participantes podem entrar em salas, responder perguntas em tempo real e competir por pontuação e classificação.
 
-Projeto desenvolvido com TypeScript e Programação Orientada a Objetos (POO).
+O projeto foi desenvolvido com TypeScript e utiliza uma arquitetura modular no backend, comunicação em tempo real com Socket.IO e persistência de dados com PostgreSQL.
 
-- `frontend/` — Interface da aplicação.
-- `backend/` — API, regras de negócio e acesso ao banco de dados.
+## Tecnologias
 
-## Arquitetura do Backend
+### Backend
+- Node.js
+- TypeScript
+- Express
+- Prisma ORM
+- PostgreSQL
+- Socket.IO
+- Zod
+- JWT
+- Pino
+- OpenTelemetry
 
-- `app/` — Configuração e inicialização da aplicação.
-- `containers/` — Instanciação das classes e organização das dependências.
-- `middlewares/` — Funções executadas durante as requisições.
-- `config/` — Configurações e integrações externas.
-- `modules/` — Módulos organizados em `routes`, `controller`, `service` e `repository`.
-- `shared/` — Recursos compartilhados entre os módulos.
-- `types/` — Tipagens globais e genéricas.
-- `routes/` — Agrupamento das rotas da API sob o prefixo `/api`.
+### Frontend
+- React
+- TypeScript
+- Tailwind CSS
 
-## Rotas da API
+### Infraestrutura e ferramentas
+- Git e GitHub
+- Supabase
+- Vitest
+- Honeycomb
+- Docker Compose
+- GitHub Actions
 
-### Auth — `/api/auth`
+> A disponibilidade e o estágio de configuração de cada ferramenta devem ser conferidos nos respectivos arquivos de configuração do projeto.
 
-| Método | Rota | Descrição |
-|---|---|---|
-| POST | `/register` | Registrar usuário |
-| POST | `/login` | Autenticar usuário |
-| POST | `/forgot-password` | Solicitar recuperação de senha |
-| POST | `/reset-password/:token` | Redefinir senha usando o token |
-| GET | `/me` | Obter dados do usuário autenticado |
+## Funcionalidades
 
-### Room — `/api/room`
+- Cadastro e autenticação de usuários.
+- Recuperação e redefinição de senha.
+- Criação e gerenciamento de salas.
+- Entrada de jogadores em salas.
+- Inicialização de partidas.
+- Perguntas com alternativas.
+- Registro e cálculo de pontuação.
+- Classificação dos jogadores.
+- Power-ups durante as partidas.
+- Comunicação em tempo real.
+- Diferentes modos de jogo.
 
-| Método | Rota | Descrição |
-|---|---|---|
-| POST | `/create` | Criar sala e selecionar questões |
-| POST | `/join/:name` | Entrar em uma sala como jogador |
-| GET | `/:name` | Buscar sala e seus jogadores |
-| GET | `/:id/start` | Iniciar a sala |
-| GET | `/:name/podium` | Buscar o pódio da sala |
+## Estrutura do projeto
 
-### Player — `/api/player`
+```text
+QuizArena/
+├── frontend/
+├── backend/
+├── docs/
+│   ├── architecture.md
+│   ├── api.md
+│   ├── testing.md
+│   ├── decisions.md
+│   └── performance.md
+├── docker-compose.yml
+└── README.md
+```
 
-| Método | Rota | Descrição |
-|---|---|---|
-| PATCH | `/:playerId/:roomCode/ready` | Alterar o estado de prontidão do jogador |
+## Instalação
 
-### Round — `/api/round`
+Clone o repositório:
 
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | `/:roomCode/findRound` | Buscar a rodada atual |
-| POST | `/:roomCode/roundFinished` | Finalizar a rodada e atualizar o jogo |
+```bash
+git clone <REPOSITORY_URL>
+cd QuizArena
+```
 
-### Answer — `/api/answer`
+Instale as dependências do backend:
 
-As rotas de respostas ainda não foram fornecidas.
+```bash
+cd backend
+npm install
+```
 
+Instale as dependências do frontend:
+
+```bash
+cd ../frontend
+npm install
+```
+
+Configure as variáveis de ambiente necessárias em cada aplicação, utilizando os arquivos de exemplo disponibilizados no repositório, quando existentes.
+
+Não versione arquivos `.env` com credenciais reais.
+
+## Execução
+
+### Backend
+
+Na pasta `backend`:
+
+```bash
+npm run dev
+```
+
+Para compilar:
+
+```bash
+npm run build
+```
+
+Para executar a versão compilada:
+
+```bash
+npm start
+```
+
+### Frontend
+
+Na pasta `frontend`, utilize o script de desenvolvimento definido no `package.json`:
+
+```bash
+npm run dev
+```
+
+## Testes
+
+Os testes automatizados do backend utilizam Vitest.
+
+Para executar os testes:
+
+```bash
+npm test
+```
+
+Para executar uma vez, sem modo de observação:
+
+```bash
+npm run test:run
+```
+
+A estratégia de testes e o estado de implementação estão documentados em [docs/testing.md](docs/testing.md).
+
+## Documentação técnica
+
+| Documento | Conteúdo |
+|---|---|
+| [architecture.md](docs/architecture.md) | Organização interna e arquitetura |
+| [api.md](docs/api.md) | Contratos e endpoints HTTP |
+| [testing.md](docs/testing.md) | Estratégia e execução dos testes |
+| [decisions.md](docs/decisions.md) | Justificativas das decisões técnicas |
+| [performance.md](docs/performance.md) | Observabilidade e otimizações |
+
+## Observabilidade
+
+O backend utiliza Pino para geração de logs estruturados e possui instrumentação com OpenTelemetry.
+
+O projeto também utiliza Honeycomb para análise de dados de observabilidade.
+
+Os detalhes da instrumentação, métricas e melhorias de desempenho estão descritos em [docs/performance.md](docs/performance.md).
+
+## Infraestrutura
+
+O repositório possui uma configuração de Docker Compose destinada à execução dos serviços em ambiente local.
+
+A configuração deve ser mantida alinhada às dependências reais do projeto e às variáveis de ambiente necessárias.
+
+## Contribuição
+
+Alterações devem preservar a separação de responsabilidades e os padrões utilizados na arquitetura do projeto.
+
+Novas funcionalidades devem incluir testes compatíveis com sua complexidade e atualizar a documentação quando houver mudanças nos contratos ou comportamentos existentes.
+
+## Licença
+
+A licença do projeto deve ser definida e registrada neste repositório.

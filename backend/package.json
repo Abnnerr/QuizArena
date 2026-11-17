@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "test:run": "vitest run",
+    "test:unit": "vitest run",
     "dev": "tsx --watch --env-file=.env  src/app/index.ts",
     "build": "tsc",
     "start": "node dist/app/server.js",
