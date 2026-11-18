@@ -152,8 +152,15 @@ const useRoomLive = () => {
                 ? `/round/${roomCode}/${playerId}/findRound`
                 : `/round/${roomCode}/findRound`;
 
-            const { data } = await AXIOS.get(url);
 
+            const [response, responsePlayers] = await Promise.all([
+                AXIOS.get(url),
+                AXIOS.get(`/player/${roomCode}/podium`)
+            ]);
+
+            const data = response.data;
+            const dataPlayers = responsePlayers.data;
+            
             if (data.type !== "Success") {
                 setQuestion(null);
                 setError(data.message ?? "Não foi possível carregar a pergunta.");
@@ -172,9 +179,6 @@ const useRoomLive = () => {
             setTotalQuestion(roundData.count_questions ?? 0);
             setPosition(roundData.position ?? 0);
 
-            const { data: dataPlayers } = await AXIOS.get(
-                `/player/${roomCode}/podium`
-            );
 
             const plays = dataPlayers.data.map((item: any) => item.players).filter((item: any) => item.player_id !== player?.player_id);
             setPlayers(plays);
