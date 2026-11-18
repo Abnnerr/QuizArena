@@ -58,6 +58,8 @@ const UserPage = () => {
             try {
                 const { data } = await profile()
 
+                console.log(data);
+
                 if (data.type === 'Success') {
                     setRooms(data.hostedRooms)
                 }
