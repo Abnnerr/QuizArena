@@ -249,6 +249,15 @@ const useRoomLive = () => {
             const correct = alternatives.find(item => item.isCorrect);
 
             setCorrectAlternative(correct?.alternativeId ?? null);
+
+            setTimeout(() => {
+                if (position >= totalQuestion) {
+                    navigate(`/${roomCode}/${round}/podio`);
+                    return;
+                }
+
+                navigate(`/${roomCode}/${round}/ranking`);
+            }, 2000);
         };
 
         socket.on("connect", roomJoin);
