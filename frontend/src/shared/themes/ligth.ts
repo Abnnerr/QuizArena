@@ -1,16 +1,15 @@
-
 export const lightTheme = {
-    background: "#F3F5F9",
-    card: "#FFFFFF",
-    surface: "#EDF1F7",
-    border: "#DCE2EC",
+    background: "#EAE8E1",
+    card: "#F5F3EC",
+    surface: "#E4E2D9",
+    border: "#D4D1C6",
 
-    text: "#293449",
-    muted: "#748198",
+    text: "#343B45",
+    muted: "#85877F",
 
-    primary: "#E9B94F",
-    success: "#43AD83",
-    danger: "#E36F75",
+    primary: "#DDAF45",
+    success: "#479B78",
+    danger: "#D87578",
 
-    pattern: "#293449",
+    pattern: "#343B45",
 };

@@ -1,17 +1,15 @@
 
-import type React from "react";
-import { Link, Outlet } from "react-router";
 import { useState } from "react";
-
+import { Link, Outlet } from "react-router";
+import {
+    FiSettings,
+    FiX,
+    FiSun,
+    FiMoon,
+    FiUser,
+} from "react-icons/fi";
 import { useAuth } from "../contexts/hooks/useAuth";
 import { useTheme } from "../contexts/ThemeContext";
-
-import {
-    FiMoon,
-    FiSettings,
-    FiSun,
-    FiX,
-} from "react-icons/fi";
 
 const HomeLayout: React.FC = () => {
     const { user } = useAuth();
@@ -91,12 +89,35 @@ const HomeLayout: React.FC = () => {
                     )}
 
                     {user && (
-                        <Link
-                            to="/room/create"
-                            className="bg-[#1CB0F6] h-11 flex items-center justify-center hover:bg-[#00A2ED] text-white font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-b-4 border-[#0092D6] active:border-b-0 active:translate-y-1 transition-all shadow-sm"
-                        >
-                            Criar Sala
-                        </Link>
+                        <>
+                            {/* CRIAR SALA */}
+                            <Link
+                                to="/room/create"
+                                className="bg-[#1CB0F6] h-11 flex items-center justify-center hover:bg-[#00A2ED] text-white font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-b-4 border-[#0092D6] active:border-b-0 active:translate-y-1 transition-all shadow-sm"
+                            >
+                                Criar Sala
+                            </Link>
+
+                            {/* PERFIL */}
+                            <Link
+                                to="/auth/user"
+                                aria-label="Meu perfil"
+                                title="Meu perfil"
+                                className="
+                                    w-11 h-11 flex items-center justify-center
+                                    rounded-2xl border-2 border-b-4
+                                    active:border-b-2 active:translate-y-0.5
+                                    transition-all shadow-sm
+                                "
+                                style={{
+                                    backgroundColor: colors.surface,
+                                    borderColor: colors.border,
+                                    color: colors.text,
+                                }}
+                            >
+                                <FiUser size={21} />
+                            </Link>
+                        </>
                     )}
                 </div>
             </header>

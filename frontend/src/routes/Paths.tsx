@@ -18,6 +18,7 @@ import PageLayout from "../layouts/PageLayout";
 import RoomLayout from "../layouts/RoomLayout";
 import { lazy, Suspense } from "react";
 import PublicLayout from "../layouts/PublicLayout";
+import UserPage from "../pages/auth/pages/UserPage";
 
 
 export const preloadRoomLivePage = () => {
@@ -33,6 +34,7 @@ const Paths = () => {
                     <Route element={<PageLayout />}>
                         <Route path="/auth" element={<AuthLayout />} >
                             <Route path="login" element={<LoginPage />} />
+                            <Route path="user" element={<UserPage />} />
                             <Route path="register" element={<RegisterPage />} />
                             <Route path="forgot-password" element={<ForgotPage />} />
                             <Route path="reset-password/:token" element={<ResetPage />} />
