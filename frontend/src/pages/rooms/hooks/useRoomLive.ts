@@ -94,10 +94,16 @@ const useRoomLive = () => {
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-        if (event.key !== "Enter" || timeLeft > 0 || round === null) {
+        if (event.key !== "Enter" || timeLeft > 0 || round === null || !isHost) {
             return;
         }
 
+        if (position >= totalQuestion) {
+            navigate(`/${roomCode}/${round}/podio`);
+            return;
+        }
+
+        navigate(`/${roomCode}/${round}/ranking`);
     };
 
     // Atualiza a pergunta recebida do backend
@@ -243,17 +249,6 @@ const useRoomLive = () => {
             const correct = alternatives.find(item => item.isCorrect);
 
             setCorrectAlternative(correct?.alternativeId ?? null);
-
-
-            setTimeout(() => {
-                if (timeLeft <= 0) {
-                    if (position >= totalQuestion) {
-                        navigate(`/${roomCode}/${round}/podio`);
-                        return;
-                    }
-                    navigate(`/${roomCode}/${round}/ranking`);
-                }
-            }, 2500);
         };
 
         socket.on("connect", roomJoin);
@@ -293,6 +288,7 @@ const useRoomLive = () => {
 
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
+
 
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0) return;
