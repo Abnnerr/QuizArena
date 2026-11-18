@@ -94,7 +94,7 @@ const useRoomLive = () => {
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-        if (event.key !== "Enter" || timeLeft > 0 || round === null || !isHost) {
+        if (event.key !== "Enter" || timeLeft > 0 || round === null) {
             return;
         }
 
