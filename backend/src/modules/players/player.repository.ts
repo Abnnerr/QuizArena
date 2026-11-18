@@ -70,7 +70,8 @@ export class PlayerRepository implements IPlayerRepository {
                     }
                 },
                 orderBy: {
-                    score: 'desc'
+                    score: 'desc',
+                    oldScore: 'desc'
                 }
             })
         } catch (error) {

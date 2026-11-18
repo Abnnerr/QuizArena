@@ -17,6 +17,7 @@ interface PlayerData {
     player_id: string | number;
     player_name: string;
     score: number;
+    oldScore: number
 }
 
 interface RankingWithDiff extends PlayerData {
@@ -27,6 +28,7 @@ interface RankingWithDiff extends PlayerData {
 
 const RankingPage: React.FC = () => {
     const navigate = useNavigate();
+
     const { roomCode, round } = useParams<{
         roomCode: string;
         round: string;
@@ -75,43 +77,41 @@ const RankingPage: React.FC = () => {
                     throw new Error("Formato de ranking inválido.");
                 }
 
-                const currentPlayers: PlayerData[] = currentData.map(
+                const players: PlayerData[] = currentData.map(
                     (item: any) => ({
                         player_id: item.player_id,
                         player_name: item.players.player_name,
-                        score: item.score
+                        score: item.score,
+                        oldScore: item.oldScore
                     })
                 );
 
-                const savedPodium = sessionStorage.getItem("podium");
-                let previousData: PlayerData[] = [];
+                // Reconstrói o ranking anterior usando oldScore.
+                const previousRanking = [...players].sort(
+                    (a, b) => b.oldScore - a.oldScore
+                );
 
-                if (savedPodium) {
-                    try {
-                        const parsed = JSON.parse(savedPodium);
-                        previousData = Array.isArray(parsed) ? parsed : [];
-                    } catch {
-                        previousData = [];
-                    }
-                }
+                // Ordena o ranking atual usando score.
+                const currentRanking = [...players].sort(
+                    (a, b) => b.score - a.score
+                );
 
-                const baselineData =
-                    previousData.length > 0
-                        ? previousData
-                        : currentPlayers;
+                // Guarda a posição anterior de cada jogador.
+                const previousPositions = new Map(
+                    previousRanking.map((player, index) => [
+                        player.player_id,
+                        index + 1
+                    ])
+                );
 
+                // Calcula as posições e diferenças.
                 const processedRanking: RankingWithDiff[] =
-                    currentPlayers.map((player, index) => {
+                    currentRanking.map((player, index) => {
                         const currentPos = index + 1;
 
-                        const previousIndex = baselineData.findIndex(
-                            prev => prev.player_id === player.player_id
-                        );
-
                         const prevPos =
-                            previousIndex !== -1
-                                ? previousIndex + 1
-                                : currentPos;
+                            previousPositions.get(player.player_id) ??
+                            currentPos;
 
                         return {
                             ...player,
@@ -123,18 +123,10 @@ const RankingPage: React.FC = () => {
 
                 if (!active) return;
 
-                const sortedList = processedRanking.sort(
-                    (a, b) => a.currentPos - b.currentPos
-                );
-
-                setRankingList(sortedList);
+                setRankingList(processedRanking);
                 setLoading(false);
 
-                sessionStorage.setItem(
-                    "podium",
-                    JSON.stringify(currentPlayers)
-                );
-
+                // Aguarda a renderização inicial antes de iniciar a animação.
                 animationTimeout = setTimeout(() => {
                     if (active) {
                         setAnimateTrigger(true);
@@ -166,14 +158,12 @@ const RankingPage: React.FC = () => {
             active = false;
             clearTimeout(animationTimeout);
         };
-
     }, [roomCode]);
 
     const cardStyle = {
         backgroundColor: colors.card,
         borderColor: colors.border
     };
-
 
     const mutedStyle = {
         color: colors.muted
@@ -192,7 +182,6 @@ const RankingPage: React.FC = () => {
     };
 
     return (
-
         <>
             <Helmet>
                 <title>QuizArena • Classificação da Rodada</title>
@@ -200,26 +189,29 @@ const RankingPage: React.FC = () => {
 
             <div
                 className="
-            w-full flex-1 min-h-0
-            flex flex-col items-center
-            overflow-y-auto overflow-x-hidden
-            px-4 py-6 sm:px-6 sm:py-8
-            font-['Nunito',sans-serif]
-            select-none
-        "
+                    w-full flex-1 min-h-0
+                    flex flex-col items-center
+                    overflow-y-auto overflow-x-hidden
+                    px-4 py-6 sm:px-6 sm:py-8
+                    font-['Nunito',sans-serif]
+                    select-none
+                "
             >
-                <div className="w-full max-w-4xl relative z-10 space-y-8 my-auto shrink-0">
+                <div className="
+                    w-full max-w-4xl relative z-10
+                    space-y-8 my-auto shrink-0
+                ">
 
                     {/* Topo */}
                     <div className="flex justify-center">
                         <div
                             className="
-                        inline-flex items-center gap-2
-                        font-black px-5 py-3
-                        rounded-2xl text-sm sm:text-base
-                        uppercase tracking-wider
-                        border-2 border-b-4 shadow-sm
-                    "
+                                inline-flex items-center gap-2
+                                font-black px-5 py-3
+                                rounded-2xl text-sm sm:text-base
+                                uppercase tracking-wider
+                                border-2 border-b-4 shadow-sm
+                            "
                             style={{
                                 backgroundColor: `${colors.primary}25`,
                                 color: colors.primary,
@@ -234,55 +226,61 @@ const RankingPage: React.FC = () => {
                     {/* Card principal */}
                     <section
                         className="
-                    border-2 border-b-8
-                    rounded-3xl p-6 sm:p-10 lg:p-12
-                    shadow-sm space-y-8
-                "
+                            border-2 border-b-8
+                            rounded-3xl p-6 sm:p-10 lg:p-12
+                            shadow-sm space-y-8
+                        "
                         style={cardStyle}
                     >
-
                         <div className="text-center">
                             <h1
                                 className="
-                            text-3xl sm:text-4xl
-                            font-black tracking-tight
-                        "
+                                    text-3xl sm:text-4xl
+                                    font-black tracking-tight
+                                "
                                 style={{ color: colors.text }}
                             >
                                 Ranking Parcial
                             </h1>
 
                             <p
-                                className="font-extrabold text-sm sm:text-base mt-2"
+                                className="
+                                    font-extrabold text-sm
+                                    sm:text-base mt-2
+                                "
                                 style={mutedStyle}
                             >
                                 Veja quem subiu e quem desceu na tabela!
                             </p>
                         </div>
 
+                        {/* Erro */}
                         {error && (
                             <div
                                 role="alert"
                                 className="
-                            border-2 border-b-4
-                            p-4 rounded-2xl
-                            text-sm sm:text-base
-                            font-black text-center
-                        "
+                                    border-2 border-b-4
+                                    p-4 rounded-2xl
+                                    text-sm sm:text-base
+                                    font-black text-center
+                                "
                                 style={dangerStyle}
                             >
                                 {error}
                             </div>
                         )}
 
+                        {/* Carregamento */}
                         {loading ? (
-                            <div className="text-center py-16 space-y-4">
+                            <div className="
+                                text-center py-16 space-y-4
+                            ">
                                 <div
                                     className="
-                                inline-block w-14 h-14
-                                border-4 border-t-transparent
-                                rounded-full animate-spin
-                            "
+                                        inline-block w-14 h-14
+                                        border-4 border-t-transparent
+                                        rounded-full animate-spin
+                                    "
                                     style={{
                                         borderColor: colors.primary,
                                         borderTopColor: "transparent"
@@ -291,16 +289,18 @@ const RankingPage: React.FC = () => {
 
                                 <p
                                     className="
-                                font-black text-sm
-                                uppercase tracking-wider
-                            "
+                                        font-black text-sm
+                                        uppercase tracking-wider
+                                    "
                                     style={mutedStyle}
                                 >
                                     Calculando posições...
                                 </p>
                             </div>
                         ) : rankingList.length === 0 ? (
-                            <div className="text-center py-12 space-y-4">
+                            <div className="
+                                text-center py-12 space-y-4
+                            ">
                                 <p
                                     className="font-black text-base"
                                     style={mutedStyle}
@@ -309,7 +309,10 @@ const RankingPage: React.FC = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                            <div className="
+                                space-y-4 max-h-[600px]
+                                overflow-y-auto pr-2
+                            ">
                                 {rankingList.map((player) => {
                                     const hasMovedUp = player.diff > 0;
                                     const hasMovedDown = player.diff < 0;
@@ -344,12 +347,12 @@ const RankingPage: React.FC = () => {
                                                 }
                                             }}
                                             className="
-                                        border-2 border-b-4
-                                        rounded-2xl
-                                        p-4 sm:p-5 lg:px-6 lg:py-5
-                                        flex items-center justify-between
-                                        gap-3 shadow-sm transition-colors
-                                    "
+                                                border-2 border-b-4
+                                                rounded-2xl
+                                                p-4 sm:p-5 lg:px-6 lg:py-5
+                                                flex items-center justify-between
+                                                gap-3 shadow-sm transition-colors
+                                            "
                                             style={{
                                                 borderColor:
                                                     animateTrigger && hasMovedUp
@@ -359,15 +362,19 @@ const RankingPage: React.FC = () => {
                                                             : colors.border
                                             }}
                                         >
-                                            <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                                            {/* Jogador e posição */}
+                                            <div className="
+                                                flex items-center gap-3
+                                                sm:gap-5 min-w-0
+                                            ">
                                                 <span
                                                     className="
-                                                w-11 h-11 sm:w-14 sm:h-14
-                                                shrink-0 rounded-xl
-                                                flex items-center justify-center
-                                                text-sm sm:text-base
-                                                font-black border-b-4
-                                            "
+                                                        w-11 h-11 sm:w-14 sm:h-14
+                                                        shrink-0 rounded-xl
+                                                        flex items-center justify-center
+                                                        text-sm sm:text-base
+                                                        font-black border-b-4
+                                                    "
                                                     style={{
                                                         backgroundColor:
                                                             player.currentPos === 1
@@ -377,6 +384,7 @@ const RankingPage: React.FC = () => {
                                                                     : player.currentPos === 3
                                                                         ? "#D89E00"
                                                                         : colors.surface,
+
                                                         borderColor:
                                                             player.currentPos === 1
                                                                 ? colors.primary
@@ -385,6 +393,7 @@ const RankingPage: React.FC = () => {
                                                                     : player.currentPos === 3
                                                                         ? "#B88F00"
                                                                         : colors.border,
+
                                                         color:
                                                             player.currentPos <= 3
                                                                 ? "#FFFFFF"
@@ -396,18 +405,26 @@ const RankingPage: React.FC = () => {
 
                                                 <span
                                                     className="
-                                                font-black
-                                                text-base sm:text-xl
-                                                lg:text-2xl truncate
-                                            "
+                                                        font-black
+                                                        text-base sm:text-xl
+                                                        lg:text-2xl truncate
+                                                    "
                                                     style={{ color: colors.text }}
                                                 >
                                                     {player.player_name}
                                                 </span>
                                             </div>
 
-                                            <div className="flex items-center gap-2 sm:gap-5 shrink-0">
-                                                <div className="flex items-center min-w-[55px] sm:min-w-[85px] justify-end">
+                                            {/* Variação e pontuação */}
+                                            <div className="
+                                                flex items-center gap-2
+                                                sm:gap-5 shrink-0
+                                            ">
+                                                <div className="
+                                                    flex items-center
+                                                    min-w-[55px] sm:min-w-[85px]
+                                                    justify-end
+                                                ">
                                                     {hasMovedUp ? (
                                                         <motion.span
                                                             initial={{ scale: 0 }}
@@ -415,12 +432,11 @@ const RankingPage: React.FC = () => {
                                                                 scale: animateTrigger ? 1 : 0
                                                             }}
                                                             className="
-                                                        inline-flex items-center gap-0.5
-                                                        px-2 sm:px-3 py-1.5
-                                                        rounded-xl text-xs sm:text-sm
-                                                        font-black
-                                                        border-2 border-b-4
-                                                    "
+                                                                inline-flex items-center gap-0.5
+                                                                px-2 sm:px-3 py-1.5
+                                                                rounded-xl text-xs sm:text-sm
+                                                                font-black border-2 border-b-4
+                                                            "
                                                             style={successStyle}
                                                         >
                                                             <BsArrowUpShort className="w-5 h-5" />
@@ -433,12 +449,11 @@ const RankingPage: React.FC = () => {
                                                                 scale: animateTrigger ? 1 : 0
                                                             }}
                                                             className="
-                                                        inline-flex items-center gap-0.5
-                                                        px-2 sm:px-3 py-1.5
-                                                        rounded-xl text-xs sm:text-sm
-                                                        font-black
-                                                        border-2 border-b-4
-                                                    "
+                                                                inline-flex items-center gap-0.5
+                                                                px-2 sm:px-3 py-1.5
+                                                                rounded-xl text-xs sm:text-sm
+                                                                font-black border-2 border-b-4
+                                                            "
                                                             style={dangerStyle}
                                                         >
                                                             <BsArrowDownShort className="w-5 h-5" />
@@ -456,11 +471,10 @@ const RankingPage: React.FC = () => {
 
                                                 <span
                                                     className="
-                                                text-sm sm:text-base lg:text-lg
-                                                font-black
-                                                min-w-[65px] sm:min-w-[90px]
-                                                text-right
-                                            "
+                                                        text-sm sm:text-base lg:text-lg
+                                                        font-black min-w-[65px]
+                                                        sm:min-w-[90px] text-right
+                                                    "
                                                     style={{ color: colors.muted }}
                                                 >
                                                     {player.score} pts
@@ -472,36 +486,42 @@ const RankingPage: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Botão de avançar */}
+                        {/* Avançar rodada */}
                         <div className="pt-4">
                             <button
                                 onClick={createNewRound}
+                                disabled={loading || !!error || rankingList.length === 0}
                                 className="
-                            w-full border-b-4
-                            active:border-b-0
-                            active:translate-y-1
-                            text-white font-black
-                            py-5 sm:py-6 rounded-2xl
-                            flex items-center justify-center
-                            gap-3 text-base sm:text-xl uppercase
-                            tracking-wider cursor-pointer
-                            transition-all shadow-sm
-                        "
+                                    w-full border-b-4
+                                    active:border-b-0
+                                    active:translate-y-1
+                                    text-white font-black
+                                    py-5 sm:py-6 rounded-2xl
+                                    flex items-center justify-center
+                                    gap-3 text-base sm:text-xl uppercase
+                                    tracking-wider cursor-pointer
+                                    transition-all shadow-sm
+                                    disabled:opacity-50
+                                    disabled:cursor-not-allowed
+                                "
                                 style={{
                                     backgroundColor: colors.success,
                                     borderColor: `${colors.success}CC`
                                 }}
                             >
                                 <span>Avançar Partida</span>
-                                <BsArrowRight className="w-6 h-6 sm:w-7 sm:h-7" />
+                                <BsArrowRight className="
+                                    w-6 h-6 sm:w-7 sm:h-7
+                                " />
                             </button>
                         </div>
                     </section>
                 </div>
             </div>
         </>
-
     );
 };
 
 export default RankingPage;
+
+
