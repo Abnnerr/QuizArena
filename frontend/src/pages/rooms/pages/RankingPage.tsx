@@ -86,6 +86,8 @@ const RankingPage: React.FC = () => {
                     })
                 );
 
+                console.log(players);
+                
                 // Reconstrói o ranking anterior usando oldScore.
                 const previousRanking = [...players].sort(
                     (a, b) => b.oldScore - a.oldScore
