@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import HomePage from "../pages/home/HomePage";
-import LoginPage from "../pages/auth/pages/LoginPage";
-import RegisterPage from "../pages/auth/pages/RegisterPage";
-import ForgotPage from "../pages/auth/pages/ForgotPage";
+import HomePage from "../pages/home";
+import LoginPage from "../pages/auth/pages/Login";
+import RegisterPage from "../pages/auth/pages/register";
+import ForgotPage from "../pages/auth/pages/forgot";
 import ResetPage from "../pages/auth/pages/ResetPage";
 import HomeLayout from "../layouts/HomeLayout";
 import RoomLobbyPage from "../pages/rooms/pages/RoomLobbyPage";
@@ -18,7 +18,7 @@ import PageLayout from "../layouts/PageLayout";
 import RoomLayout from "../layouts/RoomLayout";
 import { lazy, Suspense } from "react";
 import PublicLayout from "../layouts/PublicLayout";
-import UserPage from "../pages/auth/pages/UserPage";
+import UserPage from "../pages/auth/pages/user";
 
 
 export const preloadRoomLivePage = () => {
