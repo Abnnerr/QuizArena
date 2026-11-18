@@ -98,10 +98,10 @@ export class AuthController implements IAuthController {
             return HttpResponse.warning(res, 500, 'erro ao encontrar usuario')
         }
     }
-    async logOut(req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+    async logOut(_req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
 
-            res.cookie('access_token',  {
+            res.clearCookie('access_token',  {
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true,
