@@ -179,7 +179,6 @@ const useRoomLive = () => {
             const plays = dataPlayers.data.map((item: any) => item.players).filter((item: any) => item.player_id !== player?.player_id);
             setPlayers(plays);
 
-            sessionStorage.setItem("podium", JSON.stringify(dataPlayers));
 
             atualizarPergunta(roundData);
         } catch (err) {
