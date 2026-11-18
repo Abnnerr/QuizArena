@@ -86,6 +86,7 @@ const RankingPage: React.FC = () => {
                     })
                 );
 
+                console.log(currentData);
                 console.log(players);
                 
                 // Reconstrói o ranking anterior usando oldScore.
