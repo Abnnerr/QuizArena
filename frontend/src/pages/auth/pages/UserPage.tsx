@@ -56,8 +56,8 @@ const UserPage = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await profile();
-                console.log(data.data.hostedRooms);
+                const data = await profile();
+                // console.log(data.data.hostedRooms);
                 
                 if (data?.type === "Success") {
                     setRooms(data.data.hostedRooms ?? []);
