@@ -98,12 +98,6 @@ const useRoomLive = () => {
             return;
         }
 
-        if (position >= totalQuestion) {
-            navigate(`/${roomCode}/${round}/podio`);
-            return;
-        }
-
-        navigate(`/${roomCode}/${round}/ranking`);
     };
 
     // Atualiza a pergunta recebida do backend
@@ -289,7 +283,16 @@ const useRoomLive = () => {
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
 
+    useEffect(() => {
+        if (timeLeft <= 0) {
+            if (position >= totalQuestion) {
+                navigate(`/${roomCode}/${round}/podio`);
+                return;
+            }
+            navigate(`/${roomCode}/${round}/ranking`);
+        }
 
+    }, [timeLeft])
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0) return;
 
