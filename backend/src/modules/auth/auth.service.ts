@@ -152,7 +152,7 @@ export class AuthService {
                         "Recuperar conta",
                         html.forgot(
                             result.user_username,
-                            `https://quiz-arena-zeta-ten.vercel.app/${token}`
+                            `https://quiz-arena-zeta-ten.vercel.app/auth/reset/${token}`
                         )
                     );
                 } catch (error) {
