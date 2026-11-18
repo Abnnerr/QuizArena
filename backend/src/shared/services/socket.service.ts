@@ -1,52 +1,67 @@
-import { io } from "../../app/server.js";
 
+import type { Server } from "socket.io";
+
+let io: Server | null = null;
+
+export function configureSocketService(server: Server) {
+    io = server;
+}
 
 export class SocketService {
 
+    private get server(): Server {
+        if (!io) {
+            throw new Error("Socket.IO ainda não foi inicializado.");
+        }
+
+        return io;
+    }
 
     lobby(roomCode: string) {
-        io.to(`room:${roomCode}`).emit("room:join");
+        this.server.to(`room:${roomCode}`).emit("room:join");
     }
+
     playerReady(roomCode: string, player_id: string, is_ready: boolean) {
-        io.to(`room:${roomCode}`).emit("player:ready", {
+        this.server.to(`room:${roomCode}`).emit("player:ready", {
             player_id,
             is_ready,
         });
     }
-    // player sai do lobby e atualiza a pagina
+
     leaveRoom(roomCode: string) {
-        io.to(`room:${roomCode}`).emit("room:leave")
+        this.server.to(`room:${roomCode}`).emit("room:leave");
     }
 
     roundStarted(roomCode: string) {
-        io.to(`room:${roomCode}`).emit("room:start");
+        this.server.to(`room:${roomCode}`).emit("room:start");
     }
 
     findQuestion(roomCode: string) {
-        io.to(`room:${roomCode}`).emit("question:started");
+        this.server.to(`room:${roomCode}`).emit("question:started");
     }
 
     roomFinished(roomCode: string) {
-        io.to(`room:${roomCode}`).emit('room:finished')
+        this.server.to(`room:${roomCode}`).emit("room:finished");
     }
 
     powerFifty(roomCode: string, alternatives: any, playerId: string) {
-        io.to(`room:${roomCode}`).emit('room:powerfifty', {
+        this.server.to(`room:${roomCode}`).emit("room:powerfifty", {
             playerId,
-            alternatives
-        })
+            alternatives,
+        });
     }
+
     powerSkipTurn(roomCode: string, skiped: boolean, target: string, userName: string) {
-        io.to(`room:${roomCode}`).emit('room:skip', {
+        this.server.to(`room:${roomCode}`).emit("room:skip", {
             target,
             skiped,
-            userName
-        })
+            userName,
+        });
     }
 
     roundExpired(roomCode: string, alternative: any) {
-        io.to(`room:${roomCode}`).emit('room:expired', {
-            alternative
-        })
+        this.server.to(`room:${roomCode}`).emit("room:expired", {
+            alternative,
+        });
     }
 }

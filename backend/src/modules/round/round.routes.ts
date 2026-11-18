@@ -5,7 +5,6 @@ import { finishedSchema } from "./schema/finished.schema.js";
 import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { PolicyMiddleware } from "../../middlewares/policy.middleware.js";
-// import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router()
 
