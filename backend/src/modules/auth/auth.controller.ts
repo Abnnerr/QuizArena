@@ -16,6 +16,7 @@ export class AuthController implements IAuthController {
         this.forgot = this.forgot.bind(this)
         this.reset = this.reset.bind(this)
         this.me = this.me.bind(this)
+        this.logOut = this.logOut.bind(this)
     }
 
     async register(req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -95,6 +96,24 @@ export class AuthController implements IAuthController {
                 return HttpResponse.warning(res, error.status, error.message)
             }
             return HttpResponse.warning(res, 500, 'erro ao encontrar usuario')
+        }
+    }
+    async logOut(req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+
+            res.cookie('access_token',  {
+                httpOnly: true,
+                sameSite: 'none',
+                secure: true,
+                maxAge: 60 * 1000 * 60,
+                path: '/'
+            })
+            return HttpResponse.success(res, 200, 'usuario Logout')
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, 'erro usuario deslogado')
         }
     }
 }

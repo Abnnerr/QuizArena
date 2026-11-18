@@ -44,5 +44,11 @@ router.get(
     AuthMiddleware.validate,
     authController.me
 );
+router.get(
+    "/logout",
+    RateLimit.limit(60, 3),
+    AuthMiddleware.validate,
+    authController.logOut
+);
 
 export default router
