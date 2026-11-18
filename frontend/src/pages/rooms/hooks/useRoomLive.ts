@@ -243,6 +243,17 @@ const useRoomLive = () => {
             const correct = alternatives.find(item => item.isCorrect);
 
             setCorrectAlternative(correct?.alternativeId ?? null);
+
+
+            setTimeout(() => {
+                if (timeLeft <= 0) {
+                    if (position >= totalQuestion) {
+                        navigate(`/${roomCode}/${round}/podio`);
+                        return;
+                    }
+                    navigate(`/${roomCode}/${round}/ranking`);
+                }
+            }, 2500);
         };
 
         socket.on("connect", roomJoin);
@@ -283,16 +294,6 @@ const useRoomLive = () => {
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
 
-    useEffect(() => {
-        if (timeLeft <= 0) {
-            if (position >= totalQuestion) {
-                navigate(`/${roomCode}/${round}/podio`);
-                return;
-            }
-            navigate(`/${roomCode}/${round}/ranking`);
-        }
-
-    }, [timeLeft])
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0) return;
 
