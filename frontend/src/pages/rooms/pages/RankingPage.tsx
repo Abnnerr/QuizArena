@@ -71,6 +71,7 @@ const RankingPage: React.FC = () => {
                     `/player/${roomCode}/podium`
                 );
 
+                console.log(data)
                 const currentData = data?.data;
 
                 if (!Array.isArray(currentData)) {
