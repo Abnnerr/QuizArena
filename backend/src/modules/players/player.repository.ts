@@ -71,7 +71,6 @@ export class PlayerRepository implements IPlayerRepository {
                 },
                 orderBy: {
                     score: 'desc',
-                    oldScore: 'desc'
                 }
             })
         } catch (error) {
