@@ -176,6 +176,13 @@ describe("Player Integration Tests", () => {
             });
         }
     });
+
+
+
+
+
+
+    
     describe("GET /api/player/:roomCode/podium", () => {
         it("deve retornar o pódio da sala", async () => {
             const response = await request(app)
