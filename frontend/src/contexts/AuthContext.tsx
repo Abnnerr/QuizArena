@@ -14,7 +14,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 const { data } = await AXIOS.get('/auth/me')
                 if (data.type === 'Success') {
                     console.log(data);
-                    
+
                     setUser(data.data)
                     setLogado(true)
                 }
@@ -119,7 +119,29 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             };
         }
     }
+    async function profile(): Promise<ResponseDTO> {
+        try {
+            const { data } = await AXIOS.get<ResponseDTO>("/auth/profile");
 
+            if (data.type === 'Warning') {
+                return {
+                    type: 'Warning',
+                    message: data.message || 'Não foi possível redefinir a senha. O token pode ser inválido.',
+                };
+            }
+
+            return {
+                type: 'Success',
+                message: 'Sua senha foi redefinida com sucesso! Você já pode fazer login.',
+                data: data.data
+            };
+        } catch (error: any) {
+            return {
+                type: 'Warning',
+                message: error.response?.data?.message || 'Erro ao redefinir a senha. O link pode ter expirado.',
+            };
+        }
+    }
     return (
         <AuthContext.Provider value={{
             user,
@@ -127,7 +149,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             login,
             register,
             forgot,
-            reset
+            reset,
+            profile
         }}>
             {children}
         </AuthContext.Provider>

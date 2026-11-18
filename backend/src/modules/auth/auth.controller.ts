@@ -17,6 +17,7 @@ export class AuthController implements IAuthController {
         this.reset = this.reset.bind(this)
         this.me = this.me.bind(this)
         this.logOut = this.logOut.bind(this)
+        this.profile = this.profile.bind(this)
     }
 
     async register(req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -98,10 +99,23 @@ export class AuthController implements IAuthController {
             return HttpResponse.warning(res, 500, 'erro ao encontrar usuario')
         }
     }
+    async profile(req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+
+            const result = await this.service.profile(req.user!)
+
+            return HttpResponse.success(res, 200, 'usuario encontrado', result)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, 'erro ao encontrar usuario')
+        }
+    }
     async logOut(_req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
 
-            res.clearCookie('access_token',  {
+            res.clearCookie('access_token', {
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true,

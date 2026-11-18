@@ -2,7 +2,7 @@ import type { Users } from "@prisma/client";
 import { prisma } from "../../db/index.js";
 import type { IAuthRepository } from "./contracts/auth.repository.contract.js";
 import type { RegisterDTO } from "./schema/register.schema.js";
-import type { UserWithRole } from "./dto/auth.dto.js";
+import type { ProfilePayload, UserWithRole } from "./dto/auth.dto.js";
 
 export class AuthRepository implements IAuthRepository {
     async register(dados: RegisterDTO): Promise<Users> {
@@ -30,7 +30,6 @@ export class AuthRepository implements IAuthRepository {
                     user_email: true,
                     user_username: true,
                     user_password: true,
-
                     Role: {
                         select: {
                             role_name: true,
@@ -43,6 +42,15 @@ export class AuthRepository implements IAuthRepository {
                                     }
                                 }
                             }
+                        }
+                    },
+                    hostedRooms: {
+                        select: {
+                            room_name: true,
+                            room_code: true,
+                            room_status: true,
+                            max_players: true,
+                            room_id: true
                         }
                     }
                 }
@@ -59,6 +67,33 @@ export class AuthRepository implements IAuthRepository {
                 },
                 data: {
                     user_password: password
+                }
+            })
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async profile(id: string): Promise<ProfilePayload | null> {
+        try {
+            return await prisma.users.findUnique({
+                where: {
+                    user_id: id
+                },
+                select: {
+                    user_email: true,
+                    user_username: true,
+                    user_password: true,
+                    hostedRooms: {
+                        select: {
+                            max_players: true,
+                            room_code: true,
+                            room_mode: true,
+                            room_name: true,
+                            room_id: true,
+                            room_status: true
+                        }
+                    }
                 }
             })
         } catch (error) {

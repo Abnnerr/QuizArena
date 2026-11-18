@@ -6,6 +6,7 @@ export type AuthContextType = {
     register: (dados: { userName: string, email: string, password: string }) => Promise<ResponseDTO>
     forgot: (email: string) => Promise<ResponseDTO>
     reset: (email: string, token: string) => Promise<ResponseDTO>
+    profile: () => Promise<ResponseDTO>
 }
 
 export type User = {

@@ -44,6 +44,13 @@ router.get(
     AuthMiddleware.validate,
     authController.me
 );
+
+router.get(
+    "/profile",
+    RateLimit.limit(60, 3),
+    AuthMiddleware.validate,
+    authController.profile
+)
 router.get(
     "/logout",
     RateLimit.limit(60, 3),

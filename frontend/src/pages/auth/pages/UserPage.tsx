@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router";
 import {
@@ -18,22 +18,24 @@ import {
 } from "react-icons/bs";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { Input } from "../../../shared/ui/Input";
+import { useAuth } from "../../../contexts/hooks/useAuth";
 
 interface Room {
-    id: number;
-    title: string;
-    code: string;
-    maxPlayers: number;
-    status: "WAITING" | "LIVE" | "FINISHED";
+    room_id: number;
+    room_code: string;
+    room_name: string;
+    max_players: number;
+    room_mode: "HARDCORE" | "NORMAL";
+    room_status: "LOBBY" | "LIVE";
 }
 
 const UserPage = () => {
     const { colors } = useTheme();
-
+    const { profile } = useAuth()
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
+    const [rooms, setRooms] = useState<Room[]>([])
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -47,30 +49,23 @@ const UserPage = () => {
 
     const [loading, setLoading] = useState(false);
 
-    // Dados demonstrativos: substituir pela consulta à API.
-    const rooms: Room[] = [
-        {
-            id: 1,
-            title: "Conhecimentos Gerais",
-            code: "ABC123",
-            maxPlayers: 10,
-            status: "LIVE",
-        },
-        {
-            id: 2,
-            title: "Desenvolvimento Web",
-            code: "WEB456",
-            maxPlayers: 20,
-            status: "WAITING",
-        },
-        {
-            id: 3,
-            title: "Matemática",
-            code: "MAT789",
-            maxPlayers: 5,
-            status: "FINISHED",
-        },
-    ];
+
+
+
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const { data } = await profile()
+
+                if (data.type === 'Success') {
+                    setRooms(data.hostedRooms)
+                }
+            } catch (error) {
+
+            }
+        })()
+    }, [])
 
     const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -129,7 +124,7 @@ const UserPage = () => {
     };
 
     const statusConfig = {
-        WAITING: {
+        LOBBY: {
             label: "Aguardando",
             color: colors.primary,
         },
@@ -412,17 +407,17 @@ const UserPage = () => {
                             style={{
                                 backgroundColor:
                                     !currentPassword || !newPassword ||
-                                    !confirmPassword || loading
+                                        !confirmPassword || loading
                                         ? colors.surface
                                         : colors.success,
                                 borderColor:
                                     !currentPassword || !newPassword ||
-                                    !confirmPassword || loading
+                                        !confirmPassword || loading
                                         ? colors.border
                                         : "#46A302",
                                 color:
                                     !currentPassword || !newPassword ||
-                                    !confirmPassword || loading
+                                        !confirmPassword || loading
                                         ? colors.muted
                                         : "#FFFFFF",
                             }}
@@ -504,12 +499,12 @@ const UserPage = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {rooms.map((room) => {
-                                const status = statusConfig[room.status];
-                                const copied = copiedCode === room.code;
+                                const status = statusConfig[room.room_status];
+                                const copied = copiedCode === room.room_code;
 
                                 return (
                                     <article
-                                        key={room.id}
+                                        key={room.room_id}
                                         className="
                                             border-2 border-b-8
                                             rounded-3xl shadow-lg
@@ -528,14 +523,14 @@ const UserPage = () => {
                                                     className="font-black text-base sm:text-lg break-words"
                                                     style={{ color: colors.text }}
                                                 >
-                                                    {room.title}
+                                                    {room.room_name}
                                                 </h3>
 
                                                 <p
                                                     className="font-extrabold text-xs mt-1"
                                                     style={{ color: colors.muted }}
                                                 >
-                                                    Sala #{room.id}
+                                                    Sala #{room.room_id}
                                                 </p>
                                             </div>
 
@@ -584,7 +579,7 @@ const UserPage = () => {
                                                     className="font-black text-sm"
                                                     style={{ color: colors.text }}
                                                 >
-                                                    {room.maxPlayers} jogadores
+                                                    {room.max_players} jogadores
                                                 </p>
                                             </div>
                                         </div>
@@ -603,13 +598,13 @@ const UserPage = () => {
                                                     className="font-black text-lg tracking-widest"
                                                     style={{ color: colors.text }}
                                                 >
-                                                    {room.code}
+                                                    {room.room_code}
                                                 </p>
                                             </div>
 
                                             <button
                                                 type="button"
-                                                onClick={() => handleCopyCode(room.code)}
+                                                onClick={() => handleCopyCode(room.room_code)}
                                                 className="
                                                     flex-shrink-0 inline-flex
                                                     items-center gap-2

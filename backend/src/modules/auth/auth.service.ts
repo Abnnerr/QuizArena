@@ -3,7 +3,7 @@ import type { BcryptService } from "../../shared/services/bcrypt.service.js";
 import type { JwtService } from "../../shared/services/jwt.service.js";
 import type { LoginDTO } from "./schema/login.schema.js";
 import type { RegisterDTO } from "./schema/register.schema.js";
-import type { LoginResponse, UserResponse } from "./dto/auth.dto.js";
+import type { LoginResponse, ProfilePayload, UserResponse } from "./dto/auth.dto.js";
 import type { AuthDomain } from "./domain/auth.domain.js";
 import { enviarEmail } from "../../shared/utils/email.js";
 import { html } from "./templates/auth.templates.js";
@@ -259,5 +259,21 @@ export class AuthService {
                 throw new AppError(500, "Erro ao buscar usuário");
             }
         });
+    }
+    async profile(user: AuthPayload): Promise<ProfilePayload> {
+        try {
+            const result = await this.repo.profile(user.id)
+
+            if (!result) {
+                throw new AppError(404, "usuario nao encontrado")
+            }
+
+            return result
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao buscar dados do usuario')
+        }
     }
 }
