@@ -59,7 +59,7 @@ const UserPage = () => {
                 const { data } = await profile();
 
                 if (data?.type === "Success") {
-                    setRooms(data.data.hostedRooms ?? []);
+                    setRooms(data.hostedRooms ?? []);
                 } else {
                     setFeedback({
                         type: "Error",
@@ -78,7 +78,7 @@ const UserPage = () => {
 
         fetchProfile();
     }, [profile]);
-    
+
     const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFeedback(null);
