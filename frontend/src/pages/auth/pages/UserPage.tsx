@@ -25,46 +25,62 @@ interface Room {
     room_code: string;
     room_name: string;
     max_players: number;
-    room_mode: "HARDCORE" | "NORMAL";
-    room_status: "LOBBY" | "LIVE";
+    room_mode: "NORMAL" | "HARDCORE";
+    room_status: "LOBBY" | "LIVE" | "FINISHED";
+}
+
+interface UserProfile {
+    user_username: string;
+    user_email: string;
+}
+
+interface Feedback {
+    type: "Success" | "Warning" | "Error";
+    message: string;
 }
 
 const UserPage = () => {
     const { colors } = useTheme();
-    const { profile } = useAuth()
+    const { profile } = useAuth();
+
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [rooms, setRooms] = useState<Room[]>([]);
+
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [rooms, setRooms] = useState<Room[]>([])
+
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-    const [feedback, setFeedback] = useState<{
-        type: "Success" | "Warning" | "Error";
-        message: string;
-    } | null>(null);
-
+    const [feedback, setFeedback] = useState<Feedback | null>(null);
     const [loading, setLoading] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(true);
 
-
-
-
-
+    // Busca os dados do perfil
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const data = await profile();
-                // console.log(data.data.hostedRooms);
-                
-                if (data?.type === "Success") {
-                    setRooms(data.data.hostedRooms ?? []);
+                setProfileLoading(true);
+
+                const response = await profile();
+
+                if (response?.type === "Success") {
+                    setUserProfile({
+                        user_username: response.data.user_username,
+                        user_email: response.data.user_email,
+                    });
+
+                    setRooms(response.data.hostedRooms ?? []);
                 } else {
                     setFeedback({
                         type: "Error",
-                        message: data?.message || "Não foi possível carregar suas salas.",
+                        message:
+                            response?.message ||
+                            "Não foi possível carregar seus dados.",
                     });
                 }
             } catch (error) {
@@ -74,13 +90,18 @@ const UserPage = () => {
                     type: "Error",
                     message: "Erro ao carregar os dados da sua conta.",
                 });
+            } finally {
+                setProfileLoading(false);
             }
         };
 
         fetchProfile();
     }, [profile]);
 
-    const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Alteração de senha
+    const handlePasswordSubmit = async (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
         setFeedback(null);
 
@@ -114,19 +135,23 @@ const UserPage = () => {
 
         setFeedback({
             type: "Warning",
-            message: "A integração com a API de alteração de senha ainda não foi configurada.",
+            message:
+                "A integração com a API de alteração de senha ainda não foi configurada.",
         });
 
         setLoading(false);
     };
 
+    // Copiar código da sala
     const handleCopyCode = async (code: string) => {
         try {
             await navigator.clipboard.writeText(code);
             setCopiedCode(code);
 
             window.setTimeout(() => {
-                setCopiedCode((current) => current === code ? null : current);
+                setCopiedCode((current) =>
+                    current === code ? null : current
+                );
             }, 2000);
         } catch {
             setFeedback({
@@ -136,7 +161,7 @@ const UserPage = () => {
         }
     };
 
-    const statusConfig = {
+    const statusConfig: Record<Room["room_status"], { label: string; color: string }> = {
         LOBBY: {
             label: "Aguardando",
             color: colors.primary,
@@ -150,6 +175,13 @@ const UserPage = () => {
             color: colors.muted,
         },
     };
+
+    const feedbackColor =
+        feedback?.type === "Success"
+            ? colors.success
+            : feedback?.type === "Warning"
+                ? colors.primary
+                : colors.danger;
 
     return (
         <>
@@ -239,11 +271,18 @@ const UserPage = () => {
                             className="font-black tracking-tight text-xl sm:text-2xl"
                             style={{ color: colors.text }}
                         >
-                            Área do administrador
+                            Olá, {userProfile?.user_username ?? "Administrador"}!
                         </h2>
 
                         <p
-                            className="font-extrabold mt-1 text-xs sm:text-sm"
+                            className="font-extrabold mt-1 text-xs sm:text-sm break-all"
+                            style={{ color: colors.muted }}
+                        >
+                            {userProfile?.user_email ?? "Carregando e-mail..."}
+                        </p>
+
+                        <p
+                            className="font-extrabold mt-2 text-xs sm:text-sm"
                             style={{ color: colors.muted }}
                         >
                             Gerencie a segurança da sua conta e visualize suas salas.
@@ -251,7 +290,25 @@ const UserPage = () => {
                     </div>
                 </div>
 
-                {/* ALTERAÇÃO DE SENHA */}
+                {/* FEEDBACK GERAL */}
+                {feedback && (
+                    <div
+                        className="
+                            w-full mb-5 p-3 rounded-2xl
+                            text-xs sm:text-sm font-black
+                            text-center border-2 border-b-4
+                        "
+                        style={{
+                            backgroundColor: `${feedbackColor}20`,
+                            borderColor: feedbackColor,
+                            color: feedbackColor,
+                        }}
+                    >
+                        {feedback.message}
+                    </div>
+                )}
+
+                {/* SEGURANÇA DA CONTA */}
                 <section className="w-full mb-7">
                     <div className="flex items-center gap-2 mb-3">
                         <BiLock
@@ -301,19 +358,26 @@ const UserPage = () => {
                                 type={showCurrentPassword ? "text" : "password"}
                                 required
                                 value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                onChange={(e) =>
+                                    setCurrentPassword(e.target.value)
+                                }
                                 placeholder="••••••••"
                                 rightElement={
                                     <button
                                         type="button"
-                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                        onClick={() =>
+                                            setShowCurrentPassword(
+                                                !showCurrentPassword
+                                            )
+                                        }
                                         className="cursor-pointer"
                                         style={{ color: colors.muted }}
                                     >
-                                        {showCurrentPassword
-                                            ? <BsEyeSlash className="w-6 h-6" />
-                                            : <BsEye className="w-6 h-6" />
-                                        }
+                                        {showCurrentPassword ? (
+                                            <BsEyeSlash className="w-6 h-6" />
+                                        ) : (
+                                            <BsEye className="w-6 h-6" />
+                                        )}
                                     </button>
                                 }
                             />
@@ -324,19 +388,24 @@ const UserPage = () => {
                                 type={showNewPassword ? "text" : "password"}
                                 required
                                 value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
+                                onChange={(e) =>
+                                    setNewPassword(e.target.value)
+                                }
                                 placeholder="••••••••"
                                 rightElement={
                                     <button
                                         type="button"
-                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                        onClick={() =>
+                                            setShowNewPassword(!showNewPassword)
+                                        }
                                         className="cursor-pointer"
                                         style={{ color: colors.muted }}
                                     >
-                                        {showNewPassword
-                                            ? <BsEyeSlash className="w-6 h-6" />
-                                            : <BsEye className="w-6 h-6" />
-                                        }
+                                        {showNewPassword ? (
+                                            <BsEyeSlash className="w-6 h-6" />
+                                        ) : (
+                                            <BsEye className="w-6 h-6" />
+                                        )}
                                     </button>
                                 }
                             />
@@ -344,27 +413,36 @@ const UserPage = () => {
                             <Input
                                 label="Confirmar Nova Senha"
                                 icon={<BiLock className="w-6 h-6" />}
-                                type={showConfirmPassword ? "text" : "password"}
+                                type={
+                                    showConfirmPassword ? "text" : "password"
+                                }
                                 required
                                 value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                onChange={(e) =>
+                                    setConfirmPassword(e.target.value)
+                                }
                                 placeholder="••••••••"
                                 rightElement={
                                     <button
                                         type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        onClick={() =>
+                                            setShowConfirmPassword(
+                                                !showConfirmPassword
+                                            )
+                                        }
                                         className="cursor-pointer"
                                         style={{ color: colors.muted }}
                                     >
-                                        {showConfirmPassword
-                                            ? <BsEyeSlash className="w-6 h-6" />
-                                            : <BsEye className="w-6 h-6" />
-                                        }
+                                        {showConfirmPassword ? (
+                                            <BsEyeSlash className="w-6 h-6" />
+                                        ) : (
+                                            <BsEye className="w-6 h-6" />
+                                        )}
                                     </button>
                                 }
                             />
 
-                            {/* FEEDBACK */}
+                            {/* FEEDBACK DO FORMULÁRIO */}
                             <div className="min-h-[45px] flex items-center justify-center">
                                 {feedback && (
                                     <div
@@ -374,24 +452,9 @@ const UserPage = () => {
                                             text-center border-2 border-b-4
                                         "
                                         style={{
-                                            backgroundColor:
-                                                feedback.type === "Success"
-                                                    ? `${colors.success}20`
-                                                    : feedback.type === "Warning"
-                                                        ? `${colors.primary}20`
-                                                        : `${colors.danger}20`,
-                                            borderColor:
-                                                feedback.type === "Success"
-                                                    ? colors.success
-                                                    : feedback.type === "Warning"
-                                                        ? colors.primary
-                                                        : colors.danger,
-                                            color:
-                                                feedback.type === "Success"
-                                                    ? colors.success
-                                                    : feedback.type === "Warning"
-                                                        ? colors.primary
-                                                        : colors.danger,
+                                            backgroundColor: `${feedbackColor}20`,
+                                            borderColor: feedbackColor,
+                                            color: feedbackColor,
                                         }}
                                     >
                                         {feedback.message}
@@ -419,18 +482,24 @@ const UserPage = () => {
                             "
                             style={{
                                 backgroundColor:
-                                    !currentPassword || !newPassword ||
-                                        !confirmPassword || loading
+                                    !currentPassword ||
+                                        !newPassword ||
+                                        !confirmPassword ||
+                                        loading
                                         ? colors.surface
                                         : colors.success,
                                 borderColor:
-                                    !currentPassword || !newPassword ||
-                                        !confirmPassword || loading
+                                    !currentPassword ||
+                                        !newPassword ||
+                                        !confirmPassword ||
+                                        loading
                                         ? colors.border
                                         : "#46A302",
                                 color:
-                                    !currentPassword || !newPassword ||
-                                        !confirmPassword || loading
+                                    !currentPassword ||
+                                        !newPassword ||
+                                        !confirmPassword ||
+                                        loading
                                         ? colors.muted
                                         : "#FFFFFF",
                             }}
@@ -443,7 +512,11 @@ const UserPage = () => {
 
                 {/* MINHAS SALAS */}
                 <section className="w-full">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <div className="
+                        flex flex-col sm:flex-row
+                        sm:items-center sm:justify-between
+                        gap-3 mb-4
+                    ">
                         <div>
                             <h2
                                 className="font-black text-lg sm:text-xl uppercase tracking-wide"
@@ -478,7 +551,25 @@ const UserPage = () => {
                         </div>
                     </div>
 
-                    {rooms.length === 0 ? (
+                    {profileLoading ? (
+                        <div
+                            className="
+                                w-full border-2 border-b-8
+                                rounded-3xl shadow-lg p-8 text-center
+                            "
+                            style={{
+                                backgroundColor: colors.card,
+                                borderColor: colors.border,
+                            }}
+                        >
+                            <p
+                                className="font-black text-sm"
+                                style={{ color: colors.muted }}
+                            >
+                                Carregando suas salas...
+                            </p>
+                        </div>
+                    ) : rooms.length === 0 ? (
                         <div
                             className="
                                 w-full border-2 border-b-8
@@ -513,7 +604,8 @@ const UserPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {rooms.map((room) => {
                                 const status = statusConfig[room.room_status];
-                                const copied = copiedCode === room.room_code;
+                                const copied =
+                                    copiedCode === room.room_code;
 
                                 return (
                                     <article
@@ -530,7 +622,10 @@ const UserPage = () => {
                                         }}
                                     >
                                         {/* TÍTULO E STATUS */}
-                                        <div className="flex items-start justify-between gap-3 mb-5">
+                                        <div className="
+                                            flex items-start justify-between
+                                            gap-3 mb-5
+                                        ">
                                             <div className="min-w-0">
                                                 <h3
                                                     className="font-black text-base sm:text-lg break-words"
@@ -568,7 +663,7 @@ const UserPage = () => {
                                         <div
                                             className="
                                                 flex items-center gap-3
-                                                p-3 rounded-2xl border-2 mb-4
+                                                p-3 rounded-2xl border-2 mb-3
                                             "
                                             style={{
                                                 backgroundColor: colors.surface,
@@ -597,8 +692,45 @@ const UserPage = () => {
                                             </div>
                                         </div>
 
+                                        {/* MODO DE JOGO */}
+                                        <div
+                                            className="
+                                                flex items-center justify-between
+                                                gap-3 p-3 rounded-2xl
+                                                border-2 mb-4
+                                            "
+                                            style={{
+                                                backgroundColor: colors.surface,
+                                                borderColor: colors.border,
+                                            }}
+                                        >
+                                            <p
+                                                className="font-black text-[10px] uppercase tracking-wider"
+                                                style={{ color: colors.muted }}
+                                            >
+                                                Modo de jogo
+                                            </p>
+
+                                            <span
+                                                className="font-black text-xs uppercase tracking-wider"
+                                                style={{
+                                                    color:
+                                                        room.room_mode === "HARDCORE"
+                                                            ? colors.danger
+                                                            : colors.success,
+                                                }}
+                                            >
+                                                {room.room_mode === "HARDCORE"
+                                                    ? "Hardcore"
+                                                    : "Normal"}
+                                            </span>
+                                        </div>
+
                                         {/* CÓDIGO */}
-                                        <div className="flex items-center justify-between gap-3">
+                                        <div className="
+                                            flex items-center justify-between
+                                            gap-3
+                                        ">
                                             <div className="min-w-0">
                                                 <p
                                                     className="font-black text-[10px] uppercase tracking-wider mb-1"
@@ -617,7 +749,9 @@ const UserPage = () => {
 
                                             <button
                                                 type="button"
-                                                onClick={() => handleCopyCode(room.room_code)}
+                                                onClick={() =>
+                                                    handleCopyCode(room.room_code)
+                                                }
                                                 className="
                                                     flex-shrink-0 inline-flex
                                                     items-center gap-2
@@ -642,10 +776,11 @@ const UserPage = () => {
                                                         : "#7A5B00",
                                                 }}
                                             >
-                                                {copied
-                                                    ? <BiCheck className="w-4 h-4" />
-                                                    : <BiCopy className="w-4 h-4" />
-                                                }
+                                                {copied ? (
+                                                    <BiCheck className="w-4 h-4" />
+                                                ) : (
+                                                    <BiCopy className="w-4 h-4" />
+                                                )}
 
                                                 {copied ? "Copiado" : "Copiar"}
                                             </button>
