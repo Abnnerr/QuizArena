@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import request from "supertest";
 import { Server } from "socket.io";
 
@@ -182,7 +182,7 @@ describe("Player Integration Tests", () => {
 
 
 
-    
+
     describe("GET /api/player/:roomCode/podium", () => {
         it("deve retornar o pódio da sala", async () => {
             const response = await request(app)
