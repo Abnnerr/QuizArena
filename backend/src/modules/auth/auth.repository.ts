@@ -43,15 +43,6 @@ export class AuthRepository implements IAuthRepository {
                                 }
                             }
                         }
-                    },
-                    hostedRooms: {
-                        select: {
-                            room_name: true,
-                            room_code: true,
-                            room_status: true,
-                            max_players: true,
-                            room_id: true
-                        }
                     }
                 }
             });
@@ -83,7 +74,6 @@ export class AuthRepository implements IAuthRepository {
                 select: {
                     user_email: true,
                     user_username: true,
-                    user_password: true,
                     hostedRooms: {
                         select: {
                             max_players: true,

@@ -123,6 +123,9 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         try {
             const { data } = await AXIOS.get<ResponseDTO>("/auth/profile");
 
+
+            console.log(data);
+            
             if (data.type === 'Warning') {
                 return {
                     type: 'Warning',
