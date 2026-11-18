@@ -54,21 +54,31 @@ const UserPage = () => {
 
 
     useEffect(() => {
-        (async () => {
+        const fetchProfile = async () => {
             try {
-                const { data } = await profile()
+                const { data } = await profile();
 
-                console.log(data);
-
-                if (data.type === 'Success') {
-                    setRooms(data.hostedRooms)
+                if (data?.type === "Success") {
+                    setRooms(data.data.hostedRooms ?? []);
+                } else {
+                    setFeedback({
+                        type: "Error",
+                        message: data?.message || "Não foi possível carregar suas salas.",
+                    });
                 }
             } catch (error) {
+                console.error("Erro ao buscar perfil:", error);
 
+                setFeedback({
+                    type: "Error",
+                    message: "Erro ao carregar os dados da sua conta.",
+                });
             }
-        })()
-    }, [])
+        };
 
+        fetchProfile();
+    }, [profile]);
+    
     const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFeedback(null);
