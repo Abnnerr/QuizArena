@@ -15,7 +15,7 @@ router.get(
 // Player ready
 router.patch(
     "/:playerId/:roomCode/ready",
-    RateLimit.limit(4, 1),
+    RateLimit.limit(60, 1),
     ZodMiddleware.validate(readySchema, "body"),
     playerController.ready
 );
