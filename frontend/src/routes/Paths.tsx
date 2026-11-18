@@ -3,7 +3,7 @@ import HomePage from "../pages/home";
 import LoginPage from "../pages/auth/pages/Login";
 import RegisterPage from "../pages/auth/pages/register";
 import ForgotPage from "../pages/auth/pages/forgot";
-import ResetPage from "../pages/auth/pages/ResetPage";
+import ResetPage from "../pages/auth/pages/reset/ResetPage";
 import HomeLayout from "../layouts/HomeLayout";
 import RoomLobbyPage from "../pages/rooms/pages/RoomLobbyPage";
 import NotFoundPage from "../shared/pages/NotFound";

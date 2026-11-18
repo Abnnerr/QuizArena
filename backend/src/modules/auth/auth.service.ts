@@ -46,7 +46,7 @@ export class AuthService {
                         "Seja bem-vindo",
                         html.register(
                             result.user_username,
-                            "http://localhost:9000/auth/login"
+                            "https://quiz-arena-zeta-ten.vercel.app/login"
                         )
                     );
                 } catch (error) {
@@ -152,7 +152,7 @@ export class AuthService {
                         "Recuperar conta",
                         html.forgot(
                             result.user_username,
-                            `http://localhost:5173/auth/reset-password/${token}`
+                            `https://quiz-arena-zeta-ten.vercel.app/${token}`
                         )
                     );
                 } catch (error) {
