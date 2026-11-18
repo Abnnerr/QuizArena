@@ -111,17 +111,35 @@ export class PlayerRepository implements IPlayerRepository {
     }
     async updatePlayerScore(roomId: number, playerId: string, score: number): Promise<void> {
         try {
-            await prisma.roomPlayer.update({
-                where: {
-                    room_id_player_id: {
-                        player_id: playerId,
-                        room_id: roomId
+            await prisma.$transaction(async (tx) => {
+                const player = await tx.roomPlayer.findUnique({
+                    where: {
+                        room_id_player_id: {
+                            room_id: roomId,
+                            player_id: playerId
+                        }
+                    },
+                    select: {
+                        score: true
                     }
+                });
 
-                },
-                data: {
-                    score
+                if (!player) {
+                    throw new Error("Jogador não encontrado nesta sala.");
                 }
+
+                await tx.roomPlayer.update({
+                    where: {
+                        room_id_player_id: {
+                            room_id: roomId,
+                            player_id: playerId
+                        }
+                    },
+                    data: {
+                        oldScore: player.score,
+                        score
+                    }
+                });
             })
         } catch (error) {
             throw error
