@@ -250,14 +250,14 @@ const useRoomLive = () => {
 
             setCorrectAlternative(correct?.alternativeId ?? null);
 
-            // setTimeout(() => {
-            //     if (position >= totalQuestion) {
-            //         navigate(`/${roomCode}/${round}/podio`);
-            //         return;
-            //     }
+            setTimeout(() => {
+                if (position >= totalQuestion) {
+                    navigate(`/${roomCode}/${round}/podio`);
+                    return;
+                }
 
-            //     navigate(`/${roomCode}/${round}/ranking`);
-            // }, 2000);
+                navigate(`/${roomCode}/${round}/ranking`);
+            }, 2000);
         };
 
         socket.on("connect", roomJoin);
