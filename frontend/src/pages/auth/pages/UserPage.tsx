@@ -57,9 +57,10 @@ const UserPage = () => {
         const fetchProfile = async () => {
             try {
                 const { data } = await profile();
-
+                console.log(data.data.hostedRooms);
+                
                 if (data?.type === "Success") {
-                    setRooms(data.hostedRooms ?? []);
+                    setRooms(data.data.hostedRooms ?? []);
                 } else {
                     setFeedback({
                         type: "Error",
