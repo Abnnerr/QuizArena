@@ -1,5 +1,18 @@
-import dotenv from "dotenv";
+import { vi } from "vitest";
 
-dotenv.config({ path: ".env.test" });
+process.env["RESEND_API_KEY"] = "re_test_fake_key_for_tests";
 
-process.env["NODE_MODE"] = "develop";
+vi.mock("resend", () => {
+    return {
+        Resend: class {
+            emails = {
+                send: vi.fn().mockResolvedValue({
+                    data: {
+                        id: "test-email-id",
+                    },
+                    error: null,
+                }),
+            };
+        },
+    };
+});

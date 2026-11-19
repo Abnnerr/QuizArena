@@ -164,7 +164,7 @@ export class PlayerService implements IPlayerService {
                     points: scores
                 });
 
-                const playerScore = await this.repo.playerScore(playerId);
+                const playerScore = await this.repo.playerScore(roomId, playerId);
 
                 const totalScore = (playerScore?.score ?? 0) + scores;
 

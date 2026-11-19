@@ -96,17 +96,21 @@ export class PlayerRepository implements IPlayerRepository {
             throw error
         }
     }
-    async playerScore(player_id: string): Promise<{ score: number } | null> {
+    async playerScore(roomId: number, player_id: string): Promise<{ score: number } | null> {
         try {
-            return await prisma.roomPlayer.findFirst({
+            return await prisma.roomPlayer.findUnique({
                 where: {
-                    player_id
-                }, select: {
+                    room_id_player_id: {
+                        room_id: roomId,
+                        player_id
+                    }
+                },
+                select: {
                     score: true
                 }
-            })
+            });
         } catch (error) {
-            throw error
+            throw error;
         }
     }
     async updatePlayerScore(roomId: number, playerId: string, score: number): Promise<void> {

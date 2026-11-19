@@ -1,10 +1,30 @@
+
+import dotenv from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 
-const pool = new Pool({
-    connectionString: process.env["DATABASE_URL"]
-})
-const adapter = new PrismaPg(pool)
+const isTest = process.env["NODE_ENV"] === "test";
 
-export const prisma = new PrismaClient({ adapter })
+dotenv.config({
+    path: isTest ? ".env.test" : ".env",
+    override: isTest,
+});
+
+const databaseUrl = process.env["DATABASE_URL"];
+
+if (!databaseUrl) {
+    throw new Error(
+        `DATABASE_URL não foi definida para o ambiente ${isTest ? "de teste" : "de desenvolvimento"}.`
+    );
+}
+
+const pool = new Pool({
+    connectionString: databaseUrl,
+});
+
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({
+    adapter,
+});

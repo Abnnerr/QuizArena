@@ -7,8 +7,6 @@ import type { IRoundService } from "../../../modules/round/contracts/round.servi
 import type { IPowerService } from "../../../modules/powers/contracts/power.service.contract.js";
 import type { IPlayerService } from "../../../modules/players/contracts/player.service.contract.js";
 
-
-
 describe("AnswerService", () => {
     let service: AnswerService;
 
@@ -45,7 +43,8 @@ describe("AnswerService", () => {
     const round = {
         round_id: 10,
         question_id: 20,
-        round_opened: new Date("2026-11-14T12:00:00.000Z")
+        round_opened: new Date("2026-11-14T12:00:00.000Z"),
+        answers: []
     };
 
     const playerId = "player-123";
@@ -224,6 +223,12 @@ describe("AnswerService", () => {
                 alternativeId,
                 result.scores
             );
+
+            expect(playerService.updatePlayerScore).toHaveBeenCalledWith(
+                room.room_id,
+                playerId,
+                result.scores
+            );
         });
 
         it("não deve dobrar a pontuação quando DOUBLE_XP pertencer a outra posição", async () => {
@@ -266,7 +271,7 @@ describe("AnswerService", () => {
                 )
             ).rejects.toMatchObject({
                 status: 400,
-                message: "Erro: você pulou essa rodada"
+                message: "Você pulou esta rodada"
             });
 
             expect(repo.createAnswer).not.toHaveBeenCalled();
@@ -290,6 +295,55 @@ describe("AnswerService", () => {
 
             expect(repo.createAnswer).not.toHaveBeenCalled();
             expect(playerService.updatePlayerScore).not.toHaveBeenCalled();
+        });
+
+        it("deve lançar erro 409 quando o jogador já tiver respondido", async () => {
+            roundService.findRound.mockResolvedValue({
+                ...round,
+                answers: [
+                    {
+                        player_id: playerId
+                    }
+                ]
+            });
+
+            await expect(
+                service.createAnswer(
+                    roomCode,
+                    roundId,
+                    playerId,
+                    alternativeId
+                )
+            ).rejects.toMatchObject({
+                status: 409,
+                message: "Você já respondeu a esta rodada"
+            });
+
+            expect(powerService.findPowerPlayer).not.toHaveBeenCalled();
+            expect(powerService.findPowerTarget).not.toHaveBeenCalled();
+            expect(roomService.findAlternatives).not.toHaveBeenCalled();
+            expect(repo.createAnswer).not.toHaveBeenCalled();
+        });
+
+        it("deve lançar erro 409 quando a rodada informada não for a rodada ativa", async () => {
+            roundService.findRound.mockResolvedValue({
+                ...round,
+                round_id: 99
+            });
+
+            await expect(
+                service.createAnswer(
+                    roomCode,
+                    roundId,
+                    playerId,
+                    alternativeId
+                )
+            ).rejects.toMatchObject({
+                status: 409,
+                message: "Esta rodada não está mais ativa"
+            });
+
+            expect(repo.createAnswer).not.toHaveBeenCalled();
         });
 
         it("deve lançar erro 500 quando ocorrer uma falha inesperada", async () => {
@@ -346,7 +400,7 @@ describe("AnswerService", () => {
             });
         });
 
-        it("deve buscar os poderes e a alternativa em paralelo com os parâmetros corretos", async () => {
+        it("deve buscar os poderes e a alternativa com os parâmetros corretos", async () => {
             await service.createAnswer(
                 roomCode,
                 roundId,

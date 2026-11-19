@@ -1,3 +1,4 @@
+
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import request from "supertest";
 import { Server } from "socket.io";
@@ -14,47 +15,48 @@ describe("Player Integration Tests", () => {
     let userId: string;
     let roomId: number;
 
+    const uniqueId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const email = `player_test_${uniqueId}@test.com`;
+    const userName = `player_test_${uniqueId}`;
+    const playerName = `player_${uniqueId}`;
+
     beforeAll(async () => {
         socketServer = new Server();
         configureSocketService(socketServer);
 
-        // Cria um usuário pela rota de registro
         const registerResponse = await request(app)
             .post("/api/auth/register")
             .send({
-                userName: `player_test_${Date.now()}`,
-                email: `player_test_${Date.now()}@test.com`,
+                userName,
+                email,
                 password: "Test@123456",
             });
 
         expect(registerResponse.status).toBe(201);
 
-        // Busca o usuário criado
-        const user = await prisma.users.findFirst({
+        const user = await prisma.users.findUnique({
             where: {
-                user_email: registerResponse.body.data?.email,
+                user_email: email,
             },
         });
 
-        // Se sua resposta não retorna o email dentro de data,
-        // ajuste a busca para utilizar o email enviado no registro.
-        expect(user).not.toBeNull();
+        if (!user) {
+            throw new Error("Usuário de teste não foi encontrado.");
+        }
 
-        userId = user!.user_id;
+        userId = user.user_id;
 
-        // Cria um player
         const player = await prisma.players.create({
             data: {
-                player_name: `player_${Date.now()}`,
+                player_name: playerName,
             },
         });
 
         playerId = player.player_id;
 
-        // Cria uma sala
         const room = await prisma.rooms.create({
             data: {
-                room_code: `TEST${Date.now()}`,
+                room_code: `TEST${uniqueId}`,
                 host_user_id: userId,
                 room_name: "Sala de teste",
                 max_players: 10,
@@ -68,7 +70,6 @@ describe("Player Integration Tests", () => {
         roomCode = room.room_code;
         roomId = room.room_id;
 
-        // Vincula o player à sala
         await prisma.roomPlayer.create({
             data: {
                 room_id: roomId,
@@ -80,27 +81,16 @@ describe("Player Integration Tests", () => {
     });
 
     afterAll(async () => {
-        const rooms = await prisma.rooms.findMany({
-            where: {
-                host_user_id: userId,
-            },
-            select: {
-                room_id: true,
-            },
-        });
-
-        const roomIds = rooms.map((room) => room.room_id);
-
-        const rounds = await prisma.round.findMany({
-            where: {
-                room_id: {
-                    in: roomIds,
+        const rounds = roomId
+            ? await prisma.round.findMany({
+                where: {
+                    room_id: roomId,
                 },
-            },
-            select: {
-                round_id: true,
-            },
-        });
+                select: {
+                    round_id: true,
+                },
+            })
+            : [];
 
         const roundIds = rounds.map((round) => round.round_id);
 
@@ -114,12 +104,10 @@ describe("Player Integration Tests", () => {
             });
         }
 
-        if (roomIds.length > 0) {
+        if (roomId) {
             await prisma.powerUpUse.deleteMany({
                 where: {
-                    room_id: {
-                        in: roomIds,
-                    },
+                    room_id: roomId,
                 },
             });
         }
@@ -134,28 +122,22 @@ describe("Player Integration Tests", () => {
             });
         }
 
-        if (roomIds.length > 0) {
+        if (roomId) {
             await prisma.roomPlayer.deleteMany({
                 where: {
-                    room_id: {
-                        in: roomIds,
-                    },
+                    room_id: roomId,
                 },
             });
 
             await prisma.roomQuestion.deleteMany({
                 where: {
-                    room_id: {
-                        in: roomIds,
-                    },
+                    room_id: roomId,
                 },
             });
 
             await prisma.rooms.deleteMany({
                 where: {
-                    room_id: {
-                        in: roomIds,
-                    },
+                    room_id: roomId,
                 },
             });
         }
@@ -175,13 +157,8 @@ describe("Player Integration Tests", () => {
                 },
             });
         }
+
     });
-
-
-
-
-
-
 
     describe("GET /api/player/:roomCode/podium", () => {
         it("deve retornar o pódio da sala", async () => {

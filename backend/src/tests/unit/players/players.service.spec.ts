@@ -290,7 +290,7 @@ describe("PlayerService", () => {
             ).resolves.toBeUndefined();
 
             expect(repo.playerScore)
-                .toHaveBeenCalledWith("player-123");
+                .toHaveBeenCalledWith(1, "player-123");
 
             expect(repo.updatePlayerScore).toHaveBeenCalledWith(
                 1,

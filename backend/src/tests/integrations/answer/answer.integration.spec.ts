@@ -1,6 +1,14 @@
 
 import request from "supertest";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import {
+    describe,
+    it,
+    expect,
+    beforeAll,
+    beforeEach,
+    afterAll
+} from "vitest";
+
 import app from "../../../app/app.js";
 import { prisma } from "../../../db/index.js";
 
@@ -20,10 +28,9 @@ describe("Integração - Answer", () => {
     let questionId: number;
     let alternativeCorrectId: number;
     let alternativeIncorrectId: number;
-    let roundId: number;
+    let activeRoundId: number;
 
     beforeAll(async () => {
-        // Cria o usuário pela própria rota de cadastro.
         await request(app)
             .post("/api/auth/register")
             .send({
@@ -41,8 +48,6 @@ describe("Integração - Answer", () => {
         }
 
         userId = user.user_id;
-
-        // Cria o jogador.
         const player = await prisma.players.create({
             data: {
                 player_name: playerName
@@ -77,7 +82,6 @@ describe("Integração - Answer", () => {
             }
         });
 
-        // Cria uma questão.
         const question = await prisma.questions.create({
             data: {
                 question_text: `Pergunta de teste ${uniqueId}`,
@@ -87,7 +91,6 @@ describe("Integração - Answer", () => {
 
         questionId = question.question_id;
 
-        // Cria as alternativas.
         const correctAlternative = await prisma.alternatives.create({
             data: {
                 alternative_text: "Alternativa correta",
@@ -106,8 +109,41 @@ describe("Integração - Answer", () => {
 
         alternativeCorrectId = correctAlternative.alternative_id;
         alternativeIncorrectId = incorrectAlternative.alternative_id;
+    });
 
-        // Cria a rodada.
+    beforeEach(async () => {
+        const roomExists = await prisma.rooms.findUnique({
+            where: {
+                room_id: roomId
+            }
+        });
+
+        if (!roomExists) {
+            throw new Error(
+                `Sala de teste ${roomId} não existe antes da criação da rodada.`
+            );
+        }
+        await prisma.round.updateMany({
+            where: {
+                room_id: roomId,
+                closed_at: null
+            },
+            data: {
+                closed_at: new Date()
+            }
+        });
+
+        await prisma.roomPlayer.update({
+            where: {
+                room_id_player_id: {
+                    room_id: roomId,
+                    player_id: playerId
+                }
+            },
+            data: {
+                score: 0
+            }
+        });
         const round = await prisma.round.create({
             data: {
                 room_id: roomId,
@@ -116,100 +152,130 @@ describe("Integração - Answer", () => {
             }
         });
 
-        roundId = round.round_id;
+        activeRoundId = round.round_id;
     });
+
     afterAll(async () => {
+        if (!roomId && !questionId && !playerId && !userId) {
+            await prisma.$disconnect();
+            return;
+        }
+
         const rounds = await prisma.round.findMany({
             where: {
                 OR: [
                     ...(roomId ? [{ room_id: roomId }] : []),
-                    ...(questionId ? [{ question_id: questionId }] : []),
-                ],
+                    ...(questionId ? [{ question_id: questionId }] : [])
+                ]
             },
             select: {
-                round_id: true,
-            },
+                round_id: true
+            }
         });
 
-        const roundIds = rounds.map((round) => round.round_id);
+        const roundIds = rounds.map(round => round.round_id);
 
         const alternatives = questionId
             ? await prisma.alternatives.findMany({
-                where: { question_id: questionId },
-                select: { alternative_id: true },
+                where: {
+                    question_id: questionId
+                },
+                select: {
+                    alternative_id: true
+                }
             })
             : [];
 
         const alternativeIds = alternatives.map(
-            (alternative) => alternative.alternative_id,
+            alternative => alternative.alternative_id
         );
 
-        if (roundIds.length > 0 || alternativeIds.length > 0) {
-            await prisma.answers.deleteMany({
-                where: {
-                    OR: [
-                        ...(roundIds.length > 0
-                            ? [{ round_id: { in: roundIds } }]
-                            : []),
-                        ...(alternativeIds.length > 0
-                            ? [{ alternative_id: { in: alternativeIds } }]
-                            : []),
-                    ],
-                },
-            });
-        }
+   
+        await prisma.answers.deleteMany({
+            where: {
+                OR: [
+                    ...(roundIds.length > 0
+                        ? [{ round_id: { in: roundIds } }]
+                        : []),
+                    ...(alternativeIds.length > 0
+                        ? [{ alternative_id: { in: alternativeIds } }]
+                        : [])
+                ]
+            }
+        });
 
         if (roomId) {
             await prisma.powerUpUse.deleteMany({
-                where: { room_id: roomId },
+                where: {
+                    room_id: roomId
+                }
             });
         }
 
+
         if (roundIds.length > 0) {
             await prisma.round.deleteMany({
-                where: { round_id: { in: roundIds } },
+                where: {
+                    round_id: { in: roundIds }
+                }
             });
         }
 
         if (roomId) {
             await prisma.roomQuestion.deleteMany({
-                where: { room_id: roomId },
+                where: {
+                    room_id: roomId
+                }
             });
 
             await prisma.roomPlayer.deleteMany({
-                where: { room_id: roomId },
+                where: {
+                    room_id: roomId
+                }
             });
         }
 
         if (alternativeIds.length > 0) {
             await prisma.alternatives.deleteMany({
-                where: { alternative_id: { in: alternativeIds } },
+                where: {
+                    alternative_id: { in: alternativeIds }
+                }
             });
         }
 
+        // Remove questão.
         if (questionId) {
             await prisma.questions.deleteMany({
-                where: { question_id: questionId },
+                where: {
+                    question_id: questionId
+                }
             });
         }
-
         if (roomId) {
             await prisma.rooms.deleteMany({
-                where: { room_id: roomId },
+                where: {
+                    room_id: roomId
+                }
             });
         }
 
+    
         if (playerId) {
             await prisma.players.deleteMany({
-                where: { player_id: playerId },
+                where: {
+                    player_id: playerId
+                }
             });
         }
 
         if (userId) {
             await prisma.users.deleteMany({
-                where: { user_id: userId },
+                where: {
+                    user_id: userId
+                }
             });
         }
+
     });
 
     describe("POST /api/answer/:roomCode/createAnswer", () => {
@@ -217,7 +283,7 @@ describe("Integração - Answer", () => {
             const response = await request(app)
                 .post(`/api/answer/${roomCode}/createAnswer`)
                 .send({
-                    roundId,
+                    roundId: activeRoundId,
                     playerId,
                     alternativeId: alternativeCorrectId
                 });
@@ -226,7 +292,7 @@ describe("Integração - Answer", () => {
 
             const answer = await prisma.answers.findFirst({
                 where: {
-                    round_id: roundId,
+                    round_id: activeRoundId,
                     player_id: playerId
                 }
             });
@@ -246,19 +312,10 @@ describe("Integração - Answer", () => {
         });
 
         it("deve registrar uma resposta incorreta sem pontuação no modo NORMAL", async () => {
-            // Cria uma segunda rodada para não conflitar com a resposta anterior.
-            const secondRound = await prisma.round.create({
-                data: {
-                    room_id: roomId,
-                    question_id: questionId,
-                    opened_at: new Date()
-                }
-            });
-
             const response = await request(app)
                 .post(`/api/answer/${roomCode}/createAnswer`)
                 .send({
-                    roundId: secondRound.round_id,
+                    roundId: activeRoundId,
                     playerId,
                     alternativeId: alternativeIncorrectId
                 });
@@ -267,34 +324,45 @@ describe("Integração - Answer", () => {
 
             const answer = await prisma.answers.findFirst({
                 where: {
-                    round_id: secondRound.round_id,
+                    round_id: activeRoundId,
                     player_id: playerId
                 }
             });
 
             expect(answer).not.toBeNull();
+            expect(answer?.alternative_id).toBe(alternativeIncorrectId);
             expect(answer?.points).toBe(0);
 
-            await prisma.answers.deleteMany({
-                where: { round_id: secondRound.round_id }
+            const roomPlayer = await prisma.roomPlayer.findFirst({
+                where: {
+                    room_id: roomId,
+                    player_id: playerId
+                }
             });
 
-            await prisma.round.delete({
-                where: { round_id: secondRound.round_id }
-            });
+            expect(roomPlayer?.score).toBe(0);
         });
 
         it("deve rejeitar uma alternativa inexistente", async () => {
             const response = await request(app)
                 .post(`/api/answer/${roomCode}/createAnswer`)
                 .send({
-                    roundId,
+                    roundId: activeRoundId,
                     playerId,
                     alternativeId: 999999
                 });
 
             expect(response.status).toBe(404);
             expect(response.body.message).toBe("Alternativa não encontrada");
+
+            const answer = await prisma.answers.findFirst({
+                where: {
+                    round_id: activeRoundId,
+                    player_id: playerId
+                }
+            });
+
+            expect(answer).toBeNull();
         });
 
         it("deve rejeitar dados inválidos", async () => {

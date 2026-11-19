@@ -10,7 +10,6 @@ import type { IQuestionService } from "../../../modules/question/contracts/quest
 import type { IPowerRepository } from "../../../modules/powers/contracts/power.repository.contract.js";
 import type { SocketService } from "../../../shared/services/socket.service.js";
 
-
 vi.mock("../../../observability/measure.js", () => ({
     measure: vi.fn(async (_name, callback) => callback())
 }));
@@ -21,7 +20,8 @@ describe("RoundService", () => {
     const repo = {
         findById: vi.fn(),
         updateRound: vi.fn(),
-        createRound: vi.fn()
+        createRound: vi.fn(),
+        finishRound: vi.fn()
     };
 
     const roomService = {
@@ -93,7 +93,7 @@ describe("RoundService", () => {
     const questionMock = {
         question_id: 20,
         question_text: "Pergunta de teste"
-    } as unknown as RoomQuestion;;
+    } as unknown as RoomQuestion;
 
     const statisticsMock = [
         {
@@ -265,18 +265,21 @@ describe("RoundService", () => {
 
     describe("roundFinished", () => {
         it("deve finalizar a rodada e criar a próxima", async () => {
+            roomService.findRoom.mockResolvedValue(roomMock);
+
             roomService.updateRoomPosition.mockResolvedValue({
                 ...roomMock,
                 position: 2
             });
 
             questionService.findQuestion.mockResolvedValue(questionMock);
-            repo.updateRound.mockResolvedValue(undefined);
-            repo.createRound.mockResolvedValue({});
+            repo.finishRound.mockResolvedValue(undefined);
 
             await expect(
                 service.roundFinished("ABC123", 10, "host-1")
             ).resolves.toBeUndefined();
+
+            expect(roomService.findRoom).toHaveBeenCalledWith("ABC123");
 
             expect(roomService.updateRoomPosition).toHaveBeenCalledWith(
                 "ABC123"
@@ -287,14 +290,18 @@ describe("RoundService", () => {
                 2
             );
 
-            expect(repo.updateRound).toHaveBeenCalledWith(10);
-
-            expect(repo.createRound).toHaveBeenCalledWith(1, 20);
+            expect(repo.finishRound).toHaveBeenCalledWith(
+                10,
+                1,
+                questionMock.question_id
+            );
 
             expect(socket.findQuestion).toHaveBeenCalledWith("ABC123");
         });
 
         it("deve preservar AppError ao atualizar a posição da sala", async () => {
+            roomService.findRoom.mockResolvedValue(roomMock);
+
             roomService.updateRoomPosition.mockRejectedValue(
                 new AppError(404, "Sala não encontrada")
             );
@@ -303,11 +310,12 @@ describe("RoundService", () => {
                 service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Sala não encontrada");
 
-            expect(repo.updateRound).not.toHaveBeenCalled();
-            expect(repo.createRound).not.toHaveBeenCalled();
+            expect(repo.finishRound).not.toHaveBeenCalled();
         });
 
         it("deve preservar AppError ao buscar a próxima pergunta", async () => {
+            roomService.findRoom.mockResolvedValue(roomMock);
+
             roomService.updateRoomPosition.mockResolvedValue({
                 ...roomMock,
                 position: 2
@@ -320,9 +328,13 @@ describe("RoundService", () => {
             await expect(
                 service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Pergunta não encontrada");
+
+            expect(repo.finishRound).not.toHaveBeenCalled();
         });
 
         it("deve lançar erro 500 em falha inesperada", async () => {
+            roomService.findRoom.mockResolvedValue(roomMock);
+
             roomService.updateRoomPosition.mockRejectedValue(
                 new Error("Database error")
             );
@@ -333,20 +345,35 @@ describe("RoundService", () => {
         });
 
         it("deve lançar erro 500 se a criação da próxima rodada falhar", async () => {
+            roomService.findRoom.mockResolvedValue(roomMock);
+
             roomService.updateRoomPosition.mockResolvedValue({
                 ...roomMock,
                 position: 2
             });
 
             questionService.findQuestion.mockResolvedValue(questionMock);
-            repo.updateRound.mockResolvedValue(undefined);
-            repo.createRound.mockRejectedValue(
+
+            repo.finishRound.mockRejectedValue(
                 new Error("Database error")
             );
 
             await expect(
                 service.roundFinished("ABC123", 10, "host-1")
             ).rejects.toThrow("Erro ao terminar e criar round");
+        });
+
+        it("deve rejeitar quando o jogador não for o host", async () => {
+            roomService.findRoom.mockResolvedValue(roomMock);
+
+            await expect(
+                service.roundFinished("ABC123", 10, "player-1")
+            ).rejects.toThrow(
+                "Você não tem permissão para finalizar esta rodada"
+            );
+
+            expect(roomService.updateRoomPosition).not.toHaveBeenCalled();
+            expect(repo.finishRound).not.toHaveBeenCalled();
         });
     });
 
@@ -481,6 +508,7 @@ describe("RoundService", () => {
 
             roomService.findRoom.mockResolvedValue(roomMock);
             repo.findById.mockResolvedValue(expiredRound);
+
             roomService.getAnswerStatistics.mockRejectedValue(
                 new AppError(400, "Erro ao buscar estatísticas")
             );

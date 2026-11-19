@@ -65,9 +65,9 @@ model RoomPlayer {
   room_id     Int
   player_id   String
   score       Int          @default(0)
-  oldScore    Int          @default(0)
   joined_at   DateTime     @default(now())
   ready       Boolean      @default(false)
+  oldScore    Int          @default(0)
   powerUpUses PowerUpUse[]
   players     Players      @relation(fields: [player_id], references: [player_id])
   rooms       Rooms        @relation(fields: [room_id], references: [room_id])
