@@ -107,6 +107,8 @@ const useRoomLive = () => {
     };
 
     // Atualiza a pergunta recebida do backend
+
+    // Atualiza a pergunta recebida do backend
     const atualizarPergunta = (data: any) => {
         const questionData = data.questions ?? data;
 
@@ -121,11 +123,12 @@ const useRoomLive = () => {
             ),
         });
 
-        setSkip(data.skip);
+        setSkip(data.skip ?? false);
         setRound(data.round_id);
 
-        // CORREÇÃO: Reseta o estado da alternativa correta da rodada anterior
+        // Reseta informações da rodada anterior
         setCorrectAlternative(null);
+        setAlternativeStatistics([]);
 
         const duration = Number(data.time_limit ?? QUESTION_TIME);
         const start = new Date(data.round_opened).getTime();
@@ -137,11 +140,33 @@ const useRoomLive = () => {
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
-        setSelectedAnswer(null);
-        setAnswered(false);
+        // Recupera a resposta do jogador diretamente do backend
+        const playerId = getPlayerId();
+
+        const playerAnswer = (data.answers ?? []).find(
+            (answer: any) =>
+                answer.player_id === playerId ||
+                answer.playerId === playerId
+        );
+
+        if (playerAnswer) {
+            // O jogador já respondeu: restaura sua alternativa
+            setSelectedAnswer(
+                playerAnswer.alternative_id ??
+                playerAnswer.alternativeId
+            );
+
+            setAnswered(true);
+        } else {
+            // O jogador ainda não respondeu
+            setSelectedAnswer(null);
+            setAnswered(false);
+        }
+
         setHiddenAlternativeIds([]);
         setError(null);
     };
+
 
     // Busca a rodada atual.
     const buscarRound = async () => {
@@ -160,7 +185,7 @@ const useRoomLive = () => {
 
             const data = response.data;
             const dataPlayers = responsePlayers.data;
-            
+
             if (data.type !== "Success") {
                 setQuestion(null);
                 setError(data.message ?? "Não foi possível carregar a pergunta.");
