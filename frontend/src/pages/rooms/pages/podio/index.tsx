@@ -1,8 +1,10 @@
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
+
 import usePodio from "../../hooks/usePodio";
 import { useTheme } from "../../../../contexts/ThemeContext";
+
 import { PodiumHeader } from "./components/PodiumHeader";
 import { PodiumCard } from "./components/PodiumCard";
 import FeedbackMessage from "../../../../shared/ui/FeedBackMessage";
@@ -10,6 +12,12 @@ import { PodiumLoading } from "./components/PodiumLoading";
 import { PodiumEmpty } from "./components/PodiumEmpty";
 import { PodiumPlayer } from "./components/PodiumPlayer";
 import { PodiumActions } from "./components/PodiumActions";
+
+const PODIUM_SOUNDS: Record<number, string> = {
+    1: "/podium.mp3",
+    2: "/podium.mp3",
+    3: "/podium.mp3",
+};
 
 const PodioPage: React.FC = () => {
     const {
@@ -22,6 +30,56 @@ const PodioPage: React.FC = () => {
     } = usePodio();
 
     const { colors } = useTheme();
+
+    const lastPlayedReveal = useRef(0);
+
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        if (loading || topThree.length === 0) return;
+
+        if (
+            visibleCount <= lastPlayedReveal.current ||
+            visibleCount > 3
+        ) {
+            return;
+        }
+
+        const soundPath = PODIUM_SOUNDS[visibleCount];
+
+        if (!soundPath) return;
+
+        // Interrompe o áudio anterior, se ainda estiver tocando.
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+
+        const audio = new Audio(soundPath);
+
+        audio.volume = 0.7;
+
+        audioRef.current = audio;
+
+        // Marca antes de reproduzir para evitar duplicidade.
+        lastPlayedReveal.current = visibleCount;
+
+        void audio.play().catch((error) => {
+            console.warn("Não foi possível reproduzir o som do pódio:", error);
+        });
+
+    }, [visibleCount, loading, topThree.length]);
+
+    // Limpa o áudio quando sair da página.
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                audioRef.current = null;
+            }
+        };
+    }, []);
 
     return (
         <>
@@ -53,6 +111,7 @@ const PodioPage: React.FC = () => {
 
                     {/* Card principal */}
                     <PodiumCard colors={colors}>
+
                         {/* Erro */}
                         <FeedbackMessage
                             colors={colors}
@@ -108,6 +167,7 @@ const PodioPage: React.FC = () => {
                             colors={colors}
                             onClearRoom={() => void clearRoom()}
                         />
+
                     </PodiumCard>
                 </div>
             </main>
