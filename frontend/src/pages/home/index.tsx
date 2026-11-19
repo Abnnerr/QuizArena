@@ -6,13 +6,8 @@ import type { ResponseDTO } from "../../contexts/types/authTypes";
 import { useNavigate } from "react-router";
 import { AXIOS } from "../../service";
 import { Helmet } from "react-helmet-async";
-import { BiHash } from "react-icons/bi";
-import { BsArrowRight } from "react-icons/bs";
-import { FaGamepad } from "react-icons/fa";
 import FeedbackMessage from "../../shared/ui/FeedBackMessage";
 import JoinRoomHeader from "./components/JoinRoomHeader";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
 import JoinRoomCard from "./components/JoinRoomCard";
 import JoinRoomFooter from "./components/JoinRoomFooter";
 

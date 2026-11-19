@@ -40,10 +40,6 @@ const ForgotPage: React.FC = () => {
         },
     };
 
-    const currentFeedback = feedback
-        ? feedbackColors[feedback.type as keyof typeof feedbackColors] ??
-        feedbackColors.Error
-        : null;
 
     return (
         <>
