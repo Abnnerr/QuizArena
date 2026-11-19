@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 import usePodio from "../../hooks/usePodio";
@@ -14,12 +14,16 @@ import { PodiumPlayer } from "./components/PodiumPlayer";
 import { PodiumActions } from "./components/PodiumActions";
 
 const PODIUM_SOUNDS: Record<number, string> = {
-    1: "/podium.mp3", // Terceiro lugar
-    2: "/podium.mp3", // Segundo lugar
-    3: "/podium.mp3", // Primeiro lugar
+    1: "/podium.mp3",
+    2: "/podium.mp3",
+    3: "/podium.mp3",
 };
 
+// Tempo entre cada revelação.
 const REVEAL_DELAY = 2500;
+
+// Tempo inicial antes da primeira revelação.
+const INITIAL_DELAY = 1000;
 
 const PodioPage: React.FC = () => {
     const {
@@ -32,86 +36,71 @@ const PodioPage: React.FC = () => {
 
     const { colors } = useTheme();
 
+    // Quantidade de jogadores já revelados.
     const [revealedCount, setRevealedCount] = useState(0);
-    const [audioEnabled, setAudioEnabled] = useState(false);
-    const [started, setStarted] = useState(false);
 
     const lastPlayedReveal = useRef(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Inicia a sequência de suspense depois da interação do usuário.
+    // Organiza a sequência do último colocado até o campeão.
+    const revealSequence = useMemo(() => {
+        return [...orderedPodium].sort(
+            (a, b) => b.originalIndex - a.originalIndex
+        );
+    }, [orderedPodium]);
+
+    // Sequência dinâmica de suspense.
     useEffect(() => {
-        if (loading || topThree.length === 0 || !started) return;
+        if (loading || revealSequence.length === 0) {
+            setRevealedCount(0);
+            lastPlayedReveal.current = 0;
+            return;
+        }
 
         setRevealedCount(0);
         lastPlayedReveal.current = 0;
 
         const timers: ReturnType<typeof setTimeout>[] = [];
 
-        // Terceiro lugar.
-        timers.push(
-            setTimeout(() => {
-                setRevealedCount(1);
-            }, 1000)
-        );
+        // Cria somente as revelações dos jogadores existentes.
+        revealSequence.forEach((_, index) => {
+            const timer = setTimeout(
+                () => {
+                    setRevealedCount(index + 1);
+                },
+                INITIAL_DELAY + REVEAL_DELAY * index
+            );
 
-        // Segundo lugar.
-        timers.push(
-            setTimeout(() => {
-                setRevealedCount(2);
-            }, 1000 + REVEAL_DELAY)
-        );
-
-        // Primeiro lugar.
-        timers.push(
-            setTimeout(() => {
-                setRevealedCount(3);
-            }, 1000 + REVEAL_DELAY * 2)
-        );
+            timers.push(timer);
+        });
 
         return () => {
             timers.forEach(clearTimeout);
         };
-    }, [loading, topThree.length, started]);
+    }, [loading, revealSequence]);
 
-    // Desbloqueia o áudio através de uma interação real.
-    const handleStartPodium = async () => {
-        const audio = new Audio(PODIUM_SOUNDS[1]);
-
-        try {
-            audio.volume = 0;
-
-            await audio.play();
-
-            audio.pause();
-            audio.currentTime = 0;
-
-            setAudioEnabled(true);
-            setStarted(true);
-        } catch (error) {
-            console.warn(
-                "Não foi possível liberar o áudio:",
-                error
-            );
-
-            setAudioEnabled(false);
-        }
-    };
-
-    // Reproduz o som de cada posição revelada.
+    // Reproduz o som correspondente à posição revelada.
     useEffect(() => {
         if (
-            !audioEnabled ||
             revealedCount <= lastPlayedReveal.current ||
-            revealedCount > 3
+            revealedCount > revealSequence.length
         ) {
             return;
         }
 
-        const soundPath = PODIUM_SOUNDS[revealedCount];
+        // Identifica qual jogador acabou de aparecer.
+        const revealedPlayer = revealSequence[revealedCount - 1];
+
+        if (!revealedPlayer) return;
+
+        // originalIndex: 0 = primeiro, 1 = segundo, 2 = terceiro.
+        const podiumPosition = 3 - revealedPlayer.originalIndex;
+
+        const soundPath = PODIUM_SOUNDS[podiumPosition];
 
         if (!soundPath) return;
 
+        // Interrompe o áudio anterior.
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
@@ -120,8 +109,8 @@ const PodioPage: React.FC = () => {
         const audio = new Audio(soundPath);
 
         audio.volume = 0.7;
-        audioRef.current = audio;
 
+        audioRef.current = audio;
         lastPlayedReveal.current = revealedCount;
 
         void audio.play().catch((error) => {
@@ -130,7 +119,7 @@ const PodioPage: React.FC = () => {
                 error
             );
         });
-    }, [revealedCount, audioEnabled]);
+    }, [revealedCount, revealSequence]);
 
     // Limpa o áudio quando sair da página.
     useEffect(() => {
@@ -181,84 +170,43 @@ const PodioPage: React.FC = () => {
                         ) : topThree.length === 0 ? (
                             <PodiumEmpty colors={colors} />
                         ) : (
-                            <>
-                                {!started && (
-                                    <div className="flex flex-col items-center gap-3 py-5">
-                                        <span className="text-4xl">
-                                            🏆
-                                        </span>
+                            <div
+                                className="
+                                    grid grid-cols-3
+                                    gap-2 sm:gap-4
+                                    items-end
+                                    pt-3 sm:pt-4
+                                    pb-2
+                                    min-h-[210px]
+                                    sm:min-h-[260px]
+                                    lg:min-h-[290px]
+                                "
+                            >
+                                {orderedPodium.map(
+                                    ({ player, originalIndex }) => {
+                                        const revealOrder =
+                                            revealSequence.findIndex(
+                                                (item) =>
+                                                    item.player.player_id ===
+                                                    player.player_id
+                                            ) + 1;
 
-                                        <p
-                                            className="text-center font-black uppercase tracking-wide"
-                                            style={{ color: colors.text }}
-                                        >
-                                            A hora da verdade chegou!
-                                        </p>
+                                        const isVisible =
+                                            revealOrder > 0 &&
+                                            revealedCount >= revealOrder;
 
-                                        <button
-                                            type="button"
-                                            onClick={handleStartPodium}
-                                            className="
-                                                w-full sm:w-auto
-                                                px-8 py-4
-                                                rounded-2xl
-                                                border-2 border-b-4
-                                                font-black uppercase
-                                                tracking-wide
-                                                text-white
-                                                bg-blue-500
-                                                border-blue-700
-                                                hover:bg-blue-600
-                                                active:translate-y-1
-                                                active:border-b-2
-                                                transition-all
-                                            "
-                                        >
-                                            <span className="mr-2">
-                                                🏆
-                                            </span>
-                                            Revelar pódio
-                                        </button>
-                                    </div>
+                                        return (
+                                            <PodiumPlayer
+                                                key={player.player_id}
+                                                colors={colors}
+                                                player={player}
+                                                originalIndex={originalIndex}
+                                                visible={isVisible}
+                                            />
+                                        );
+                                    }
                                 )}
-
-                                <div
-                                    className="
-                                        grid grid-cols-3
-                                        gap-2 sm:gap-4
-                                        items-end
-                                        pt-3 sm:pt-4
-                                        pb-2
-                                        min-h-[210px]
-                                        sm:min-h-[260px]
-                                        lg:min-h-[290px]
-                                    "
-                                >
-                                    {orderedPodium.map(
-                                        ({ player, originalIndex }) => {
-                                            const revealOrder =
-                                                originalIndex === 2
-                                                    ? 1
-                                                    : originalIndex === 1
-                                                        ? 2
-                                                        : 3;
-
-                                            const isVisible =
-                                                revealedCount >= revealOrder;
-
-                                            return (
-                                                <PodiumPlayer
-                                                    key={player.player_id}
-                                                    colors={colors}
-                                                    player={player}
-                                                    originalIndex={originalIndex}
-                                                    visible={isVisible}
-                                                />
-                                            );
-                                        }
-                                    )}
-                                </div>
-                            </>
+                            </div>
                         )}
 
                         <PodiumActions
