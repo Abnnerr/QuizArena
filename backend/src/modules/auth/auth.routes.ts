@@ -57,7 +57,7 @@ router.get(
     AuthMiddleware.validate,
     authController.logOut
 );
-router.post(
+router.patch(
     '/updatePassword',
     RateLimit.limit(60, 3),
     AuthMiddleware.validate,
