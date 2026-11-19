@@ -1,23 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router";
-import {
-    BiArrowBack,
-    BiLock,
-    BiUser,
-    BiCopy,
-    BiCheck,
-    BiGroup,
-} from "react-icons/bi";
-import {
-    BsEye,
-    BsEyeSlash,
-    BsShieldLock,
-    BsKey,
-} from "react-icons/bs";
+
 import { useTheme } from "../../../../contexts/ThemeContext";
-import { Input } from "../../../../shared/ui/Input";
 import { useAuth } from "../../../../contexts/hooks/useAuth";
 import AccountTopbar from "./components/AccountTopbar";
 import AccountBanner from "./components/AccountBanner";

@@ -2,8 +2,7 @@
 import { Helmet } from "react-helmet-async";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { useForgot } from "../../hooks/useForgot";
-import { Link } from "react-router";
-import { BiArrowBack, BiMailSend } from "react-icons/bi";
+import { BiMailSend } from "react-icons/bi";
 import { BsArrowRight } from "react-icons/bs";
 import LoginPrompt from "./components/LoginPrompt";
 import Button from "../../../../shared/ui/Button";
