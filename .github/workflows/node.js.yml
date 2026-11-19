@@ -1,5 +1,6 @@
 
-name: QuizArena CI
+
+name: Node.js CI
 
 on:
   push:
@@ -29,6 +30,7 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quizarena_test?schema=public
+      SEGREDO: quizarena-ci-test-secret
 
     steps:
       - name: Checkout repository
@@ -39,9 +41,6 @@ jobs:
         with:
           node-version: 24
           cache: npm
-
-      - name: Check Node version
-        run: node --version
 
       - name: Install dependencies
         run: npm ci
