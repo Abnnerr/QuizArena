@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 
 import usePodio from "../../hooks/usePodio";
@@ -19,13 +19,11 @@ const PODIUM_SOUNDS: Record<number, string> = {
     3: "/podium.mp3",
 };
 
-const REVEAL_DELAY = 2500;
-const INITIAL_DELAY = 1000;
-
 const PodioPage: React.FC = () => {
     const {
         orderedPodium,
         error,
+        visibleCount,
         loading,
         topThree,
         clearRoom,
@@ -33,62 +31,25 @@ const PodioPage: React.FC = () => {
 
     const { colors } = useTheme();
 
-    const [revealedCount, setRevealedCount] = useState(0);
-
     const lastPlayedReveal = useRef(0);
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Organiza os jogadores do último colocado até o campeão.
-    const revealSequence = useMemo(() => {
-        return [...orderedPodium].sort(
-            (a, b) => b.originalIndex - a.originalIndex
-        );
-    }, [orderedPodium]);
-
-    // Inicia automaticamente a sequência de suspense.
     useEffect(() => {
-        if (loading || topThree.length === 0) {
-            setRevealedCount(0);
-            lastPlayedReveal.current = 0;
-            return;
-        }
+        if (loading || topThree.length === 0) return;
 
-        setRevealedCount(0);
-        lastPlayedReveal.current = 0;
-
-        const timers: ReturnType<typeof setTimeout>[] = [];
-
-        revealSequence.forEach((_, index) => {
-            timers.push(
-                setTimeout(() => {
-                    setRevealedCount(index + 1);
-                }, INITIAL_DELAY + REVEAL_DELAY * index)
-            );
-        });
-
-        return () => {
-            timers.forEach(clearTimeout);
-        };
-    }, [loading, topThree.length, revealSequence]);
-
-    // Reproduz o som de cada jogador revelado.
-    useEffect(() => {
         if (
-            revealedCount <= lastPlayedReveal.current ||
-            revealedCount > revealSequence.length
+            visibleCount <= lastPlayedReveal.current ||
+            visibleCount > 3
         ) {
             return;
         }
 
-        const revealedPlayer = revealSequence[revealedCount - 1];
-
-        if (!revealedPlayer) return;
-
-        const podiumPosition = 3 - revealedPlayer.originalIndex;
-        const soundPath = PODIUM_SOUNDS[podiumPosition];
+        const soundPath = PODIUM_SOUNDS[visibleCount];
 
         if (!soundPath) return;
 
+        // Interrompe o áudio anterior, se ainda estiver tocando.
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
@@ -97,19 +58,19 @@ const PodioPage: React.FC = () => {
         const audio = new Audio(soundPath);
 
         audio.volume = 0.7;
+
         audioRef.current = audio;
 
-        lastPlayedReveal.current = revealedCount;
+        // Marca antes de reproduzir para evitar duplicidade.
+        lastPlayedReveal.current = visibleCount;
 
         void audio.play().catch((error) => {
-            console.warn(
-                "O navegador bloqueou a reprodução do áudio do pódio:",
-                error
-            );
+            console.warn("Não foi possível reproduzir o som do pódio:", error);
         });
-    }, [revealedCount, revealSequence]);
 
-    // Limpa o áudio ao desmontar a página.
+    }, [visibleCount, loading, topThree.length]);
+
+    // Limpa o áudio quando sair da página.
     useEffect(() => {
         return () => {
             if (audioRef.current) {
@@ -145,14 +106,19 @@ const PodioPage: React.FC = () => {
                         min-h-0
                     "
                 >
+                    {/* Cabeçalho */}
                     <PodiumHeader colors={colors} />
 
+                    {/* Card principal */}
                     <PodiumCard colors={colors}>
+
+                        {/* Erro */}
                         <FeedbackMessage
                             colors={colors}
                             feedBack={error}
                         />
 
+                        {/* Conteúdo do pódio */}
                         {loading ? (
                             <PodiumLoading colors={colors} />
                         ) : topThree.length === 0 ? (
@@ -173,15 +139,14 @@ const PodioPage: React.FC = () => {
                                 {orderedPodium.map(
                                     ({ player, originalIndex }) => {
                                         const revealOrder =
-                                            revealSequence.findIndex(
-                                                (item) =>
-                                                    item.player.player_id ===
-                                                    player.player_id
-                                            ) + 1;
+                                            originalIndex === 2
+                                                ? 1
+                                                : originalIndex === 1
+                                                    ? 2
+                                                    : 3;
 
                                         const isVisible =
-                                            revealOrder > 0 &&
-                                            revealedCount >= revealOrder;
+                                            visibleCount >= revealOrder;
 
                                         return (
                                             <PodiumPlayer
@@ -197,10 +162,12 @@ const PodioPage: React.FC = () => {
                             </div>
                         )}
 
+                        {/* Ações */}
                         <PodiumActions
                             colors={colors}
                             onClearRoom={() => void clearRoom()}
                         />
+
                     </PodiumCard>
                 </div>
             </main>
