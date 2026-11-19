@@ -1,6 +1,6 @@
 
 import { Helmet } from "react-helmet-async";
-import {BiUser } from "react-icons/bi";
+import { BiUser } from "react-icons/bi";
 import { BsArrowRight } from "react-icons/bs";
 import { useLogin } from "../../hooks/useLogin";
 import { useTheme } from "../../../../contexts/ThemeContext";
@@ -28,7 +28,6 @@ const LoginPage = () => {
     const { colors } = useTheme();
 
     return (
-
         <>
             <Helmet>
                 <title>QuizArena • Login</title>
@@ -36,11 +35,12 @@ const LoginPage = () => {
 
             <div
                 className="
-            w-full max-w-xl mx-auto px-4
-            flex flex-col items-center
-            flex-shrink-0 relative z-10
-            py-3 sm:py-4
-        "
+                    w-full max-w-xl mx-auto px-4
+                    flex flex-col items-center
+                    flex-shrink-0 relative z-10
+                    py-3 sm:py-4
+                "
+                data-cy="login-page"
             >
                 <LoginTopbar colors={colors} />
 
@@ -49,70 +49,79 @@ const LoginPage = () => {
                 <form
                     onSubmit={handleSubmit}
                     className="w-full space-y-3"
+                    data-cy="login-form"
                 >
                     <div
                         className="
-                    border-2 border-b-8 rounded-3xl shadow-lg
-                    p-4 sm:p-6 space-y-3
-                "
+                            border-2 border-b-8 rounded-3xl shadow-lg
+                            p-4 sm:p-6 space-y-3
+                        "
                         style={{
                             backgroundColor: colors.card,
                             borderColor: colors.border,
                         }}
                     >
-                        <FeedbackMessage
-                            feedBack={feedback}
-                            colors={colors}
-                        />
+                        <div data-cy="login-feedback">
+                            <FeedbackMessage
+                                feedBack={feedback}
+                                colors={colors}
+                            />
+                        </div>
 
-                        <Input
-                            label="Nome de Usuário"
-                            icon={<BiUser className="w-6 h-6" />}
-                            type="text"
-                            required
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            placeholder="Ex: Gilberto"
-                        />
+                        <div data-cy="login-username">
+                            <Input
+                                label="Nome de Usuário"
+                                icon={<BiUser className="w-6 h-6" />}
+                                type="text"
+                                required
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
+                                placeholder="Ex: Gilberto"
+                            />
+                        </div>
 
-                        <PasswordField
-                            password={password}
-                            setPassword={setPassword}
-                            showPassword={showPassword}
-                            setShowPassword={setShowPassword}
-                            colors={colors}
-                        />
+                        <div data-cy="login-password">
+                            <PasswordField
+                                password={password}
+                                setPassword={setPassword}
+                                showPassword={showPassword}
+                                setShowPassword={setShowPassword}
+                                colors={colors}
+                            />
+                        </div>
                     </div>
 
-                    <Button
-                        type="submit"
-                        variant={
-                            !userName || !password || loading
-                                ? "secondary"
-                                : "success"
-                        }
-                        size="lg"
-                        fullWidth
-                        disabled={!userName || !password || loading}
-                        rightIcon={
-                            !loading ? (
-                                <BsArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                            ) : undefined
-                        }
-                        className="
-                    h-14 rounded-2xl
-                    text-xs sm:text-sm
-                    tracking-wider shadow-md
-                "
-                    >
-                        {loading ? "Entrando..." : "Entrar na Sala"}
-                    </Button>
+                    <div data-cy="login-submit-container">
+                        <Button
+                            type="submit"
+                            variant={
+                                !userName || !password || loading
+                                    ? "secondary"
+                                    : "success"
+                            }
+                            size="lg"
+                            fullWidth
+                            disabled={!userName || !password || loading}
+                            rightIcon={
+                                !loading ? (
+                                    <BsArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                                ) : undefined
+                            }
+                            className="
+                                h-14 rounded-2xl
+                                text-xs sm:text-sm
+                                tracking-wider shadow-md
+                            "
+                            data-cy="login-submit"
+                        >
+                            {loading ? "Entrando..." : "Entrar na Sala"}
+                        </Button>
+                    </div>
                 </form>
 
                 <RegisterPrompt colors={colors} />
             </div>
         </>
-
     );
 };
 

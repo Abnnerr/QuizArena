@@ -41,7 +41,7 @@ const Paths = () => {
                     </Route>
                     <Route path="/room">
                         <Route path="create" element={<RoomCreatePage />} />
-                        <Route path="/room/:roomCode/live" element={<RoomLivePage />} />
+                        <Route path=":roomCode/live" element={<RoomLivePage />} />
                         <Route element={<RoomLayout />}>
                             <Route path="player/username/:roomName" element={<PlayerNamePage />} />
                             <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />

@@ -1,3 +1,4 @@
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
@@ -17,6 +18,24 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['cypress/**/*.ts', 'cypress/**/*.tsx'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.cypress,
+        ...globals.mocha,
+      },
+    },
+  },
+  {
+    files: ['cypress.config.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
 ])

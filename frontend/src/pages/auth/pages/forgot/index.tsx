@@ -22,7 +22,6 @@ const ForgotPage: React.FC = () => {
 
     const { colors } = useTheme();
 
-   
     return (
         <>
             <Helmet>
@@ -30,6 +29,7 @@ const ForgotPage: React.FC = () => {
             </Helmet>
 
             <div
+                data-cy="forgot-page"
                 className="
                     w-full max-w-xl mx-auto
                     flex flex-col items-center
@@ -39,16 +39,19 @@ const ForgotPage: React.FC = () => {
             >
                 <ForgotPasswordTopbar colors={colors} />
 
-                <FeedbackMessage
-                    feedBack={feedback}
-                    colors={colors}
-                />
+                <div data-cy="forgot-feedback">
+                    <FeedbackMessage
+                        feedBack={feedback}
+                        colors={colors}
+                    />
+                </div>
 
                 <ForgotPasswordHeader colors={colors} />
 
                 <form
                     onSubmit={handleSubmit}
                     className="w-full space-y-4"
+                    data-cy="forgot-form"
                 >
                     <div
                         className="
@@ -61,52 +64,58 @@ const ForgotPage: React.FC = () => {
                             borderColor: colors.border,
                         }}
                     >
-                        <Input
-                            type="email"
-                            label="E-mail da Conta"
-                            required
-                            disabled={loading}
-                            value={email}
-                            onChange={(event) =>
-                                setEmail(event.target.value)
-                            }
-                            placeholder="seu@email.com"
-                            icon={<BiMailSend className="w-7 h-7" />}
-                            color={colors.surface}
-                            border={colors.border}
-                            className="
-                                py-4 text-center
-                                text-lg sm:text-xl
-                            "
-                        />
+                        <div data-cy="forgot-email">
+                            <Input
+                                type="email"
+                                label="E-mail da Conta"
+                                required
+                                disabled={loading}
+                                value={email}
+                                onChange={(event) =>
+                                    setEmail(event.target.value)
+                                }
+                                placeholder="seu@email.com"
+                                icon={<BiMailSend className="w-7 h-7" />}
+                                color={colors.surface}
+                                border={colors.border}
+                                className="
+                                    py-4 text-center
+                                    text-lg sm:text-xl
+                                "
+                            />
+                        </div>
                     </div>
 
-                    <Button
-                        type="submit"
-                        variant={
-                            !email || loading
-                                ? "secondary"
-                                : "success"
-                        }
-                        size="lg"
-                        fullWidth
-                        disabled={!email || loading}
-                        rightIcon={
-                            !loading ? (
-                                <BsArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                            ) : undefined
-                        }
-                        className="
-                                     h-14 rounded-2xl
-                                     text-xs sm:text-sm
-                                     tracking-wider shadow-md
-                                 "
-                    >
-                        {loading ? "Enviando..." : "Enviar Instruções"}
-                    </Button>
+                    <div data-cy="forgot-submit-container">
+                        <Button
+                            type="submit"
+                            variant={
+                                !email || loading
+                                    ? "secondary"
+                                    : "success"
+                            }
+                            size="lg"
+                            fullWidth
+                            disabled={!email || loading}
+                            rightIcon={
+                                !loading ? (
+                                    <BsArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                                ) : undefined
+                            }
+                            className="
+                                h-14 rounded-2xl
+                                text-xs sm:text-sm
+                                tracking-wider shadow-md
+                            "
+                        >
+                            {loading ? "Enviando..." : "Enviar Instruções"}
+                        </Button>
+                    </div>
                 </form>
 
-                <LoginPrompt muted={colors.muted} />
+                <div data-cy="forgot-login-prompt">
+                    <LoginPrompt muted={colors.muted} />
+                </div>
             </div>
         </>
     );
