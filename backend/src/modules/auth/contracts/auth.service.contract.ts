@@ -11,4 +11,5 @@ export type IAuthService = {
     reset: (token: string, password: string) => Promise<void>
     me: (user: AuthPayload) => Promise<UserResponse>
     profile: (user: AuthPayload) => Promise<ProfilePayload>
+    updatePassword: (userId: string, currentPassword: string, newPassword: string) => Promise<void>
 }

@@ -276,4 +276,89 @@ export class AuthService {
             throw new AppError(500, 'Erro ao buscar dados do usuario')
         }
     }
+
+
+    async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+        return measure("AuthService.updatePassword", async () => {
+            const context = "AuthService";
+
+            try {
+                Logger.info(context, "updatePassword.started", {
+                    userId
+                });
+
+                this.domain.ensurePassword(newPassword);
+                // 1. Valida os campos recebidos
+                if (!currentPassword || !newPassword) {
+                    throw new AppError(
+                        400,
+                        "Informe a senha atual e a nova senha"
+                    );
+                }
+
+                if (newPassword.length < 8) {
+                    throw new AppError(
+                        400,
+                        "A nova senha deve possuir pelo menos 8 caracteres"
+                    );
+                }
+
+                if (currentPassword === newPassword) {
+                    throw new AppError(
+                        400,
+                        "A nova senha deve ser diferente da senha atual"
+                    );
+                }
+
+                // 2. Busca o usuário
+                const user = await this.repo.findUser(undefined, undefined, userId);
+
+                if (!user) {
+                    throw new AppError(404, "Usuário não encontrado");
+                }
+
+                // 3. Confere a senha atual
+                const passwordMatch = await this.bcrypt.compare(
+                    currentPassword,
+                    user.user_password
+                );
+
+                if (!passwordMatch) {
+                    Logger.warn(context, "updatePassword.invalid_current_password", {
+                        userId
+                    });
+
+                    throw new AppError(401, "Senha atual incorreta");
+                }
+
+                const hashedPassword = await this.bcrypt.hash(newPassword);
+
+                await this.repo.reset(
+                    userId,
+                    hashedPassword
+                );
+
+                Logger.info(context, "updatePassword.completed", {
+                    userId
+                });
+
+            } catch (error) {
+                if (error instanceof AppError) {
+                    throw error;
+                }
+
+                Logger.error(
+                    context,
+                    "updatePassword.failed",
+                    error,
+                    { userId }
+                );
+
+                throw new AppError(
+                    500,
+                    "Erro ao atualizar senha"
+                );
+            }
+        });
+    }
 }

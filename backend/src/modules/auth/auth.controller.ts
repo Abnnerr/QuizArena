@@ -18,6 +18,7 @@ export class AuthController implements IAuthController {
         this.me = this.me.bind(this)
         this.logOut = this.logOut.bind(this)
         this.profile = this.profile.bind(this)
+        this.updatePassword = this.updatePassword.bind(this)
     }
 
     async register(req: Request<{}, {}, RegisterDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
@@ -128,6 +129,33 @@ export class AuthController implements IAuthController {
                 return HttpResponse.warning(res, error.status, error.message)
             }
             return HttpResponse.warning(res, 500, 'erro usuario deslogado')
+        }
+    }
+    async updatePassword(req: Request<{}, {}, { currentPassword: string; newPassword: string; }>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+            const { currentPassword, newPassword } = req.body;
+            this.service.updatePassword(req.user?.id!, currentPassword, newPassword);
+
+            return HttpResponse.success(
+                res,
+                200,
+                "Senha atualizada com sucesso"
+            );
+
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(
+                    res,
+                    error.status,
+                    error.message
+                );
+            }
+
+            return HttpResponse.warning(
+                res,
+                500,
+                "Erro ao atualizar senha"
+            );
         }
     }
 }

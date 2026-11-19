@@ -9,6 +9,7 @@ import AccountBanner from "./components/AccountBanner";
 import FeedbackMessage from "../../../../shared/ui/FeedBackMessage";
 import RoomsSection from "./components/RoomsSection";
 import PasswordForm from "./components/PasswordForm";
+import { AXIOS } from "../../../../service";
 
 interface Room {
     room_id: number;
@@ -119,19 +120,44 @@ const UserPage = () => {
             return;
         }
 
-        setLoading(true);
+        if (currentPassword === newPassword) {
+            setFeedback({
+                type: "Warning",
+                message: "A nova senha deve ser diferente da senha atual.",
+            });
+            return;
+        }
 
-        // TODO: integrar com o endpoint de alteração de senha.
+        try {
+            setLoading(true);
 
-        setFeedback({
-            type: "Warning",
-            message:
-                "A integração com a API de alteração de senha ainda não foi configurada.",
-        });
+            const { data } = await AXIOS.patch("/auth/updatePassword", {
+                currentPassword,
+                newPassword,
+            });
 
-        setLoading(false);
+            setFeedback({
+                type: data.type,
+                message: data.message,
+            });
+
+            if (data.type === "Success") {
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+            }
+
+        } catch (error: any) {
+            setFeedback({
+                type: "Warning",
+                message:
+                    error.response?.data?.message ??
+                    "Não foi possível atualizar sua senha.",
+            });
+        } finally {
+            setLoading(false);
+        }
     };
-
     // Copiar código da sala
     const handleCopyCode = async (code: string) => {
         try {

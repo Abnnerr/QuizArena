@@ -57,5 +57,11 @@ router.get(
     AuthMiddleware.validate,
     authController.logOut
 );
+router.post(
+    '/updatePassword',
+    RateLimit.limit(60, 3),
+    AuthMiddleware.validate,
+    authController.updatePassword
+)
 
 export default router
