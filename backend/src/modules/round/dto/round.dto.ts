@@ -85,4 +85,12 @@ export interface RoundResponseDTO {
         used: boolean;
     }[];
     skip: boolean;
+    answers: {
+        alternative_id: number;
+        round_id: number;
+        player_id: string;
+        answer_id: number;
+        points: number;
+        answered_at: Date;
+    }[]
 }

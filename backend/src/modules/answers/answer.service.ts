@@ -34,6 +34,19 @@ export class AnswerService implements IAnswerService {
 
                 const round = await this.roundService.findRound(room.room_code);
 
+                const alreadyAnswered = round.answers.some(
+                    answer => answer.player_id === playerId
+                );
+                
+                if (alreadyAnswered) {
+                    Logger.warn("AnswerService", "createAnswer.duplicate_answer", {
+                        roomCode,
+                        roundId: round.round_id,
+                        playerId
+                    });
+
+                    throw new AppError(409, "Você já respondeu a esta rodada");
+                }
                 const [power, powerSkip, alternative] = await Promise.all([
                     this.powerService.findPowerPlayer(
                         playerId,

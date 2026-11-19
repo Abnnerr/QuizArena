@@ -94,7 +94,8 @@ export class RoundService implements IRoundService {
                                 used: use.used
                             })) ?? []
                     }),
-                    skip
+                    skip,
+                    answers: round.answers
                 };
 
                 Logger.info(context, "findRound.completed", {
