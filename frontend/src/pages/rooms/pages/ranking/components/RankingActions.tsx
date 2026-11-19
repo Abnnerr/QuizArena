@@ -26,6 +26,7 @@ const RankingActions: React.FC<RankingActionsProps> = ({
                 }
                 className="
                     py-3 sm:py-4
+                    h-10
                     text-base sm:text-xl
                     uppercase tracking-wider
                     shadow-sm

@@ -25,6 +25,7 @@ export function PodiumActions({
                     gap-3 text-base sm:text-xl uppercase
                     tracking-wider cursor-pointer
                     transition-all shadow-sm
+                    h-10
                 "
                 style={{
                     backgroundColor: colors.success,
