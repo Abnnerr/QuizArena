@@ -24,6 +24,7 @@ socket(io);
 
 httpServer.listen(PORT, () => {
     console.log(`backend rodando http://localhost:${PORT}`);
+    console.log(`swagger http://localhost:${PORT}/api-docs`);
 });
 
 lobbyClear();
