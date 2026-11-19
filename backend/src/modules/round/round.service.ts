@@ -124,6 +124,8 @@ export class RoundService implements IRoundService {
         });
     }
 
+
+
     async roundFinished(roomCode: string, round_id: number, playerId: string): Promise<void> {
         return measure("RoundService.roundFinished", async () => {
             const context = "RoundService";
@@ -131,24 +133,45 @@ export class RoundService implements IRoundService {
             try {
                 Logger.info(context, "roundFinished.started", {
                     roomCode,
-                    roundId: round_id
+                    roundId: round_id,
+                    playerId
                 });
 
-                const room = await this.roomService.updateRoomPosition(roomCode);
+                const currentRoom = await this.roomService.findRoom(roomCode);
 
+                if (currentRoom.host_user_id !== playerId) {
+                    Logger.warn(context, "roundFinished.unauthorized", {
+                        roomCode,
+                        roomId: currentRoom.room_id,
+                        playerId
+                    });
+
+                    throw new AppError(
+                        403,
+                        "Você não tem permissão para finalizar esta rodada"
+                    );
+                }
+
+
+                const room = await this.roomService.updateRoomPosition(roomCode);
 
                 const question = await this.questionService.findQuestion(
                     room.room_id,
                     room.position
                 );
-                if (room.host_user_id !== playerId) {
-                    throw new AppError(403, "Você não tem permissão para finalizar esta rodada")
+
+                if (!question) {
+                    throw new AppError(
+                        404,
+                        "Não existe uma próxima pergunta para esta sala"
+                    );
                 }
 
-                await Promise.all([
-                    this.repo.updateRound(round_id),
-                    this.repo.createRound(room.room_id, question.question_id)
-                ]);
+                await this.repo.finishRound(
+                    round_id,
+                    room.room_id,
+                    question.question_id
+                );
 
                 Logger.info(context, "roundFinished.completed", {
                     roomCode: room.room_code,
@@ -158,24 +181,34 @@ export class RoundService implements IRoundService {
                     position: room.position
                 });
 
+                // 6. Notifica os jogadores.
                 this.socket.findQuestion(room.room_code);
 
             } catch (error) {
-                Logger.error(
-                    context,
-                    "roundFinished.failed",
-                    error,
-                    { roomCode, roundId: round_id }
-                );
-
                 if (error instanceof AppError) {
                     throw error;
                 }
 
-                throw new AppError(500, "Erro ao terminar e criar round");
+                Logger.error(
+                    context,
+                    "roundFinished.failed",
+                    error,
+                    {
+                        roomCode,
+                        roundId: round_id,
+                        playerId
+                    }
+                );
+
+                throw new AppError(
+                    500,
+                    "Erro ao terminar e criar round"
+                );
             }
         });
     }
+
+
 
     // Verifica se o tempo terminou e impede novas respostas
     async roundExpired(code: string, roundId: number): Promise<void> {

@@ -1,5 +1,6 @@
 
 import { prisma } from "../../db/index.js"
+import { AppError } from "../../error/AppError.js";
 import type { IRoundRepository } from "./contracts/round.repository.contract.js";
 import type { RoundWithQuestion, RoundWithRelations } from "./dto/round.dto.js"
 
@@ -93,16 +94,47 @@ export class RoundRepository implements IRoundRepository {
     }
     async updateRound(roundId: number): Promise<void> {
         try {
-            await prisma.round.update({
+            const result = await prisma.round.updateMany({
                 where: {
-                    round_id: roundId
+                    round_id: roundId,
+                    closed_at: null
                 },
                 data: {
                     closed_at: new Date()
                 }
-            })
+            });
+
+            if (result.count === 0) {
+                throw new AppError(
+                    409,
+                    "Esta rodada já foi finalizada"
+                );
+            }
         } catch (error) {
             throw error
         }
+    }
+
+    async finishRound(roundId: number, roomId: number, questionId: number): Promise<void> {
+        await prisma.$transaction(async (tx) => {
+            const closedRound = await tx.round.updateMany({
+                where: {
+                    round_id: roundId,
+                    closed_at: null
+                },
+                data: {
+                    closed_at: new Date()
+                }
+            });
+            if (closedRound.count === 0) {
+                throw new AppError(409, "Esta rodada já foi finalizada");
+            }
+            await tx.round.create({
+                data: {
+                    room_id: roomId,
+                    question_id: questionId
+                }
+            });
+        });
     }
 }

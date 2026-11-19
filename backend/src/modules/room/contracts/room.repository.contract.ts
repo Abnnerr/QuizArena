@@ -33,4 +33,5 @@ export type IRoomRepository = {
     }[]>;
 
     limparRoom(roomId: number): Promise<void>;
+    
 }

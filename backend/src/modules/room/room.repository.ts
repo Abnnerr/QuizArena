@@ -99,23 +99,21 @@ export class RoomRepository implements IRoomRepository {
     }
     async roomUpdate(id: number, status?: string): Promise<Rooms> {
         try {
-            const room = await prisma.rooms.findFirst({
-                where: {
-                    room_id: id
-                }
-            })
             return await prisma.rooms.update({
                 where: {
                     room_id: id
                 },
                 data: {
-                    room_status: status as RoomStatus,
-                    position: room?.position! + 1
+                    ...(status && {
+                        room_status: status as RoomStatus
+                    }),
+                    position: {
+                        increment: 1
+                    }
                 }
-            })
+            });
         } catch (error) {
-            console.log(error);
-            throw error
+            throw error;
         }
     }
     async findAlternative(questionId: number, alternativeId?: number): Promise<{ alternative_id: number; is_correct: boolean } | null> {

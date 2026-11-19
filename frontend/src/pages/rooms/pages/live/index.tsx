@@ -47,7 +47,7 @@ const RoomLivePage = () => {
 
         return savedMute !== null
             ? JSON.parse(savedMute)
-            : false;
+            : true;
     });
 
     const prevHiddenCountRef = useRef(0);

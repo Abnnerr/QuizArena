@@ -12,5 +12,6 @@ export type IRoundRepository = {
         playerId?: string
     ): Promise<RoundWithRelations | null>;
 
-    updateRound(roundId: number): Promise<void>;
+    updateRound: (roundId: number) => Promise<void>;
+    finishRound: (roundId: number, roomId: number, questionId: number) => Promise<void>
 }
