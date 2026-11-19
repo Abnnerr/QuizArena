@@ -89,6 +89,7 @@ export function LobbyHeader({
                     aria-label={isMuted ? "Ativar som" : "Mutar som"}
                     className="
                         border-2 border-b-4 p-2.5 sm:p-3
+                        h-12
                         rounded-2xl transition-all
                         active:border-b-2 active:translate-y-0.5
                         shadow-sm flex items-center justify-center

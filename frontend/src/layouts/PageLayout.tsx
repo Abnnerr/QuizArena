@@ -8,9 +8,10 @@ const PageLayout = () => {
     return (
         <main
             className="
-                h-dvh w-full
+                min-h-dvh w-full
                 flex flex-col
-                relative overflow-hidden
+                relative
+                overflow-x-hidden
                 select-none
             "
             style={{
@@ -18,6 +19,7 @@ const PageLayout = () => {
                 color: colors.text,
             }}
         >
+
             <div
                 className="absolute inset-0 pointer-events-none z-0"
                 style={{
@@ -27,7 +29,10 @@ const PageLayout = () => {
                 }}
             />
 
-            <Outlet />
+            {/* CONTEÚDO */}
+            <div className="relative z-10 flex-1 min-h-0 w-full flex flex-col">
+                <Outlet />
+            </div>
         </main>
     );
 };

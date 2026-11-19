@@ -7,7 +7,6 @@ import { useNavigate } from "react-router";
 import { AXIOS } from "../../service";
 import { Helmet } from "react-helmet-async";
 import FeedbackMessage from "../../shared/ui/FeedBackMessage";
-import JoinRoomHeader from "./components/JoinRoomHeader";
 import JoinRoomCard from "./components/JoinRoomCard";
 import JoinRoomFooter from "./components/JoinRoomFooter";
 
@@ -65,17 +64,22 @@ const HomePage = () => {
 
             <main
                 className="
-            w-full h-full min-h-0
-            flex flex-col items-center justify-center
-            mx-auto relative z-10
-            overflow-y-auto overflow-x-hidden
-            max-w-2xl
-            p-3 sm:p-4 lg:p-5
-        "
+                    flex-1 min-h-0
+                    w-full max-w-2xl
+                    mx-auto
+                    flex flex-col
+                    items-center justify-center
+                    relative z-10
+                    overflow-x-hidden
+                    p-3 sm:p-4 lg:p-2
+                "
             >
-                <FeedbackMessage feedBack={feedBack} colors={colors} />
+                <FeedbackMessage
+                    feedBack={feedBack}
+                    colors={colors}
+                />
 
-                <JoinRoomHeader colors={colors} />
+                {/* <JoinRoomHeader colors={colors} /> */}
 
                 <JoinRoomCard
                     roomCode={roomCode}
@@ -83,10 +87,10 @@ const HomePage = () => {
                     handleJoinRoom={handleJoinRoom}
                     isWarning={feedBack?.type === "Warning"}
                 />
+
                 <JoinRoomFooter />
             </main>
         </>
-
     );
 };
 

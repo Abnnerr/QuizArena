@@ -104,6 +104,7 @@ export function LobbyActions({
                         onClick={onToggleReady}
                         className="
                             w-full border-b-4 font-black
+                            h-15
                             py-4 rounded-2xl active:border-b-0
                             active:translate-y-1 transition-all
                             flex items-center justify-center
@@ -134,6 +135,7 @@ export function LobbyActions({
                             w-full border-2 border-b-4
                             font-black py-3 rounded-2xl
                             active:border-b-2
+                            h-10
                             active:translate-y-0.5
                             transition-all flex items-center
                             justify-center gap-2 text-xs

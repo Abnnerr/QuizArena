@@ -155,6 +155,7 @@ export function LobbyIdentity({
                 onClick={onCopyCode}
                 className="
                     w-full inline-flex items-center
+                    h-15
                     justify-center gap-2
                     border-b-4 font-black px-5 py-3.5
                     rounded-2xl text-xs uppercase
