@@ -19,9 +19,13 @@ const PageLayout = () => {
                 color: colors.text,
             }}
         >
-
+            {/* FUNDO GLOBAL */}
             <div
-                className="absolute inset-0 pointer-events-none z-0"
+                className="
+                    fixed inset-0
+                    pointer-events-none
+                    z-0
+                "
                 style={{
                     opacity: 0.15,
                     backgroundImage: `radial-gradient(${colors.pattern} 1px, transparent 3px)`,
@@ -29,8 +33,8 @@ const PageLayout = () => {
                 }}
             />
 
-            {/* CONTEÚDO */}
-            <div className="relative z-10 flex-1 min-h-0 w-full flex flex-col">
+            {/* PÁGINAS */}
+            <div className="relative z-10 flex flex-col flex-1 min-h-dvh">
                 <Outlet />
             </div>
         </main>

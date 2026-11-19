@@ -5,15 +5,17 @@ const RoomLayout = () => {
     const { colors } = useTheme();
 
     return (
-        <>
+        <div className="w-full min-h-dvh flex flex-col relative">
+
             {/* HEADER */}
             <header
                 className="
-                       w-full border-b-2
-                       py-3 px-4 sm:px-10
-                       flex items-center justify-between
-                       relative z-20 shadow-md
-                   "
+                    w-full border-b-2
+                    py-2 px-4 sm:px-10
+                    flex items-center justify-between
+                    relative z-20 shadow-md
+                    shrink-0
+                "
                 style={{
                     backgroundColor: colors.card,
                     borderColor: colors.border,
@@ -22,11 +24,11 @@ const RoomLayout = () => {
                 <Link to="/" className="flex items-center gap-3 group">
                     <div
                         className="
-                               w-10 h-10 p-1
-                               rounded-xl border-2 border-b-4
-                               shadow-sm flex items-center justify-center
-                               transition-transform group-hover:scale-105
-                           "
+                            w-10 h-10 p-1
+                            rounded-xl border-2 border-b-4
+                            shadow-sm flex items-center justify-center
+                            transition-transform group-hover:scale-105
+                        "
                         style={{
                             backgroundColor: colors.surface,
                             borderColor: colors.border,
@@ -35,7 +37,7 @@ const RoomLayout = () => {
                         <img
                             src="/favicon-quiz.png"
                             alt="QuizArena"
-                            className="h-full w-full object-contain filter drop-shadow"
+                            className="h-full w-full object-contain"
                         />
                     </div>
 
@@ -49,18 +51,18 @@ const RoomLayout = () => {
             </header>
 
             {/* CONTEÚDO */}
-            <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden">
+            <div className="flex-1 min-h-0 w-full relative z-10">
                 <Outlet />
             </div>
 
             {/* FOOTER */}
             <footer
                 className="
-                       w-full border-t-2
-                       py-4 px-4 sm:px-10
-                       flex justify-center
-                       relative z-20
-                   "
+                    w-full border-t-2
+                    py-3 px-4 sm:px-10
+                    flex justify-center
+                    relative z-20 shrink-0
+                "
                 style={{
                     backgroundColor: colors.card,
                     borderColor: colors.border,
@@ -68,16 +70,15 @@ const RoomLayout = () => {
             >
                 <p
                     className="
-                           text-xs sm:text-sm font-black
-                           flex items-center justify-center
-                           gap-1.5 text-center flex-wrap
-                       "
+                        text-xs sm:text-sm font-black
+                        text-center
+                    "
                     style={{ color: colors.muted }}
                 >
-                    <span>© {new Date().getFullYear()} QuizArena </span>
+                    © {new Date().getFullYear()} QuizArena
                 </p>
             </footer>
-        </>
+        </div>
     );
 };
 
