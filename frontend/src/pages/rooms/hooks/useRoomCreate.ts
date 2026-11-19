@@ -53,7 +53,7 @@ export const useRoomCreate = () => {
     // Gerencia a troca de modo e trava o limite máximo de tempo correspondente
     const handleModeChange = (newMode: "NORMAL" | "HARDCORE") => {
         setMode(newMode);
-        const maxTime = newMode === "HARDCORE" ? 15 : 20;
+        const maxTime = newMode === "HARDCORE" ? 30 : 40;
         if (timeLimit > maxTime) {
             setTimeLimit(maxTime);
         }
@@ -61,7 +61,7 @@ export const useRoomCreate = () => {
 
     // Garante que o input manual do tempo também não ultrapasse o teto do modo atual
     const handleTimeLimitChange = (value: number) => {
-        const maxTime = mode === "HARDCORE" ? 15 : 20;
+        const maxTime = mode === "HARDCORE" ? 30 : 40;
         if (value > maxTime) {
             setTimeLimit(maxTime);
         } else if (value < 1) {
