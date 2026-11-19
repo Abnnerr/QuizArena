@@ -22,25 +22,7 @@ const ForgotPage: React.FC = () => {
 
     const { colors } = useTheme();
 
-    const feedbackColors = {
-        Success: {
-            background: `${colors.success}20`,
-            border: colors.success,
-            text: colors.success,
-        },
-        Warning: {
-            background: `${colors.primary}20`,
-            border: colors.primary,
-            text: colors.primary,
-        },
-        Error: {
-            background: `${colors.danger}20`,
-            border: colors.danger,
-            text: colors.danger,
-        },
-    };
-
-
+   
     return (
         <>
             <Helmet>
