@@ -93,12 +93,12 @@ const LiveAlternativeButton: React.FC<Props> = ({
                 items-center rounded-2xl border-2
                 border-b-4 p-3 text-left
                 transition-all duration-200
-                sm:min-h-[110px] sm:p-4
-                lg:min-h-[125px] lg:p-5
+                sm:min-h-[100px] sm:p-4
+                lg:min-h-[110px] lg:p-5
                 ${style.color}
                 ${
                     isCorrect
-                        ? "z-10 scale-[1.02] ring-4 ring-white/90 shadow-xl"
+                        ? "z-10 scale-[1.00] ring-1 ring-white/90 shadow-xl"
                         : ""
                 }
                 ${

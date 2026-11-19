@@ -204,6 +204,7 @@ const RoomLivePage = () => {
 
     return (
 
+
         <>
             <Helmet>
                 <title>QuizArena • Partida ao Vivo</title>
@@ -219,7 +220,7 @@ const RoomLivePage = () => {
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 className={`
-            relative flex h-[100dvh] max-h-[100dvh] w-full
+            relative flex h-full min-h-0 w-full
             flex-col overflow-hidden
             font-['Nunito',sans-serif] outline-none
             ${skip
@@ -237,19 +238,16 @@ const RoomLivePage = () => {
                         : {}),
                 }}
             >
-                {/* Fundo */}
+                {/* FUNDO */}
                 <div
-                    className="
-                pointer-events-none fixed inset-0
-                z-0 opacity-[0.10]
-            "
+                    className="pointer-events-none absolute inset-0 z-0 opacity-[0.10]"
                     style={{
                         backgroundImage: `radial-gradient(${colors.pattern} 1.5px, transparent 1.5px)`,
                         backgroundSize: "24px 24px",
                     }}
                 />
 
-                {/* Progresso da rodada */}
+                {/* PROGRESSO */}
                 <div className="relative z-20 w-full shrink-0">
                     <LiveProgressBar
                         progress={progress}
@@ -258,19 +256,21 @@ const RoomLivePage = () => {
                     />
                 </div>
 
-                {/* Conteúdo principal */}
+                {/* CONTEÚDO PRINCIPAL */}
                 <section
                     className="
                 relative z-10 mx-auto flex
                 min-h-0 w-full max-w-6xl flex-1
                 flex-col gap-2
-                px-3 py-2
-                sm:gap-3 sm:px-5 sm:py-3
-                lg:gap-4 lg:px-8
+                overflow-hidden
+                px-2 py-2
+                sm:gap-2.5 sm:px-4 sm:py-2
+                lg:gap-3 lg:px-6
+                2xl:px-8
             "
                 >
-                    {/* Cabeçalho e poderes */}
-                    <div className="flex w-full shrink-0 flex-col gap-2 sm:gap-3">
+                    {/* CABEÇALHO E PODERES */}
+                    <div className="flex w-full shrink-0 flex-col gap-1.5">
                         <LiveHeader
                             isHost={isHost}
                             timeLeft={timeLeft}
@@ -288,8 +288,8 @@ const RoomLivePage = () => {
                         />
                     </div>
 
-                    {/* Pergunta */}
-                    <div className="flex min-h-0 shrink-0 flex-col">
+                    {/* PERGUNTA */}
+                    <div className="flex min-h-0 w-full flex-1 flex-col">
                         <LiveQuestion
                             loading={loading}
                             error={error}
@@ -299,12 +299,12 @@ const RoomLivePage = () => {
                         />
                     </div>
 
-                    {/* Alternativas */}
+                    {/* ALTERNATIVAS */}
                     <div
                         className="
-                    flex min-h-0 w-full flex-1
+                    flex min-h-0 w-full flex-[1.5]
                     flex-col justify-center
-                    px-1 sm:px-2
+                    px-0.5 sm:px-2
                 "
                     >
                         <LiveAlternatives
@@ -322,7 +322,7 @@ const RoomLivePage = () => {
                         />
                     </div>
 
-                    {/* Indicador para o jogador */}
+                    {/* STATUS */}
                     <div className="w-full shrink-0">
                         <LivePlayerStatus
                             isHost={isHost}
@@ -335,7 +335,7 @@ const RoomLivePage = () => {
                     </div>
                 </section>
 
-                {/* Overlay de SKIP */}
+                {/* OVERLAY SKIP */}
                 <LiveSkipOverlay
                     skip={skip}
                     playerNameUsed={playerNameUsed}
@@ -343,7 +343,7 @@ const RoomLivePage = () => {
                     skipColor={SKIP_COLOR}
                 />
 
-                {/* Modal de Power-up */}
+                {/* MODAL POWER-UP */}
                 <LivePowerUpModal
                     selectedPowerUp={selectedPowerUp}
                     players={players}
