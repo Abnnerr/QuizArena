@@ -19,10 +19,7 @@ const PODIUM_SOUNDS: Record<number, string> = {
     3: "/podium.mp3",
 };
 
-// Tempo entre cada revelação.
 const REVEAL_DELAY = 2500;
-
-// Tempo inicial antes da primeira revelação.
 const INITIAL_DELAY = 1000;
 
 const PodioPage: React.FC = () => {
@@ -36,22 +33,21 @@ const PodioPage: React.FC = () => {
 
     const { colors } = useTheme();
 
-    // Quantidade de jogadores já revelados.
     const [revealedCount, setRevealedCount] = useState(0);
 
     const lastPlayedReveal = useRef(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Organiza a sequência do último colocado até o campeão.
+    // Organiza os jogadores do último colocado até o campeão.
     const revealSequence = useMemo(() => {
         return [...orderedPodium].sort(
             (a, b) => b.originalIndex - a.originalIndex
         );
     }, [orderedPodium]);
 
-    // Sequência dinâmica de suspense.
+    // Inicia automaticamente a sequência de suspense.
     useEffect(() => {
-        if (loading || revealSequence.length === 0) {
+        if (loading || topThree.length === 0) {
             setRevealedCount(0);
             lastPlayedReveal.current = 0;
             return;
@@ -62,24 +58,20 @@ const PodioPage: React.FC = () => {
 
         const timers: ReturnType<typeof setTimeout>[] = [];
 
-        // Cria somente as revelações dos jogadores existentes.
         revealSequence.forEach((_, index) => {
-            const timer = setTimeout(
-                () => {
+            timers.push(
+                setTimeout(() => {
                     setRevealedCount(index + 1);
-                },
-                INITIAL_DELAY + REVEAL_DELAY * index
+                }, INITIAL_DELAY + REVEAL_DELAY * index)
             );
-
-            timers.push(timer);
         });
 
         return () => {
             timers.forEach(clearTimeout);
         };
-    }, [loading, revealSequence]);
+    }, [loading, topThree.length, revealSequence]);
 
-    // Reproduz o som correspondente à posição revelada.
+    // Reproduz o som de cada jogador revelado.
     useEffect(() => {
         if (
             revealedCount <= lastPlayedReveal.current ||
@@ -88,19 +80,15 @@ const PodioPage: React.FC = () => {
             return;
         }
 
-        // Identifica qual jogador acabou de aparecer.
         const revealedPlayer = revealSequence[revealedCount - 1];
 
         if (!revealedPlayer) return;
 
-        // originalIndex: 0 = primeiro, 1 = segundo, 2 = terceiro.
         const podiumPosition = 3 - revealedPlayer.originalIndex;
-
         const soundPath = PODIUM_SOUNDS[podiumPosition];
 
         if (!soundPath) return;
 
-        // Interrompe o áudio anterior.
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
@@ -109,19 +97,19 @@ const PodioPage: React.FC = () => {
         const audio = new Audio(soundPath);
 
         audio.volume = 0.7;
-
         audioRef.current = audio;
+
         lastPlayedReveal.current = revealedCount;
 
         void audio.play().catch((error) => {
             console.warn(
-                "Não foi possível reproduzir o som do pódio:",
+                "O navegador bloqueou a reprodução do áudio do pódio:",
                 error
             );
         });
     }, [revealedCount, revealSequence]);
 
-    // Limpa o áudio quando sair da página.
+    // Limpa o áudio ao desmontar a página.
     useEffect(() => {
         return () => {
             if (audioRef.current) {
