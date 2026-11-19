@@ -5,7 +5,6 @@ import type { PodiumComponentProps } from "../types/types";
 interface PodiumCardProps extends PodiumComponentProps {
     children: ReactNode;
 }
-
 export function PodiumCard({
     colors,
     children,
@@ -13,12 +12,12 @@ export function PodiumCard({
     return (
         <section
             className="
-                w-full
-                border-2 border-b-6
-                rounded-2xl sm:rounded-3xl
-                p-3 sm:p-5 lg:p-6
+                w-full min-w-0
+                border-2 border-b-4
+                rounded-xl sm:rounded-2xl
+                p-2.5 sm:p-3 lg:p-4
                 shadow-sm
-                space-y-3 sm:space-y-4
+                space-y-2 sm:space-y-3
                 text-center
             "
             style={{
@@ -26,10 +25,11 @@ export function PodiumCard({
                 borderColor: colors.border,
             }}
         >
+            {/* TÍTULO */}
             <div>
                 <h1
                     className="
-                        text-xl sm:text-2xl lg:text-3xl
+                        text-base sm:text-lg lg:text-xl
                         font-black tracking-tight
                     "
                     style={{ color: colors.text }}
@@ -40,8 +40,8 @@ export function PodiumCard({
                 <p
                     className="
                         font-extrabold
-                        text-xs sm:text-sm
-                        mt-1
+                        text-[10px] sm:text-xs
+                        mt-0.5
                     "
                     style={{ color: colors.muted }}
                 >
@@ -49,6 +49,7 @@ export function PodiumCard({
                 </p>
             </div>
 
+            {/* CONTEÚDO */}
             {children}
         </section>
     );

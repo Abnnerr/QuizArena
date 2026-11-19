@@ -89,36 +89,34 @@ const PodioPage: React.FC = () => {
 
             <main
                 className="
-                    w-full flex-1 min-h-0
-                    flex flex-col items-center justify-center
-                    overflow-hidden
-                    px-3 py-2 sm:px-5 sm:py-3
-                    font-['Nunito',sans-serif]
-                    select-none
-                "
+            relative flex min-h-0 w-full flex-1
+            flex-col items-center justify-center
+            overflow-x-hidden overflow-y-auto
+            px-2 py-2
+            font-['Nunito',sans-serif]
+            select-none
+        "
             >
                 <div
                     className="
-                        w-full max-w-4xl relative z-10
-                        flex flex-col
-                        gap-3 sm:gap-4
-                        my-auto
-                        min-h-0
-                    "
+                relative z-10 mx-auto
+                flex w-full max-w-3xl
+                flex-col gap-2
+                my-auto min-h-0
+            "
                 >
-                    {/* Cabeçalho */}
+                    {/* CABEÇALHO */}
                     <PodiumHeader colors={colors} />
 
-                    {/* Card principal */}
+                    {/* CARD */}
                     <PodiumCard colors={colors}>
 
-                        {/* Erro */}
                         <FeedbackMessage
                             colors={colors}
                             feedBack={error}
                         />
 
-                        {/* Conteúdo do pódio */}
+                        {/* PÓDIO */}
                         {loading ? (
                             <PodiumLoading colors={colors} />
                         ) : topThree.length === 0 ? (
@@ -126,15 +124,13 @@ const PodioPage: React.FC = () => {
                         ) : (
                             <div
                                 className="
-                                    grid grid-cols-3
-                                    gap-2 sm:gap-4
-                                    items-end
-                                    pt-3 sm:pt-4
-                                    pb-2
-                                    min-h-[210px]
-                                    sm:min-h-[260px]
-                                    lg:min-h-[290px]
-                                "
+                            grid w-full grid-cols-3
+                            items-end gap-1
+                            pt-1 pb-1
+                            min-h-[140px]
+                            sm:min-h-[180px]
+                            lg:min-h-[210px]
+                        "
                             >
                                 {orderedPodium.map(
                                     ({ player, originalIndex }) => {
@@ -145,16 +141,15 @@ const PodioPage: React.FC = () => {
                                                     ? 2
                                                     : 3;
 
-                                        const isVisible =
-                                            visibleCount >= revealOrder;
-
                                         return (
                                             <PodiumPlayer
                                                 key={player.player_id}
                                                 colors={colors}
                                                 player={player}
                                                 originalIndex={originalIndex}
-                                                visible={isVisible}
+                                                visible={
+                                                    visibleCount >= revealOrder
+                                                }
                                             />
                                         );
                                     }
@@ -162,11 +157,13 @@ const PodioPage: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Ações */}
-                        <PodiumActions
-                            colors={colors}
-                            onClearRoom={() => void clearRoom()}
-                        />
+                        {/* AÇÕES */}
+                        <div className="mt-1">
+                            <PodiumActions
+                                colors={colors}
+                                onClearRoom={() => void clearRoom()}
+                            />
+                        </div>
 
                     </PodiumCard>
                 </div>
