@@ -5,17 +5,33 @@ import { pinoHttp } from 'pino-http';
 export const loggerMiddleware = pinoHttp({
     logger,
 
-    customLogLevel: (_req, res, err) => {
-        if (err || res.statusCode >= 500) return 'error';
-        if (res.statusCode >= 400) return 'warn';
+    serializers: {
+        req(req) {
+            return {
+                id: req.id,
+                method: req.method,
+                url: req.url,
+            };
+        },
 
-        return 'info';
+        res(res) {
+            return {
+                statusCode: res.statusCode,
+            };
+        },
     },
 
-    customProps: (req) => ({
-        context: 'HTTP',
-        requestId: req.id
-    }),
+    customLogLevel(_req, res, err) {
+        if (err || res.statusCode >= 500) return "error";
+        if (res.statusCode >= 400) return "warn";
+        return "info";
+    },
 
-    autoLogging: true
+    customSuccessMessage(req, res) {
+        return `${req.method} ${req.url} - ${res.statusCode}`;
+    },
+
+    customErrorMessage(req, res, err) {
+        return `${req.method} ${req.url} - ${res.statusCode}: ${err.message}`;
+    },
 });

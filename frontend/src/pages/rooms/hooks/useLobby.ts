@@ -3,11 +3,14 @@ import { AXIOS } from "../../../service";
 import { socket } from "../../../service/socket";
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
 import { useNavigate } from "react-router";
+import type { ResponseDTO } from "../../../contexts/types/authTypes";
+
+
 
 export interface LobbyPlayer {
-    player_id: string
-    player_name: string
-    ready: boolean
+    player_id: string;
+    player_name: string;
+    ready: boolean;
 }
 
 export interface LobbyRoom {
@@ -21,104 +24,126 @@ export interface LobbyRoom {
     players: LobbyPlayer[];
 }
 
-
 export type ResponseFetchRoom = {
-    type: "Success" | "Warning"
-    message: string
-    data: FetchRoom
-}
+    type: "Success" | "Warning";
+    message: string;
+    data: FetchRoom;
+};
+
 export type FetchRoom = {
-    host_user_id: string
-    max_players: number
-    room_id: number,
-    room_code: string,
-    room_name: string,
-    host_id: string,
-    room_mode: "NORMAL" | "HARDCORE",
-    room_status: string,
+    host_user_id: string;
+    max_players: number;
+    room_id: number;
+    room_code: string;
+    room_name: string;
+    host_id: string;
+    room_mode: "NORMAL" | "HARDCORE";
+    room_status: string;
     roomPlayers: {
         players: {
-            player_id: string
-            player_name: string
+            player_id: string;
+            player_name: string;
+        };
+        ready: boolean;
+    }[];
+};
 
-        }
-        ready: boolean
-    }[]
+interface UseLobbyProps {
+    roomCode?: string;
 }
 
-export const useLobby = ({ roomCode }: { roomCode?: string }) => {
+export const useLobby = ({ roomCode }: UseLobbyProps) => {
     const { player, clearPlayer } = usePlayer();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     const [room, setRoom] = useState<LobbyRoom | null>(null);
     const [ready, setReady] = useState(false);
     const [loading, setLoading] = useState(true);
     const [starting, setStarting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<ResponseDTO | null>(null);
 
+    const createWarning = (message: string): ResponseDTO => ({
+        type: "Warning",
+        message,
+    });
 
-
-
-    const fetchRoom = useCallback(async () => {
+    const fetchRoom = useCallback(async (): Promise<void> => {
         if (!roomCode) {
-            setError("Código da sala não informado.");
+            setError(createWarning("Código da sala não informado."));
             setLoading(false);
             return;
         }
 
         try {
             setError(null);
-            const { data } = await AXIOS.get<ResponseFetchRoom>(`/room/${roomCode}`);
-            console.log('dataaa');
 
-            if (data.type === "Success") {
-                setRoom({
-                    room_id: data.data.room_id,
-                    room_code: data.data.room_code,
-                    room_name: data.data.room_name,
-                    host_id: data.data.host_user_id,
-                    max_players: data.data.max_players,
-                    room_mode: data.data.room_mode,
-                    room_status: data.data.room_status,
-                    players: data.data.roomPlayers.map((p) => ({
-                        ...p.players,
-                        ready: p.ready
-                    }))
+            const { data } = await AXIOS.get<ResponseFetchRoom>(
+                `/room/${roomCode}`
+            );
 
-                })
-                return
+            if (data.type === "Warning") {
+                setError(data);
+                setRoom(null);
+                return;
             }
+
+            setRoom({
+                room_id: data.data.room_id,
+                room_code: data.data.room_code,
+                room_name: data.data.room_name,
+                host_id: data.data.host_user_id,
+                max_players: data.data.max_players,
+                room_mode: data.data.room_mode,
+                room_status: data.data.room_status,
+                players: data.data.roomPlayers.map((p) => ({
+                    ...p.players,
+                    ready: p.ready,
+                })),
+            });
+
         } catch (err: any) {
-            setError(err?.response?.data?.message ?? "Não foi possível carregar a sala.");
+            const response = err?.response?.data;
+
+            setError(
+                response?.type === "Warning"
+                    ? response
+                    : createWarning(
+                        response?.message ??
+                        "Não foi possível carregar a sala."
+                    )
+            );
         } finally {
             setLoading(false);
         }
-    }, [roomCode, player?.player_id]);
-
-
-
-
+    }, [roomCode]);
 
     useEffect(() => {
         if (!roomCode) return;
 
-        sessionStorage.removeItem('position')
+        sessionStorage.removeItem("position");
 
         void fetchRoom();
+
         const joinRoom = () => socket.emit("room:join", roomCode);
         const handleUpdate = () => void fetchRoom();
-        const startRoom = () => void navigate(`/room/${roomCode}/live`);
+
+        const handleStartRoom = () => {
+            void navigate(`/room/${roomCode}/live`);
+        };
+
         const returnHome = ({ playerId }: { playerId: string }) => {
-            if (playerId !== player?.player_id) return
-            clearPlayer()
-            void navigate('/')
-        }
+            if (playerId !== player?.player_id) return;
+
+            clearPlayer();
+            void navigate("/");
+        };
 
         socket.on("connect", joinRoom);
         socket.on("room:join", handleUpdate);
         socket.on("room:update", handleUpdate);
-        socket.on("room:start", startRoom);
+        socket.on("room:start", handleStartRoom);
         socket.on("player:ready", handleUpdate);
-        socket.on("player:removed", returnHome)
+        socket.on("player:removed", returnHome);
 
         if (!socket.connected) {
             socket.connect();
@@ -129,83 +154,105 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
         return () => {
             socket.off("connect", joinRoom);
             socket.off("room:join", handleUpdate);
+            socket.off("room:update", handleUpdate);
+            socket.off("room:ready", handleUpdate);
+            socket.off("room:start", handleStartRoom);
             socket.off("player:ready", handleUpdate);
-            socket.off("room:start", startRoom);
-            socket.off("player:removed", returnHome)
+            socket.off("player:removed", returnHome);
         };
-    }, [roomCode, fetchRoom, navigate, player?.player_id]);
+    }, [roomCode, fetchRoom, navigate, player?.player_id, clearPlayer]);
 
     const toggleReady = async (): Promise<boolean> => {
-        if (!player?.player_id || !room?.room_id) return false;
+        if (!player?.player_id || !room?.room_id || !roomCode) {
+            return false;
+        }
 
         try {
             setError(null);
-            if (ready) {
-                const { data } = await AXIOS.patch(`/player/${player.player_id}/${roomCode}/ready`, {
-                    ready: false
-                });
-                if (data.type !== "Success") {
-                    return false;
-                }
-                setReady(false)
 
-                return true
-            }
-            const { data } = await AXIOS.patch(`/player/${player.player_id}/${roomCode}/ready`, {
-                ready: true
-            });
+            const nextReady = !ready;
+
+            const { data } = await AXIOS.patch<ResponseDTO>(
+                `/player/${player.player_id}/${roomCode}/ready`,
+                {
+                    ready: nextReady,
+                }
+            );
+
             if (data.type !== "Success") {
+                setError(data);
                 return false;
             }
-            setReady(true)
+
+            setReady(nextReady);
 
             await fetchRoom();
+
             return true;
+
         } catch (err: any) {
-            setError(err?.response?.data?.message ?? "Erro ao alterar status.");
+            const response = err?.response?.data;
+
+            setError(
+                response?.type === "Warning"
+                    ? response
+                    : createWarning(
+                        response?.message ?? "Erro ao alterar status."
+                    )
+            );
+
             return false;
         }
     };
 
     const startRoom = async (): Promise<boolean> => {
-        console.log(room?.room_id);
-
         if (!room?.room_id) return false;
 
         try {
             setStarting(true);
             setError(null);
 
-            const { data } = await AXIOS.get(`/room/${room.room_id}/start`);
+            const { data } = await AXIOS.get<ResponseDTO>(
+                `/room/${room.room_id}/start`
+            );
 
             if (data.type !== "Success") {
-                setError(data.message ?? "Não foi possível iniciar a partida.");
+                setError(data);
                 return false;
             }
 
             return true;
+
         } catch (err: any) {
+            const response = err?.response?.data;
+
             setError(
-                err?.response?.data?.message ??
-                "Erro ao iniciar a partida."
+                response?.type === "Warning"
+                    ? response
+                    : createWarning(
+                        response?.message ?? "Erro ao iniciar a partida."
+                    )
             );
+
             return false;
+
         } finally {
             setStarting(false);
         }
     };
 
-    const toggleLeave = async () => {
-
+    const toggleLeave = async (): Promise<void> => {
         if (player?.player_id) {
             socket.emit("player:leave", {
-                roomCode: roomCode,
+                roomCode,
                 playerId: player.player_id,
             });
         }
+
         clearPlayer();
-        navigate('/')
-    }
+        navigate("/");
+    };
+
     return {
         room,
         loading,
@@ -216,6 +263,5 @@ export const useLobby = ({ roomCode }: { roomCode?: string }) => {
         toggleReady,
         startRoom,
         toggleLeave,
-       
     };
 };

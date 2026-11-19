@@ -5,24 +5,24 @@ import RegisterPage from "../pages/auth/pages/register";
 import ForgotPage from "../pages/auth/pages/forgot";
 import ResetPage from "../pages/auth/pages/reset/ResetPage";
 import HomeLayout from "../layouts/HomeLayout";
-import RoomLobbyPage from "../pages/rooms/pages/RoomLobbyPage";
+import RoomLobbyPage from "../pages/rooms/pages/lobby";
 import NotFoundPage from "../shared/pages/NotFound";
-import PlayerNamePage from "../pages/rooms/pages/PlayerNamePage";
+import PlayerNamePage from "../pages/rooms/pages/playerName";
 import RoomStartPage from "../pages/rooms/pages/RoomStartPage";
-const RoomLivePage = lazy(() => import("../pages/rooms/pages/RoomLivePage"));
+const RoomLivePage = lazy(() => import("../pages/rooms/pages/live"));
 import AuthLayout from "../layouts/AuthLayout";
 import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
-import RankingPage from "../pages/rooms/pages/RankingPage";
-import PodioPage from "../pages/rooms/pages/PodioPage";
+import RankingPage from "../pages/rooms/pages/ranking";
 import PageLayout from "../layouts/PageLayout";
 import RoomLayout from "../layouts/RoomLayout";
 import { lazy, Suspense } from "react";
 import PublicLayout from "../layouts/PublicLayout";
 import UserPage from "../pages/auth/pages/user";
+import PodioPage from "../pages/rooms/pages/podio";
 
 
 export const preloadRoomLivePage = () => {
-    import("../pages/rooms/pages/RoomLivePage");
+    import("../pages/rooms/pages/live");
 };
 
 

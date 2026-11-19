@@ -220,72 +220,130 @@ export class RoomService implements IRoomService {
         });
     }
     // Começa a partida
+
     async start(user: AuthPayload, id: number): Promise<void> {
         return measure("RoomService.start", async () => {
+            const context = {
+                roomId: id,
+                userId: user.id,
+            };
+
             try {
-                Logger.info("RoomService", "start.started", {
-                    roomId: id,
-                    userId: user.id
-                });
+                Logger.info("RoomService", "start.started", context);
 
                 const [room, countPlayers] = await Promise.all([
                     this.repo.findByRoom(undefined, undefined, id),
-                    this.playerService.countPlayers(id)
+                    this.playerService.countPlayers(id),
                 ]);
 
                 if (!room) {
-                    Logger.warn("RoomService", "start.room_not_found", {
-                        roomId: id
-                    });
+                    Logger.warn("RoomService", "start.room_not_found", context);
 
                     throw new AppError(404, "Sala não encontrada");
                 }
 
+                const roomContext = {
+                    ...context,
+                    roomCode: room.room_code,
+                    roomStatus: room.room_status,
+                    hostUserId: room.host_user_id,
+                    countPlayers,
+                };
+
+                Logger.info("RoomService", "start.room_loaded", roomContext);
+
+                if (room.room_status === "LIVE") {
+                    Logger.warn("RoomService", "start.already_live", roomContext);
+
+                    throw new AppError(409, "Sala ja esta em andamento");
+                }
+
                 if (room.host_user_id !== user.id) {
                     Logger.warn("RoomService", "start.unauthorized", {
-                        roomId: id,
-                        userId: user.id
+                        ...roomContext,
+                        attemptedUserId: user.id,
                     });
 
                     throw new AppError(400, "Você não é o host dessa sala");
                 }
 
                 if (countPlayers < 2) {
-                    Logger.warn("RoomService", "start.insufficient_players", {
-                        roomId: id,
-                        countPlayers
-                    });
+                    Logger.warn(
+                        "RoomService",
+                        "start.insufficient_players",
+                        roomContext
+                    );
 
-                    throw new AppError(400, "Quantidade de jogadores necessária: 2");
+                    throw new AppError(
+                        400,
+                        "Quantidade de jogadores necessária: 2"
+                    );
                 }
 
-                const question = await this.serviceQuestion.findQuestion(room.room_id, 1);
+                Logger.info("RoomService", "start.validations_completed", {
+                    ...roomContext,
+                    minimumPlayers: 2,
+                });
+
+                Logger.info("RoomService", "start.question_lookup_started", {
+                    ...roomContext,
+                    questionOrder: 1,
+                });
+
+                const question = await this.serviceQuestion.findQuestion(
+                    room.room_id,
+                    1
+                );
 
                 if (!question) {
+                    Logger.warn("RoomService", "start.question_not_found", {
+                        ...roomContext,
+                        questionOrder: 1,
+                    });
+
                     throw new AppError(404, "Pergunta não encontrada");
                 }
 
+                Logger.info("RoomService", "start.question_loaded", {
+                    ...roomContext,
+                    questionId: question.question_id,
+                });
+
+                Logger.info("RoomService", "start.resources_creation_started", {
+                    ...roomContext,
+                    questionId: question.question_id,
+                });
+
                 await Promise.all([
                     this.servicePower.createPowerPlayers(room.room_id),
-                    this.repoRound.createRound(room.room_id, question.question_id),
-                    this.repo.roomUpdate(room.room_id, "LIVE")
+                    this.repoRound.createRound(
+                        room.room_id,
+                        question.question_id
+                    ),
+                    this.repo.roomUpdate(room.room_id, "LIVE"),
                 ]);
+
+                Logger.info("RoomService", "start.resources_created", {
+                    ...roomContext,
+                    questionId: question.question_id,
+                });
 
                 this.socket.roundStarted(room.room_code);
 
-                Logger.info("RoomService", "start.completed", {
-                    roomId: room.room_id,
-                    roomCode: room.room_code,
-                    countPlayers
+                Logger.info("RoomService", "start.socket_notified", {
+                    ...roomContext,
+                    questionId: question.question_id,
                 });
-
+                Logger.info("RoomService", "start.completed", {
+                    ...roomContext,
+                    questionId: question.question_id,
+                });
             } catch (error) {
                 if (error instanceof AppError) {
                     throw error;
                 }
                 Logger.error("RoomService", "start.failed", error, {
-                    roomId: id,
-                    userId: user.id
+                    ...context,
                 });
                 throw new AppError(500, "Erro ao iniciar partida");
             }

@@ -43,6 +43,7 @@ export class RoundRepository implements IRoundRepository {
                     select: {
                         time_limit: true,
                         position: true,
+                        room_status: true,
                         roomPlayers: {
                             where: {
                                 ...(playerId && { player_id: playerId })
@@ -104,5 +105,4 @@ export class RoundRepository implements IRoundRepository {
             throw error
         }
     }
-
 }
