@@ -11,7 +11,7 @@ const router = Router();
 
 router.post(
     "/create",
-    RateLimit.limit(4, 3),
+    RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROOM_CREATE", "admin", "host"),
     ZodMiddleware.validate(roomCreateSchema, "body"),
@@ -20,25 +20,25 @@ router.post(
 
 router.post(
     "/join/:name",
-    RateLimit.limit(6, 1),
+    RateLimit.limit(200, 1),
     ZodMiddleware.validate(joinSchema, "body"),
     roomController.join
 );
 router.get(
     "/:name",
-    RateLimit.limit(60, 2),
+    RateLimit.limit(200, 2),
     roomController.findRoom
 );
 router.get(
     "/:id/start",
-    RateLimit.limit(4, 3),
+    RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROOM_START", "admin", "host"),
     roomController.start
 );
 router.delete(
     "/:roomCode/:roundId/limpar",
-    RateLimit.limit(5, 5),
+    RateLimit.limit(200, 5),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROOM_DELETE", "admin", "host"),
     roomController.limparRoom

@@ -8,14 +8,14 @@ const router = Router()
 // Buscar o pódio
 router.get(
     "/:roomCode/podium",
-    RateLimit.limit(30, 1),
+    RateLimit.limit(200, 1),
     playerController.findPodium
 );
 
 // Player ready
 router.patch(
     "/:playerId/:roomCode/ready",
-    RateLimit.limit(60, 1),
+    RateLimit.limit(200, 1),
     ZodMiddleware.validate(readySchema, "body"),
     playerController.ready
 );
@@ -23,7 +23,7 @@ router.patch(
 // Utilizar power-up
 router.post(
     "/:roomCode/:playerId/:powerId/:userName/powerup",
-    RateLimit.limit(5, 1),
+    RateLimit.limit(200, 1),
     playerController.powerUp
 );
 export default router

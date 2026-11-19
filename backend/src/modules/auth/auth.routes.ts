@@ -12,54 +12,54 @@ const router = Router();
 
 router.post(
     "/register",
-    RateLimit.limit(5, 10),
+    RateLimit.limit(200, 10),
     ZodMiddleware.validate(registerSchema, "body"),
     authController.register
 );
 
 router.post(
     "/login",
-    RateLimit.limit(5, 5),
+    RateLimit.limit(200, 5),
     ZodMiddleware.validate(loginSchema, "body"),
     authController.login
 );
 
 router.post(
     "/forgot-password",
-    RateLimit.limit(3, 15),
+    RateLimit.limit(200, 15),
     ZodMiddleware.validate(forgotSchema, "body"),
     authController.forgot
 );
 
 router.post(
     "/reset-password/:token",
-    RateLimit.limit(5, 10),
+    RateLimit.limit(200, 10),
     ZodMiddleware.validate(resetSchema, "body"),
     authController.reset
 );
 
 router.get(
     "/me",
-    RateLimit.limit(60, 3),
+    RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     authController.me
 );
 
 router.get(
     "/profile",
-    RateLimit.limit(60, 3),
+    RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     authController.profile
 )
 router.get(
     "/logout",
-    RateLimit.limit(60, 3),
+    RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     authController.logOut
 );
 router.patch(
     '/updatePassword',
-    RateLimit.limit(60, 3),
+    RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     authController.updatePassword
 )

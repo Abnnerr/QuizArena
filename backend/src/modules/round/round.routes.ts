@@ -11,19 +11,19 @@ const router = Router()
 // Buscar a rodada em aberto
 router.get(
     "/:roomCode/:playerId/findRound",
-    RateLimit.limit(60, 2),
+    RateLimit.limit(200, 2),
     roundController.findRound
 );
 router.get(
     "/:roomCode/findRound",
-    RateLimit.limit(60, 2),
+    RateLimit.limit(200, 2),
     roundController.findRound
 );
 
 // Termina a rodada, atualiza e cria uma nova
 router.post(
     "/:roomCode/roundFinished",
-    RateLimit.limit(5, 1),
+    RateLimit.limit(200, 1),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROUND_FINISH", "admin", "host"),
     ZodMiddleware.validate(finishedSchema, "body"),
