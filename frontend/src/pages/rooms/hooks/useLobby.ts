@@ -205,41 +205,7 @@ export const useLobby = ({ roomCode }: UseLobbyProps) => {
         }
     };
 
-    const startRoom = async (): Promise<boolean> => {
-        if (!room?.room_id) return false;
 
-        try {
-            setStarting(true);
-            setError(null);
-
-            const { data } = await AXIOS.get<ResponseDTO>(
-                `/room/${room.room_id}/start`
-            );
-
-            if (data.type !== "Success") {
-                setError(data);
-                return false;
-            }
-
-            return true;
-
-        } catch (err: any) {
-            const response = err?.response?.data;
-
-            setError(
-                response?.type === "Warning"
-                    ? response
-                    : createWarning(
-                        response?.message ?? "Erro ao iniciar a partida."
-                    )
-            );
-
-            return false;
-
-        } finally {
-            setStarting(false);
-        }
-    };
 
     const toggleLeave = async (): Promise<void> => {
         if (player?.player_id) {
@@ -261,7 +227,6 @@ export const useLobby = ({ roomCode }: UseLobbyProps) => {
         error,
         fetchRoom,
         toggleReady,
-        startRoom,
         toggleLeave,
     };
 };

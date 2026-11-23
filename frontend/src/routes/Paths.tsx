@@ -17,6 +17,16 @@ import RoomLayout from "../layouts/RoomLayout";
 import PublicLayout from "../layouts/PublicLayout";
 import UserPage from "../pages/auth/pages/user";
 import PodioPage from "../pages/rooms/pages/podio";
+import DashBoardLayout from "../layouts/DashBoardLayout";
+import BoardGate from "../pages/dashboard/components/BoardGate";
+import BoardRoomsPage from "../pages/dashboard/pages/rooms";
+import BoardRoomPage from "../pages/dashboard/pages/rooms/page/BoardRoomPage";
+import BoardLibraryPage from "../pages/dashboard/pages/library";
+import BoardLibraryDetailsPage from "../pages/dashboard/pages/library/pages/boardLibraryDetail";
+import BoardCategoryPage from "../pages/dashboard/pages/library/pages/boardCategoryPage";
+import BoardCategoriesPage from "../pages/dashboard/pages/library/pages/boardCategoriesPage";
+import BoardHomePage from "../pages/dashboard/home";
+import BoardConfigPage from "../pages/dashboard/config";
 
 
 export const preloadRoomLivePage = () => {
@@ -48,7 +58,19 @@ const Paths = () => {
                         </Route>
                     </Route>
                 </Route>
+                <Route element={<BoardGate />}>
+                    <Route path="/dashboard" element={<DashBoardLayout />}>
 
+                        <Route index element={<BoardHomePage />} />
+                        <Route path="config" element={<BoardConfigPage />} />
+                        <Route path="library" element={<BoardLibraryPage />} />
+                        <Route path="library/:libraryId" element={<BoardLibraryDetailsPage />} />
+                        <Route path="library/:libraryId/category/:categoryId" element={<BoardCategoryPage />} />
+                        <Route path="categories" element={<BoardCategoriesPage />} />
+                        <Route path="rooms" element={<BoardRoomsPage />} />
+                        <Route path="rooms/:roomCode" element={<BoardRoomPage />} />
+                    </Route>
+                </Route>
                 <Route element={<PublicLayout />}>
                     <Route path="/:roomCode/:round/ranking" element={<RankingPage />} />
                     <Route path="/:roomCode/:round/podio" element={<PodioPage />} />

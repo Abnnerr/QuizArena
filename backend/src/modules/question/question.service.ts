@@ -1,68 +1,105 @@
+
 import type { RoomQuestion } from "@prisma/client";
 import { AppError } from "../../error/AppError.js";
 import { measure } from "../../observability/measure.js";
 import { Logger } from "../../shared/services/logger.service.js";
+import type { AuthPayload } from "../../types/generic.js";
 import type { IQuestionRepository } from "./contracts/question.repository.contract.js";
 import type { IQuestionService } from "./contracts/question.service.contract.js";
-import type { QuestionCreateDTO } from "./dto/question.dto.js";
+import type { CreateQuestionDTO } from "./schema/createQuestion.js";
+import type { IRoomService } from "../room/contracts/room.service.contract.js";
+import type { UpdateQuestionDTO } from "./schema/updateQuestion.js";
 
 
 export class QuestionService implements IQuestionService {
-    constructor(private readonly repo: IQuestionRepository) { }
+    constructor(
+        private readonly repo: IQuestionRepository,
+        private readonly roomService: IRoomService
+    ) { }
 
-    // Cria perguntas
-    async createQuestions(questions: QuestionCreateDTO[]): Promise<number[]> {
-        return measure("QuestionService.createQuestions", async () => {
+    // Cria uma pergunta
+    async createQuestion(question: CreateQuestionDTO, user: AuthPayload): Promise<number> {
+        return measure("QuestionService.createQuestion", async () => {
             try {
-                Logger.info("QuestionService", "createQuestions.started", {
-                    questionsCount: questions.length
+                Logger.info("QuestionService", "createQuestion.started", {
+                    questionType: question.question_type,
+                    alternativesCount: question.alternatives.length,
                 });
 
-                const someAlternative = questions.some(
-                    item => item.alternatives.length > 4
+                const alternativesCount = question.alternatives.length;
+
+                if (question.question_type === "TRUE_FALSE") {
+                    if (alternativesCount !== 2) {
+                        throw new AppError(
+                            400,
+                            "Perguntas de verdadeiro ou falso devem ter exatamente 2 alternativas"
+                        );
+                    }
+                }
+
+                if (question.question_type === "MULTIPLE_CHOICE") {
+                    if (alternativesCount < 4 || alternativesCount > 4) {
+                        throw new AppError(
+                            400,
+                            "Perguntas de múltipla escolha devem 4 alternativas"
+                        );
+                    }
+                }
+
+                const correctAlternatives = question.alternatives.filter(
+                    alternative => alternative.is_correct
                 );
 
-                const someQuestion = questions.length < 3;
-
-                if (someQuestion) {
-                    Logger.warn("QuestionService", "createQuestions.insufficient_questions", {
-                        questionsCount: questions.length
-                    });
-
-                    throw new AppError(400, "Perguntas com menos de 3");
+                if (correctAlternatives.length !== 1) {
+                    throw new AppError(
+                        400,
+                        "A pergunta deve possuir exatamente uma alternativa correta"
+                    );
                 }
 
-                if (someAlternative) {
-                    Logger.warn("QuestionService", "createQuestions.too_many_alternatives");
+                const questionId = await this.repo.create(question, user.id);
 
-                    throw new AppError(400, "Alguma pergunta tem mais de 4 alternativas");
-                }
-
-                const questionIds = await this.repo.create(questions);
-
-                Logger.info("QuestionService", "createQuestions.completed", {
-                    questionsCount: questionIds.length
+                Logger.info("QuestionService", "createQuestion.completed", {
+                    questionId,
                 });
 
-                return questionIds;
+                return questionId;
+
             } catch (error) {
+                console.log(error);
+
                 if (error instanceof AppError) {
                     throw error;
                 }
-                Logger.error("QuestionService", "createQuestions.failed", error);
-                throw new AppError(500, "Erro ao criar perguntas");
+
+                Logger.error("QuestionService", "createQuestion.failed", error);
+                throw new AppError(500, "Erro ao criar pergunta");
             }
         });
     }
+    // async findQuestions(userId: string) {
+    //     try {
+    //         const result = await this.repo.findQuestions(userId)
 
-
-
+    //         if (result.length === 0) {
+    //             throw new AppError(400, 'lista vazia')
+    //         }
+    //         return result
+    //     } catch (error) {
+    //         if (error instanceof AppError) {
+    //             throw error;
+    //         }
+    //         throw new AppError(500, "Erro ao buscar perguntas");
+    //     }
+    // }
     // Encontra pergunta
-    async findQuestion(roomId: number, position: number): Promise<RoomQuestion> {
+    async findQuestion(roomId: number, position?: number): Promise<RoomQuestion> {
         return measure("QuestionService.findQuestion", async () => {
             try {
                 const question = await this.repo.findQuestion(roomId, position);
 
+                console.log('chegou na question 1');
+                
                 if (!question) {
                     Logger.warn("QuestionService", "findQuestion.not_found", {
                         roomId,
@@ -83,5 +120,71 @@ export class QuestionService implements IQuestionService {
                 throw new AppError(500, "Erro ao buscar pergunta");
             }
         });
+    }
+
+
+    async updateQuestion(questionId: number, question: UpdateQuestionDTO, userId: string): Promise<void> {
+        try {
+            await this.repo.updateQuestion(
+                questionId,
+                question,
+                userId
+            );
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, "Erro ao buscar perguntas");
+        }
+    }
+    async deleteQuestionRoom(roomId: number, questionId: number, userId: string): Promise<void> {
+        try {
+            const room = await this.roomService.findRoom(undefined, roomId)
+
+            if (room.host_user_id !== userId) {
+                throw new AppError(409, 'voce nao e dono da sala')
+            }
+            await this.repo.deleteQuestionRoom(roomId, questionId)
+        } catch (error) {
+            console.log(error);
+
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, "Erro ao buscar perguntas");
+        }
+    }
+    async deleteQuestion(questionId: number, userId: string): Promise<void> {
+        try {
+            const question = await this.repo.findQuestionById(questionId)
+
+            if (question?.user_id !== userId) {
+                throw new AppError(409, 'voce nao e dono da question')
+            }
+            await this.repo.deleteQuestion(questionId)
+        } catch (error) {
+            console.log(error);
+
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, "Erro ao buscar perguntas");
+        }
+    }
+    async addToRoom(roomId: number, questionId: number, userId: string): Promise<void> {
+        try {
+            const question = await this.repo.addtoRoom(roomId, questionId)
+
+            if (!question) {
+                throw new AppError(400, 'Question ja cadastrado nessa sala')
+            }
+        } catch (error) {
+            console.log(error);
+
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(500, "Erro ao buscar perguntas");
+        }
     }
 }

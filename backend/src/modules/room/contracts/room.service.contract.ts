@@ -8,8 +8,9 @@ export type IRoomService = {
     createRoom(
         user: AuthPayload,
         dados: RoomCreateDTO
-    ): Promise<string>;
-    findRoom(code: string): Promise<Rooms>;
+    ): Promise<void>;
+    findRoom(code?: string, id?: number): Promise<Rooms>;
+    findRooms(user: AuthPayload): Promise<Rooms[] | null>;
     joinRoom(
         roomCode: string,
         userName: string
@@ -39,4 +40,5 @@ export type IRoomService = {
         roomCode: string,
         roundId: number
     ): Promise<void>;
+    deletarRoom(roomId: number, userId: string): Promise<void>
 }

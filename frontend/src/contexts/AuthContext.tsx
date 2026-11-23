@@ -7,10 +7,10 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<any | null>(null);
     const [logado, setLogado] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         let mounted = true;
-
         async function checkSession() {
             try {
                 const { data } = await AXIOS.get("/auth/me");
@@ -20,15 +20,20 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 if (data.type === "Success") {
                     setUser(data.data);
                     setLogado(true);
+                    console.log(data.data);
+                    
                 }
             } catch (error) {
                 if (!mounted) return;
 
                 setUser(null);
                 setLogado(false);
+            } finally {
+                if (mounted) {
+                    setLoading(false);
+                }
             }
         }
-
         checkSession();
 
         return () => {
@@ -197,6 +202,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 forgot,
                 reset,
                 profile,
+                loading
             }}
         >
             {children}

@@ -1,113 +1,322 @@
 
-import { useState } from "react";
-import { Link, Outlet } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router";
 import {
     FiSettings,
     FiX,
     FiSun,
     FiMoon,
-    FiUser,
+    FiHome,
+    FiGrid,
 } from "react-icons/fi";
+
 import { useAuth } from "../contexts/hooks/useAuth";
 import { useTheme } from "../contexts/ThemeContext";
+import Button from "../shared/ui/Button";
 
 const HomeLayout: React.FC = () => {
     const { user } = useAuth();
     const { theme, setTheme, colors } = useTheme();
+    const location = useLocation();
 
     const [showSettings, setShowSettings] = useState(false);
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setShowSettings(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, []);
+
+    const isHome = location.pathname === "/";
+
     return (
-        <>
-            {/* HEADER */}
-            <header
-                className="w-full border-b-2 py-3 px-4 sm:px-10 flex items-center justify-between relative z-20 shadow-md"
-                style={{
-                    backgroundColor: colors.card,
-                    borderColor: colors.border,
-                }}
-            >
-                <Link to="/" className="flex items-center gap-3 group">
-                    <div
-                        className="w-10 h-10 rounded-xl border-2 border-b-4 p-1 shadow-sm flex items-center justify-center transition-transform group-hover:scale-105"
-                        style={{
-                            backgroundColor: colors.surface,
-                            borderColor: colors.border,
-                        }}
-                    >
-                        <img
-                            src="/favicon-quiz.png"
-                            alt="QuizArena"
-                            className="h-full w-full object-contain filter drop-shadow"
-                        />
-                    </div>
+        <div
+            className="min-h-screen flex flex-col"
+            style={{
+                backgroundColor: colors.background,
+                color: colors.text,
+            }}
+        >
+            {/* CONTEÚDO PRINCIPAL */}
+            <main className="flex-1 min-w-0">
 
-                    <span
-                        className="hidden sm:inline text-xl sm:text-2xl font-black tracking-tight"
-                        style={{ color: colors.text }}
-                    >
-                        Quiz<span className="text-[#1CB0F6]">Arena</span>
-                    </span>
-                </Link>
-
-                <div className="flex items-center gap-2 sm:gap-3">
-                    {/* CONFIGURAÇÕES */}
-                    <button
-                        onClick={() => setShowSettings(true)}
-                        aria-label="Abrir configurações"
-                        className="w-11 h-11 flex items-center justify-center rounded-2xl border-2 border-b-4 active:border-b-2 active:translate-y-0.5 transition-all"
-                        style={{
-                            backgroundColor: colors.surface,
-                            borderColor: colors.border,
-                            color: colors.text,
-                        }}
-                    >
-                        <FiSettings size={20} />
-                    </button>
-
-                    {!user && (
-                        <>
-                            <Link
-                                to="/auth/login"
-                                className="h-11 flex items-center justify-center font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-2 border-b-4 active:border-b-2 active:translate-y-0.5 transition-all"
+                {/* HEADER */}
+                <header
+                    className="
+                        h-20 border-b-2 px-4 sm:px-8
+                        flex items-center justify-between
+                        sticky top-0 z-30 shadow-sm
+                    "
+                    style={{
+                        backgroundColor: colors.card,
+                        borderColor: colors.border,
+                    }}
+                >
+                    {/* LOGO E IDENTIFICAÇÃO */}
+                    <div className="flex items-center gap-4">
+                        <Link to="/" className="flex items-center gap-3 group">
+                            <div
+                                className="
+                                    w-10 h-10 rounded-xl
+                                    border-2 border-b-4 p-1
+                                    flex items-center justify-center
+                                    group-hover:scale-105 transition-transform
+                                "
                                 style={{
                                     backgroundColor: colors.surface,
                                     borderColor: colors.border,
-                                    color: colors.text,
                                 }}
                             >
-                                Entrar
-                            </Link>
+                                <img
+                                    src="/favicon-quiz.png"
+                                    alt="QuizArena"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
 
-                            <Link
-                                to="/auth/register"
-                                className="bg-[#1CB0F6] h-11 flex items-center justify-center hover:bg-[#00A2ED] text-white font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-b-4 border-[#0092D6] active:border-b-0 active:translate-y-1 transition-all shadow-sm"
+                            <span className="text-xl font-black tracking-tight hidden sm:inline">
+                                Quiz<span className="text-[#1CB0F6]">Arena</span>
+                            </span>
+                        </Link>
+
+                        <div
+                            className="hidden sm:block h-8 w-[2px]"
+                            style={{ backgroundColor: colors.border }}
+                        />
+
+                        <div>
+                            <p
+                                className="text-[10px] font-black uppercase tracking-widest"
+                                style={{ color: colors.muted }}
                             >
-                                Criar Conta
-                            </Link>
-                        </>
-                    )}
+                                QuizArena / Início
+                            </p>
 
-                    {user && (
-                        <>
-                            {/* CRIAR SALA */}
-                            <Link
-                                to="/room/create"
-                                className="bg-[#1CB0F6] h-11 flex items-center justify-center hover:bg-[#00A2ED] text-white font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm uppercase tracking-wider border-b-4 border-[#0092D6] active:border-b-0 active:translate-y-1 transition-all shadow-sm"
-                            >
-                                Criar Sala
-                            </Link>
+                            <h2 className="text-base sm:text-lg font-black">
+                                {isHome ? "Página inicial" : "QuizArena"}
+                            </h2>
+                        </div>
+                    </div>
 
-                            {/* PERFIL */}
+                    {/* AÇÕES */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+
+                        {/* CONFIGURAÇÕES */}
+                        <button
+                            type="button"
+                            onClick={() => setShowSettings(true)}
+                            aria-label="Abrir configurações"
+                            title="Configurações"
+                            className="
+                                w-11 h-11 flex items-center justify-center
+                                rounded-xl border-2 border-b-4
+                                active:border-b-2 active:translate-y-0.5
+                                transition-all
+                            "
+                            style={{
+                                backgroundColor: colors.surface,
+                                borderColor: colors.border,
+                                color: colors.text,
+                            }}
+                        >
+                            <FiSettings size={19} />
+                        </button>
+
+                        {!user && (
+                            <>
+                                {/* LOGIN */}
+                                <Link
+                                    to="/auth/login"
+                                    className="
+                                        h-11 flex items-center justify-center
+                                        rounded-xl border-2 border-b-4
+                                        px-3 sm:px-4 text-xs font-black
+                                        uppercase tracking-wider
+                                        transition-all hover:-translate-y-0.5
+                                        active:translate-y-0.5 active:border-b-2
+                                    "
+                                    style={{
+                                        backgroundColor: colors.surface,
+                                        borderColor: colors.border,
+                                        color: colors.text,
+                                    }}
+                                >
+                                    Entrar
+                                </Link>
+
+                                {/* CADASTRO */}
+                                <Link
+                                    to="/auth/register"
+                                    className="
+                                        h-11 flex items-center justify-center
+                                        rounded-xl border-2 border-b-4
+                                        border-[#0092D6] bg-[#1CB0F6]
+                                        px-3 sm:px-4 text-xs font-black
+                                        uppercase tracking-wider text-white
+                                        transition-all hover:-translate-y-0.5
+                                        hover:bg-[#00A2ED]
+                                        active:translate-y-0.5 active:border-b-2
+                                    "
+                                >
+                                    <span className="hidden sm:inline">
+                                        Criar conta
+                                    </span>
+
+                                    <span className="sm:hidden">
+                                        Cadastrar
+                                    </span>
+                                </Link>
+                            </>
+                        )}
+
+                        {/* DASHBOARD */}
+                        {user && (
                             <Link
-                                to="/auth/user"
-                                aria-label="Meu perfil"
-                                title="Meu perfil"
+                                to="/dashboard"
+                                aria-label="Ir para o dashboard"
+                                title="Dashboard"
                                 className="
-                                    w-11 h-11 flex items-center justify-center
-                                    rounded-2xl border-2 border-b-4
-                                    active:border-b-2 active:translate-y-0.5
-                                    transition-all shadow-sm
+                                    h-11 flex items-center justify-center gap-2
+                                    rounded-xl border-2 border-b-4
+                                    border-[#0092D6] bg-[#1CB0F6]
+                                    px-3 sm:px-4
+                                    text-xs font-black uppercase tracking-wider
+                                    text-white transition-all
+                                    hover:-translate-y-0.5 hover:bg-[#00A2ED]
+                                    active:translate-y-0.5 active:border-b-2
+                                "
+                            >
+                                <FiGrid size={19} />
+
+                                <span className="hidden sm:inline">
+                                    Dashboard
+                                </span>
+                            </Link>
+                        )}
+                    </div>
+                </header>
+
+                {/* CONTEÚDO DAS PÁGINAS */}
+                <div className="flex flex-col min-h-[calc(100vh-5rem)]">
+                    <div className="flex-1 w-full max-w-[1500px] mx-auto">
+                        <Outlet />
+                    </div>
+
+                    {/* FOOTER */}
+                    <footer
+                        className="border-t-2 mt-auto"
+                        style={{
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                        }}
+                    >
+                        <div
+                            className="
+                                mx-auto max-w-[1500px] px-4 sm:px-8 py-5
+                                flex flex-col sm:flex-row items-center
+                                justify-between gap-3
+                            "
+                        >
+                            <div
+                                className="flex items-center gap-2 text-xs font-semibold"
+                                style={{ color: colors.muted }}
+                            >
+                                <FiHome size={15} />
+                                <span>QuizArena</span>
+                                <span>•</span>
+                                <span>Teste seus conhecimentos!</span>
+                            </div>
+
+                            {!user && (
+                                <Link
+                                    to="/auth/register"
+                                    className="
+                                        text-xs font-black uppercase
+                                        tracking-wider text-[#1CB0F6]
+                                        transition hover:text-[#0092D6]
+                                    "
+                                >
+                                    Crie sua conta Host
+                                </Link>
+                            )}
+                        </div>
+                    </footer>
+                </div>
+            </main>
+
+            {/* MODAL DE CONFIGURAÇÕES */}
+            {showSettings && (
+                <div
+                    className="
+                        fixed inset-0 z-50 flex items-center
+                        justify-center bg-black/60 p-4 backdrop-blur-sm
+                    "
+                    onClick={() => setShowSettings(false)}
+                >
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="settings-title"
+                        className="
+                            w-full max-w-md overflow-hidden
+                            rounded-2xl border-2 border-b-8
+                            shadow-2xl animate-in fade-in zoom-in-95 duration-200
+                        "
+                        style={{
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                        }}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        {/* CABEÇALHO */}
+                        <div
+                            className="
+                                flex items-center justify-between
+                                border-b-2 p-5
+                            "
+                            style={{ borderColor: colors.border }}
+                        >
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <FiSettings
+                                        size={20}
+                                        style={{ color: colors.primary }}
+                                    />
+
+                                    <h2
+                                        id="settings-title"
+                                        className="text-lg font-black"
+                                        style={{ color: colors.text }}
+                                    >
+                                        Personalização
+                                    </h2>
+                                </div>
+
+                                <p
+                                    className="mt-1 text-xs"
+                                    style={{ color: colors.muted }}
+                                >
+                                    Personalize sua experiência no QuizArena.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowSettings(false)}
+                                aria-label="Fechar configurações"
+                                className="
+                                    flex h-10 w-10 items-center
+                                    justify-center rounded-xl
+                                    border-2 border-b-4 transition-all
+                                    active:translate-y-0.5 active:border-b-2
                                 "
                                 style={{
                                     backgroundColor: colors.surface,
@@ -115,179 +324,152 @@ const HomeLayout: React.FC = () => {
                                     color: colors.text,
                                 }}
                             >
-                                <FiUser size={21} />
-                            </Link>
-                        </>
-                    )}
-                </div>
-            </header>
-
-            {/* CONTEÚDO */}
-            <Outlet />
-
-            {/* FOOTER */}
-            <footer
-                className="w-full border-t-2 py-4 px-4 sm:px-10 relative z-20"
-                style={{
-                    backgroundColor: colors.card,
-                    borderColor: colors.border,
-                }}
-            >
-                <div className="max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <div
-                        className="text-center sm:text-left text-xs sm:text-sm font-black"
-                        style={{ color: colors.muted }}
-                    >
-                        Quer criar seu próprio Quiz?{" "}
-                        <Link
-                            to="/auth/register"
-                            className="text-[#1CB0F6] hover:text-[#0092D6] font-black uppercase tracking-wider ml-1 underline underline-offset-4"
-                        >
-                            Criar conta Host
-                        </Link>
-                    </div>
-                </div>
-            </footer>
-
-            {/* MODAL DE CONFIGURAÇÕES */}
-            {showSettings && (
-                <div
-                    className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => setShowSettings(false)}
-                >
-                    <div
-                        className="w-full max-w-md border-2 border-b-8 rounded-3xl p-5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-                        style={{
-                            backgroundColor: colors.card,
-                            borderColor: colors.border,
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {/* CABEÇALHO DO MODAL */}
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h2
-                                    className="text-xl font-black"
-                                    style={{ color: colors.text }}
-                                >
-                                    Personalização
-                                </h2>
-
-                                <p
-                                    className="text-xs font-bold mt-1"
-                                    style={{ color: colors.muted }}
-                                >
-                                    Deixe o QuizArena com a sua cara!
-                                </p>
-                            </div>
-
-                            <button
-                                onClick={() => setShowSettings(false)}
-                                aria-label="Fechar configurações"
-                                className="w-10 h-10 flex items-center justify-center rounded-xl border-2 border-b-4 active:border-b-2 active:translate-y-0.5 transition-all"
-                                style={{
-                                    backgroundColor: colors.surface,
-                                    borderColor: colors.border,
-                                    color: colors.muted,
-                                }}
-                            >
                                 <FiX size={20} />
                             </button>
                         </div>
 
-                        {/* TEMAS */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-3">
-                                <FiSun className="text-[#FFC800]" size={18} />
+                        {/* APARÊNCIA */}
+                        <div className="p-5">
+                            <div className="mb-3 flex items-center gap-2">
+                                <FiSun
+                                    size={18}
+                                    className="text-[#E9B949]"
+                                />
 
                                 <h3
-                                    className="text-sm font-black uppercase tracking-wider"
+                                    className="
+                                        text-xs font-black uppercase
+                                        tracking-wider
+                                    "
                                     style={{ color: colors.text }}
                                 >
-                                    Tema
+                                    Aparência
                                 </h3>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
+
                                 {/* TEMA ESCURO */}
                                 <button
+                                    type="button"
                                     onClick={() => setTheme("darkTheme")}
                                     aria-pressed={theme === "darkTheme"}
-                                    className="p-3 rounded-2xl border-2 border-b-4 transition-all active:translate-y-0.5 active:border-b-2"
+                                    className="
+                                        rounded-xl border-2 p-3
+                                        text-left transition-all
+                                        hover:-translate-y-0.5
+                                    "
                                     style={{
+                                        backgroundColor: colors.surface,
                                         borderColor:
                                             theme === "darkTheme"
-                                                ? "#1CB0F6"
+                                                ? colors.primary
                                                 : colors.border,
-                                        backgroundColor: colors.surface,
                                     }}
                                 >
-                                    <div className="h-16 rounded-xl bg-[#121212] border-2 border-[#383838] flex items-center justify-center mb-2">
+                                    <div
+                                        className="
+                                            mb-3 flex h-20 items-center
+                                            justify-center rounded-xl
+                                            border-2 border-[#383838]
+                                            bg-[#121212]
+                                        "
+                                    >
                                         <FiMoon
-                                            size={25}
-                                            className="text-[#F3F4F6]"
+                                            size={28}
+                                            className="text-white"
                                         />
                                     </div>
 
-                                    <span
-                                        className="text-xs font-black"
-                                        style={{ color: colors.text }}
-                                    >
-                                        Escuro
-                                    </span>
-
-                                    {theme === "darkTheme" && (
-                                        <span className="block text-[10px] text-[#1CB0F6] font-black mt-1">
-                                            ATIVO
+                                    <div className="flex items-center justify-between">
+                                        <span
+                                            className="text-sm font-black"
+                                            style={{ color: colors.text }}
+                                        >
+                                            Escuro
                                         </span>
-                                    )}
+
+                                        {theme === "darkTheme" && (
+                                            <span
+                                                className="text-[9px] font-black"
+                                                style={{ color: colors.primary }}
+                                            >
+                                                ATIVO
+                                            </span>
+                                        )}
+                                    </div>
                                 </button>
 
                                 {/* TEMA CLARO */}
                                 <button
+                                    type="button"
                                     onClick={() => setTheme("lightTheme")}
                                     aria-pressed={theme === "lightTheme"}
-                                    className="p-3 rounded-2xl border-2 border-b-4 transition-all active:translate-y-0.5 active:border-b-2"
+                                    className="
+                                        rounded-xl border-2 p-3
+                                        text-left transition-all
+                                        hover:-translate-y-0.5
+                                    "
                                     style={{
+                                        backgroundColor: colors.surface,
                                         borderColor:
                                             theme === "lightTheme"
-                                                ? "#1CB0F6"
+                                                ? colors.primary
                                                 : colors.border,
-                                        backgroundColor: colors.surface,
                                     }}
                                 >
                                     <div
-                                        className="h-16 rounded-xl border-2 flex items-center justify-center mb-2"
-                                        style={{
-                                            backgroundColor: "#F5F3ED",
-                                            borderColor: "#E7E4DA",
-                                        }}
+                                        className="
+                                            mb-3 flex h-20 items-center
+                                            justify-center rounded-xl
+                                            border-2 border-[#E7E4DA]
+                                            bg-[#F5F3ED]
+                                        "
                                     >
                                         <FiSun
-                                            size={25}
+                                            size={28}
                                             className="text-[#E9B949]"
                                         />
                                     </div>
 
-                                    <span
-                                        className="text-xs font-black"
-                                        style={{ color: colors.text }}
-                                    >
-                                        Claro
-                                    </span>
-
-                                    {theme === "lightTheme" && (
-                                        <span className="block text-[10px] text-[#1CB0F6] font-black mt-1">
-                                            ATIVO
+                                    <div className="flex items-center justify-between">
+                                        <span
+                                            className="text-sm font-black"
+                                            style={{ color: colors.text }}
+                                        >
+                                            Claro
                                         </span>
-                                    )}
+
+                                        {theme === "lightTheme" && (
+                                            <span
+                                                className="text-[9px] font-black"
+                                                style={{ color: colors.primary }}
+                                            >
+                                                ATIVO
+                                            </span>
+                                        )}
+                                    </div>
                                 </button>
                             </div>
+                        </div>
+
+                        {/* RODAPÉ DO MODAL */}
+                        <div
+                            className="border-t-2 p-5"
+                            style={{ borderColor: colors.border }}
+                        >
+                            <Button
+                                variant="secondary"
+                                fullWidth
+                                onClick={() => setShowSettings(false)}
+                            >
+                                Fechar configurações
+                            </Button>
                         </div>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

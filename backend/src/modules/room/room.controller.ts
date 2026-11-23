@@ -9,14 +9,16 @@ import type { JoinDTO } from "./schema/roomJoin.schema.js";
 
 export class RoomController implements IRoomController {
     constructor(private readonly service: IRoomService) {
-        this.create = this.create.bind(this)
+        this.createRoom = this.createRoom.bind(this)
         this.findRoom = this.findRoom.bind(this)
+        this.findRooms = this.findRooms.bind(this)
         this.join = this.join.bind(this)
         this.start = this.start.bind(this)
         this.limparRoom = this.limparRoom.bind(this)
+        this.deletarRoom = this.deletarRoom.bind(this)
     }
 
-    async create(req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
+    async createRoom(req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             console.log('chegou na controller');
             
@@ -33,6 +35,18 @@ export class RoomController implements IRoomController {
         try {
 
             const result = await this.service.findRoom(req.params.name)
+            return HttpResponse.success(res, 200, 'Sala encontrada', result)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, 'Erro sala nao encontrada')
+        }
+    }
+    async findRooms(req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+
+            const result = await this.service.findRooms(req.user!)
             return HttpResponse.success(res, 200, 'Sala encontrada', result)
         } catch (error) {
             if (error instanceof AppError) {
@@ -69,6 +83,17 @@ export class RoomController implements IRoomController {
     async limparRoom(req: Request<{ roomCode: string, roundId: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             await this.service.limparRoom(req.params.roomCode, Number(req.params.roundId))
+            return HttpResponse.success(res, 200, 'Sala limpa')
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, 'Erro ao começar na partida')
+        }
+    }
+    async deletarRoom(req: Request<{ roomId: string }, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+            await this.service.deletarRoom(Number(req.params.roomId), req.user?.id!)
             return HttpResponse.success(res, 200, 'Sala limpa')
         } catch (error) {
             if (error instanceof AppError) {

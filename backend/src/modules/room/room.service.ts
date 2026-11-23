@@ -27,9 +27,10 @@ export class RoomService implements IRoomService {
     }
 
     //Cria a sala
-    async createRoom(user: AuthPayload, dados: RoomCreateDTO): Promise<string> {
+    async createRoom(user: AuthPayload, dados: RoomCreateDTO): Promise<void> {
         return measure("RoomService.createRoom", async () => {
             try {
+
                 Logger.info("RoomService", "createRoom.started", {
                     userId: user.id,
                     roomName: dados.name
@@ -44,22 +45,18 @@ export class RoomService implements IRoomService {
 
                     throw new AppError(409, "Já existe uma sala com esse nome");
                 }
-
-                const idQuestions = await this.serviceQuestion.createQuestions(dados.questions);
-
+                if (dados.maxPlayers < 2) {
+                    throw new AppError(409, "minimo 2 players");
+                }
                 const roomcreate = await this.repo.createRoom(
                     user.id,
                     dados,
-                    idQuestions
                 );
 
                 Logger.info("RoomService", "createRoom.completed", {
                     roomId: roomcreate.room_id,
                     roomCode: roomcreate.room_code,
-                    questionsCount: idQuestions.length
                 });
-
-                return roomcreate.room_code;
 
             } catch (error) {
                 if (error instanceof AppError) {
@@ -73,13 +70,13 @@ export class RoomService implements IRoomService {
         });
     }
     // Encontra a sala
-    async findRoom(code: string): Promise<Rooms> {
+    async findRoom(code: string, id?: number): Promise<Rooms> {
         return measure("RoomService.findRoom", async () => {
             try {
                 Logger.info("RoomService", "findRoom.started", {
                     roomCode: code
                 });
-                const room = await this.repo.findByRoom(undefined, code);
+                const room = await this.repo.findByRoom(undefined, code, id);
 
                 if (!room) {
                     Logger.warn("RoomService", "findRoom.not_found", {
@@ -103,11 +100,28 @@ export class RoomService implements IRoomService {
             }
         });
     }
+    async findRooms(user: AuthPayload): Promise<Rooms[] | null> {
+        return measure("RoomService.findRoom", async () => {
+            try {
+                Logger.info("RoomService", "findRoom.started", {
+
+                });
+                const rooms = await this.repo.findRooms(user.id)
+
+                return rooms;
+            } catch (error) {
+                console.log(error);
+
+                if (error instanceof AppError) {
+                    throw error;
+                }
+                Logger.error("RoomService", "findRoom.failed", error);
+                throw new AppError(500, "Erro ao buscar sala");
+            }
+        });
+    }
     // Entra em uma sala
-    async joinRoom(roomCode: string, userName: string): Promise<{
-        player_id: string;
-        player_name: string;
-    }> {
+    async joinRoom(roomCode: string, userName: string): Promise<{ player_id: string; player_name: string; }> {
         return measure("RoomService.joinRoom", async () => {
             try {
                 Logger.info("RoomService", "joinRoom.started", {
@@ -196,10 +210,8 @@ export class RoomService implements IRoomService {
                     throw new AppError(404, "Sala não encontrada");
                 }
 
-                await Promise.all([
-                    this.repo.leaveRoom(id, room.room_id),
-                    this.playerService.deletePlayer(id)
-                ]);
+
+                await this.playerService.deletePlayer(room.room_id, id)
 
                 this.socket.leaveRoom(room.room_code);
 
@@ -231,15 +243,18 @@ export class RoomService implements IRoomService {
             try {
                 Logger.info("RoomService", "start.started", context);
 
-                const [room, countPlayers] = await Promise.all([
-                    this.repo.findByRoom(undefined, undefined, id),
-                    this.playerService.countPlayers(id),
-                ]);
+                const room = await this.repo.findByRoom(undefined, undefined, id)
+
 
                 if (!room) {
                     Logger.warn("RoomService", "start.room_not_found", context);
 
                     throw new AppError(404, "Sala não encontrada");
+                }
+                if (room.roomQuestions.length <= 4) {
+                    Logger.warn("RoomService", "start.room_not_found", context);
+
+                    throw new AppError(404, "Perguntas tem que ser maior que 4");
                 }
 
                 const roomContext = {
@@ -247,7 +262,7 @@ export class RoomService implements IRoomService {
                     roomCode: room.room_code,
                     roomStatus: room.room_status,
                     hostUserId: room.host_user_id,
-                    countPlayers,
+                    countPlayers: room.roomPlayers.length,
                 };
 
                 Logger.info("RoomService", "start.room_loaded", roomContext);
@@ -267,7 +282,7 @@ export class RoomService implements IRoomService {
                     throw new AppError(400, "Você não é o host dessa sala");
                 }
 
-                if (countPlayers < 2) {
+                if (room.roomPlayers.length < 2) {
                     Logger.warn(
                         "RoomService",
                         "start.insufficient_players",
@@ -373,6 +388,8 @@ export class RoomService implements IRoomService {
                 return result;
 
             } catch (error) {
+                console.log(error);
+                
                 if (error instanceof AppError) {
                     throw error;
                 }
@@ -419,11 +436,7 @@ export class RoomService implements IRoomService {
         });
     }
 
-    async getAnswerStatistics(roundId: number, questionId: number): Promise<{
-        alternativeId: number;
-        isCorrect: boolean;
-        count: number;
-    }[]> {
+    async getAnswerStatistics(roundId: number, questionId: number): Promise<{ alternativeId: number; isCorrect: boolean; count: number; }[]> {
         return measure("RoomService.getAnswerStatistics", async () => {
             try {
                 Logger.info("RoomService", "getAnswerStatistics.started", {
@@ -525,6 +538,21 @@ export class RoomService implements IRoomService {
                     roomCode,
                     roundId
                 });
+                throw new AppError(500, "Erro ao limpar sala");
+            }
+        });
+    }
+
+    async deletarRoom(roomId: number, userId: string): Promise<void> {
+        return measure("RoomService.limparRoom", async () => {
+            try {
+
+                await this.repo.deletarRoom(roomId, userId);
+
+            } catch (error) {
+                if (error instanceof AppError) {
+                    throw error;
+                }
                 throw new AppError(500, "Erro ao limpar sala");
             }
         });

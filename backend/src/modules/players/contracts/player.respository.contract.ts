@@ -29,5 +29,5 @@ export type IPlayerRepository = {
         score: number
     ): Promise<void>;
 
-    deletePlayer(id: string): Promise<void>;
+    deletePlayer(roomId: number, id: string): Promise<void>
 }

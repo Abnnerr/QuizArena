@@ -7,13 +7,14 @@ datasource db {
 }
 
 model Users {
-  user_id       String  @id @default(uuid())
-  user_email    String  @unique
-  user_username String  @unique
+  user_id       String      @id @default(uuid())
+  user_email    String      @unique
+  user_username String      @unique
   user_password String
   role_id       Int
+  questions     Questions[]
   hostedRooms   Rooms[]
-  Role          Role    @relation(fields: [role_id], references: [role_id])
+  Role          Role        @relation(fields: [role_id], references: [role_id])
 }
 
 model Players {
@@ -86,11 +87,34 @@ model RoomQuestion {
   @@unique([room_id, position])
 }
 
+model Libraries {
+  library_id  Int        @id @default(autoincrement())
+  title       String
+  description String?
+  categories  Category[]
+}
+
+model Category {
+  category_id Int         @id @default(autoincrement())
+  library_id  Int
+  title       String
+  library     Libraries   @relation(fields: [library_id], references: [library_id])
+  questions   Questions[]
+}
+
 model Questions {
-  question_id   Int            @id @default(autoincrement())
+  question_id   Int                @id @default(autoincrement())
+  category_id   Int
+  user_id       String
   question_text String
-  active        Boolean        @default(true)
+  question_type QuestionType       @default(MULTIPLE_CHOICE)
+  difficulty    QuestionDifficulty @default(MEDIUM)
+  active        Boolean            @default(true)
+  isPublic      Boolean            @default(false)
+
   alternatives  Alternatives[]
+  category      Category       @relation(fields: [category_id], references: [category_id])
+  users         Users          @relation(fields: [user_id], references: [user_id])
   roomQuestions RoomQuestion[]
   rounds        Round[]
 }
@@ -158,6 +182,17 @@ enum RoomStatus {
   FINISHED
 }
 
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+}
+
 enum GameMode {
   NORMAL
   HARDCORE
@@ -202,4 +237,10 @@ enum PermissionseNum {
   ANSWER_READ
   POWERUP_USE
   POWERUP_READ
+  LIBRARY_CREATE
+  LIBRARY_READ
+  LIBRARY_DELETE
+  CATEGORY_CREATE
+  CATEGORY_READ
+  CATEGORY_DELETE
 }

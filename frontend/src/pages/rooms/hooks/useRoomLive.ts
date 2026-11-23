@@ -360,8 +360,12 @@ const useRoomLive = () => {
     };
 
     // Ativa power-up.
-    const handleUsePowerUp = async (powerupId: number, targetPlayer?: string) => {
-        if (usingPowerUp || !getPlayerId()) return;
+
+    const handleUsePowerUp = async (
+        powerupId: number,
+        targetPlayer?: string
+    ): Promise<boolean> => {
+        if (usingPowerUp || !getPlayerId()) return false;
 
         try {
             setUsingPowerUp(true);
@@ -373,34 +377,35 @@ const useRoomLive = () => {
 
             if (data.type !== "Success") {
                 setError(data.message ?? "Não foi possível utilizar o power-up.");
-                return;
+                return false;
             }
 
-            setSelectedPowerUp(null);
-
-            setPowerUp((previous) =>
-                previous.map((power) =>
+            setPowerUp(previous =>
+                previous.map(power =>
                     power.powerup_id === powerupId
                         ? { ...power, used: true }
                         : power
                 )
             );
 
+            setSelectedPowerUp(null);
+            return true;
         } catch (err) {
             console.error("Erro ao utilizar power-up:", err);
             setError("Não foi possível utilizar o power-up.");
+            return false;
         } finally {
             setUsingPowerUp(false);
         }
     };
 
-
-    const onConfirmPowerUp = (powerupId: number, playerId?: string) => {
-        if (handleUsePowerUp) {
-            handleUsePowerUp(powerupId, playerId);
-        }
-        setSelectedPowerUp(null);
+    const onConfirmPowerUp = async (
+        powerupId: number,
+        playerId?: string
+    ): Promise<boolean> => {
+        return await handleUsePowerUp(powerupId, playerId);
     };
+
 
     const progress = (timeLeft / questionTime) * 100;
     const isCriticalTime = timeLeft <= 5;

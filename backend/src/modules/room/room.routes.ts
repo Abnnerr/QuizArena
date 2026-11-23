@@ -15,7 +15,7 @@ router.post(
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROOM_CREATE", "admin", "host"),
     ZodMiddleware.validate(roomCreateSchema, "body"),
-    roomController.create
+    roomController.createRoom
 );
 
 router.post(
@@ -24,6 +24,14 @@ router.post(
     ZodMiddleware.validate(joinSchema, "body"),
     roomController.join
 );
+
+router.get(
+    '/findRooms',
+    RateLimit.limit(200, 3),
+    AuthMiddleware.validate,
+    roomController.findRooms
+)
+
 router.get(
     "/:name",
     RateLimit.limit(200, 2),
@@ -36,12 +44,22 @@ router.get(
     PolicyMiddleware.ensureRolePermission("ROOM_START", "admin", "host"),
     roomController.start
 );
+
+
 router.delete(
     "/:roomCode/:roundId/limpar",
     RateLimit.limit(200, 5),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("ROOM_DELETE", "admin", "host"),
     roomController.limparRoom
+);
+
+router.delete(
+    "/:roomId/deletar",
+    RateLimit.limit(200, 5),
+    AuthMiddleware.validate,
+    PolicyMiddleware.ensureRolePermission("ROOM_DELETE", "admin", "host"),
+    roomController.deletarRoom
 );
 
 export default router

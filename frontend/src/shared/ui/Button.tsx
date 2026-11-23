@@ -2,9 +2,6 @@
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 
-type ButtonVariant = "primary" | "secondary" | "success" | "danger" | "outline" | "ghost";
-type ButtonSize = "sm" | "md" | "lg";
-
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
     size?: ButtonSize;
@@ -14,7 +11,30 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     rightIcon?: React.ReactNode;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export type ButtonVariant =
+    | "primary"
+    | "secondary"
+    | "success"
+    | "danger"
+    | "outline"
+    | "ghost";
+
+export type ButtonSize = "sm" | "md" | "lg" | "icon";
+
+interface ButtonProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    children?: React.ReactNode;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    fullWidth?: boolean;
+    isLoading?: boolean;
+    leftIcon?: React.ReactNode;
+    rightIcon?: React.ReactNode;
+    color?: string;
+    borderColor?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({
     children,
     variant = "primary",
     size = "md",
@@ -25,14 +45,16 @@ export const Button: React.FC<ButtonProps> = ({
     className = "",
     disabled,
     type = "button",
+    color,
+    borderColor,
     ...props
 }) => {
     const { colors } = useTheme();
 
     const variants: Record<ButtonVariant, React.CSSProperties> = {
         primary: {
-            backgroundColor: colors.primary,
-            borderColor: colors.primary,
+            backgroundColor: "#1CB0F6",
+            borderColor: "#0092D6",
             color: "#FFFFFF",
         },
         secondary: {
@@ -63,30 +85,37 @@ export const Button: React.FC<ButtonProps> = ({
     };
 
     const sizes: Record<ButtonSize, string> = {
-        sm: "px-3 py-2 text-sm",
-        md: "px-5 py-3 text-base",
-        lg: "px-7 py-4 text-lg",
+        sm: "px-3 h-10 text-xs",
+        md: "px-4 h-13 text-sm",
+        lg: "px-7 h-14 text-base",
+        icon: "w-11 h-11 !p-0",
     };
+
+    const isIcon = size === "icon";
 
     return (
         <button
             {...props}
             type={type}
             disabled={disabled || isLoading}
-            style={variants[variant]}
+            style={{
+                ...variants[variant],
+                ...(color ? { color } : {}),
+                ...(borderColor ? { borderColor } : {}),
+            }}
             className={`
-                inline-flex items-center justify-center gap-2
-                border-2 border-b-4 rounded-2xl
+                inline-flex items-center justify-center gap-3
+                border-2 border-b-4 rounded-xl
+                active:border-b-2 active:translate-y-0.5
+                transition-all
                 font-black uppercase tracking-wide
                 cursor-pointer
-                transition-all duration-150
-                active:translate-y-[2px]
-                active:border-b-2
                 disabled:opacity-50
                 disabled:cursor-not-allowed
                 disabled:active:translate-y-0
                 ${sizes[size]}
                 ${fullWidth ? "w-full" : ""}
+                ${isIcon ? "!gap-0" : ""}
                 ${className}
             `}
         >
@@ -97,13 +126,17 @@ export const Button: React.FC<ButtonProps> = ({
                         border-t-transparent rounded-full
                         animate-spin
                     " />
-                    <span>Carregando...</span>
+                    {!isIcon && <span>Carregando...</span>}
                 </>
             ) : (
                 <>
-                    {leftIcon && <span className="shrink-0">{leftIcon}</span>}
+                    {leftIcon && (
+                        <span className="shrink-0">{leftIcon}</span>
+                    )}
                     {children}
-                    {rightIcon && <span className="shrink-0">{rightIcon}</span>}
+                    {rightIcon && (
+                        <span className="shrink-0">{rightIcon}</span>
+                    )}
                 </>
             )}
         </button>

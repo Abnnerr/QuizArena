@@ -149,12 +149,23 @@ export class PlayerRepository implements IPlayerRepository {
             throw error
         }
     }
-    async deletePlayer(id: string): Promise<void> {
+    async deletePlayer(roomId: number, id: string): Promise<void> {
         try {
-            await prisma.players.delete({
-                where: {
-                    player_id: id
-                }
+
+            await prisma.$transaction(async (tx) => {
+                await tx.roomPlayer.delete({
+                    where: {
+                        room_id_player_id: {
+                            player_id: id,
+                            room_id: roomId
+                        }
+                    }
+                })
+                await tx.players.delete({
+                    where: {
+                        player_id: id
+                    }
+                })
             })
         } catch (error) {
             throw error

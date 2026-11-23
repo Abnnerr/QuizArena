@@ -5,11 +5,12 @@ import type { RoomCreateDTO } from "./schema/roomCreate.schema.js";
 import type { Prisma, Rooms, RoomStatus } from "@prisma/client";
 import { randomBytes } from "node:crypto";
 import type { RoomWithPlayers } from "./dto/room.dto.js";
+import { AppError } from "../../error/AppError.js";
 
 export class RoomRepository implements IRoomRepository {
-    async createRoom(userId: string, dados: RoomCreateDTO, ids: number[]): Promise<Rooms> {
-        return await prisma.$transaction(async (tx) => {
-            const room = await tx.rooms.create({
+    async createRoom(userId: string, dados: RoomCreateDTO): Promise<Rooms> {
+        try {
+            return await prisma.rooms.create({
                 data: {
                     room_name: dados.name,
                     room_code: randomBytes(4).toString("hex").toUpperCase(),
@@ -23,17 +24,9 @@ export class RoomRepository implements IRoomRepository {
                     },
                 },
             });
-
-            await tx.roomQuestion.createMany({
-                data: ids.map((id, i) => ({
-                    room_id: room.room_id,
-                    question_id: id,
-                    position: i + 1,
-                })),
-            });
-
-            return room;
-        })
+        } catch (error) {
+            throw error
+        }
     }
     async findByRoom(name?: string, roomCode?: string, id?: number): Promise<RoomWithPlayers | null> {
         try {
@@ -48,7 +41,29 @@ export class RoomRepository implements IRoomRepository {
                             players: true,
                             ready: true,
                         }
+                    },
+                    roomQuestions: {
+                        include: {
+                            questions: {
+                                include: {
+                                    alternatives: true,
+                                    category: true
+                                }
+                            }
+                        }
                     }
+                }
+            })
+        } catch (error) {
+            console.log(error);
+            throw error
+        }
+    }
+    async findRooms(id: string): Promise<Rooms[] | null> {
+        try {
+            return await prisma.rooms.findMany({
+                where: {
+                    host_user_id: id
                 }
             })
         } catch (error) {
@@ -265,5 +280,98 @@ export class RoomRepository implements IRoomRepository {
             throw error
         }
 
+    }
+    async deletarRoom(roomId: number, userId: string): Promise<void> {
+        await prisma.$transaction(async (tx) => {
+
+
+            const room = await tx.rooms.findFirst({
+                where: {
+                    room_id: roomId
+                }
+            })
+
+            if (room?.host_user_id !== userId) {
+                throw new AppError(400, 'voce nao é dono dessa sala')
+            }
+            
+            const players = await tx.players.findMany({
+                where: {
+                    roomPlayers: {
+                        some: {
+                            room_id: roomId,
+                        },
+                    },
+                },
+                select: {
+                    player_id: true,
+                },
+            });
+
+            const playerIds = players.map(player => player.player_id);
+
+            const rounds = await tx.round.findMany({
+                where: {
+                    room_id: roomId,
+                },
+                select: {
+                    round_id: true,
+                },
+            });
+
+            const roundIds = rounds.map(round => round.round_id);
+
+            await tx.answers.deleteMany({
+                where: {
+                    round_id: {
+                        in: roundIds,
+                    },
+                },
+            });
+
+            await tx.powerUpUse.deleteMany({
+                where: {
+                    room_id: roomId,
+                },
+            });
+
+            await tx.roomPlayer.deleteMany({
+                where: {
+                    room_id: roomId,
+                },
+            });
+
+            await tx.roomQuestion.deleteMany({
+                where: {
+                    room_id: roomId,
+                },
+            });
+
+            await tx.round.deleteMany({
+                where: {
+                    room_id: roomId,
+                },
+            });
+
+            if (playerIds.length > 0) {
+                await tx.players.deleteMany({
+                    where: {
+                        player_id: {
+                            in: playerIds,
+                        },
+                        roomPlayers: {
+                            none: {},
+                        },
+                    },
+                });
+            }
+
+            // 9. Exclui a sala por último.
+            await tx.rooms.delete({
+                where: {
+                    room_id: roomId,
+                },
+            });
+        });
     }
 }

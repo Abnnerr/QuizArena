@@ -25,7 +25,6 @@ export async function socket(io: Server) {
 
                 socket.leave(`room:${roomCode}`);
 
-                io.to(`room:${roomCode}`).emit("room:update");
             } catch (error) {
                 console.error("Erro ao sair da sala:", error);
             }

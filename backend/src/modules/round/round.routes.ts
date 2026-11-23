@@ -25,7 +25,6 @@ router.post(
     "/:roomCode/roundFinished",
     RateLimit.limit(200, 1),
     AuthMiddleware.validate,
-    PolicyMiddleware.ensureRolePermission("ROUND_FINISH", "admin", "host"),
     ZodMiddleware.validate(finishedSchema, "body"),
     roundController.roundFinished
 );

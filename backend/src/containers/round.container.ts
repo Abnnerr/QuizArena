@@ -3,7 +3,7 @@ import { RoundRepository } from "../modules/round/round.repository.js";
 import { RoundService } from "../modules/round/round.service.js";
 import { SocketService } from "../shared/services/socket.service.js";
 import { powerRepo } from "./power.contrainer.js";
-import questionService from "./question.container.js";
+import { questionService } from "./question.container.js";
 import { roomService } from "./roomPlayer.container.js";
 
 const socket = new SocketService()

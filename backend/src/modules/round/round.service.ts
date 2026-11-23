@@ -152,14 +152,22 @@ export class RoundService implements IRoundService {
                     );
                 }
 
+                console.log('log chegou aqui 1');
+                
 
                 const room = await this.roomService.updateRoomPosition(roomCode);
 
+                console.log(room);
+                
                 const question = await this.questionService.findQuestion(
                     room.room_id,
                     room.position
                 );
 
+                console.log(question, " < - question");
+                
+                console.log('chegou aqui 2');
+                
                 if (!question) {
                     throw new AppError(
                         404,

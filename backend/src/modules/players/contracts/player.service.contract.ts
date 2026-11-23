@@ -24,7 +24,7 @@ export type IPlayerService = {
         scores: number
     ): Promise<void>;
 
-    deletePlayer(id: string): Promise<void>;
+    deletePlayer(roomId: number, id: string): Promise<void>
 
     findPodium(code: string): Promise<
         (RoomPlayer & {

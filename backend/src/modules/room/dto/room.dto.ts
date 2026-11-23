@@ -7,7 +7,18 @@ export type RoomWithPlayers = Prisma.RoomsGetPayload<{
         players: true,
         ready: true
       }
-    };
+    }
+    roomQuestions: {
+      include: {
+        questions: {
+
+          include: {
+            alternatives: true,
+            category: true
+          }
+        }
+      }
+    }
   };
 }>;
 

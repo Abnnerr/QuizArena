@@ -4,8 +4,9 @@ import type { RoomCreateDTO } from "../schema/roomCreate.schema.js"
 import type { JoinDTO } from "../schema/roomJoin.schema.js"
 
 export type IRoomController = {
-    create: (req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
+    createRoom: (req: Request<{}, {}, RoomCreateDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
     findRoom: (req: Request<{ name: string }, {}, {}, {}>, res: Response<ResponseDTO>) => Promise<Response>
+    findRooms: (req: Request<{}, {}, {}, {}>, res: Response<ResponseDTO>) => Promise<Response>
     join: (req: Request<{ name: string }, {}, JoinDTO, {}>, res: Response<ResponseDTO>) => Promise<Response>
     start: (req: Request<{ id: string }, {}, {}, {}>, res: Response<ResponseDTO>) => Promise<Response>
 

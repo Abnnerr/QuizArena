@@ -31,3 +31,20 @@ body {
     animation: countdown-pop 1s ease-in forwards;
     will-change: transform, opacity;
 }
+
+
+.btn-game {
+    transition: all 0.08s ease;
+    transform: translateY(0);
+}
+
+.btn-game:active:not(:disabled) {
+    transform: translateY(4px);
+    border-bottom-width: 0;
+    margin-bottom: 4px;
+}
+
+.btn-game:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}

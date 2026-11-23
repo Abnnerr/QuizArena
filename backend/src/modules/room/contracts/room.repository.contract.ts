@@ -7,10 +7,10 @@ export type IRoomRepository = {
     createRoom(
         userId: string,
         dados: RoomCreateDTO,
-        ids: number[]
     ): Promise<Rooms>;
     findByRoom(name?: string, roomCode?: string, id?: number): Promise<RoomWithPlayers | null>;
     joinRoom(userId: string, roomId: number): Promise<void>;
+    findRooms(id: string): Promise<Rooms[] | null>;
     leaveRoom(id: string, roomId: number): Promise<void>;
     countQuestions(id: number): Promise<number>;
     roomUpdate(id: number, status?: string): Promise<Rooms>;
@@ -33,5 +33,5 @@ export type IRoomRepository = {
     }[]>;
 
     limparRoom(roomId: number): Promise<void>;
-    
+    deletarRoom(roomId: number, userId: string): Promise<void>
 }

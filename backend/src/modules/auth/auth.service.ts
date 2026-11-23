@@ -121,6 +121,8 @@ export class AuthService {
                 };
 
             } catch (error) {
+                console.log(error);
+
                 if (error instanceof AppError) throw error;
 
                 Logger.error("AuthService", "login.failed", error);

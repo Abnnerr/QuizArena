@@ -196,10 +196,10 @@ export class PlayerService implements IPlayerService {
     }
 
     // Exclui jogador
-    async deletePlayer(id: string): Promise<void> {
+    async deletePlayer(roomId: number, id: string): Promise<void> {
         return measure("PlayerService.deletePlayer", async () => {
             try {
-                await this.repo.deletePlayer(id);
+                await this.repo.deletePlayer(roomId, id);
 
                 Logger.info("PlayerService", "deletePlayer.completed", {
                     playerId: id
