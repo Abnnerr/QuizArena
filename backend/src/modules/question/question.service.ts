@@ -7,15 +7,16 @@ import type { AuthPayload } from "../../types/generic.js";
 import type { IQuestionService } from "./contracts/question.service.contract.js";
 import type { CreateQuestionDTO } from "./schema/createQuestion.js";
 import type { UpdateQuestionDTO } from "./schema/updateQuestion.js";
-import type { QuestionRepository } from "./question.repository.js";
+
 import type { IRoomService } from "../room/contracts/room.service.contract.js";
+import type { IQuestionRepository } from "./contracts/question.repository.contract.js";
 
 
 export class QuestionService implements IQuestionService {
      private roomService!: IRoomService;
 
     constructor(
-        private readonly repo: QuestionRepository
+        private readonly repo: IQuestionRepository
     ) { }
 
     setRoomService(roomService: IRoomService) {
@@ -177,7 +178,7 @@ export class QuestionService implements IQuestionService {
             throw new AppError(500, "Erro ao buscar perguntas");
         }
     }
-    async addToRoom(roomId: number, questionId: number, userId: string): Promise<void> {
+    async addToRoom(roomId: number, questionId: number): Promise<void> {
         try {
             const question = await this.repo.addtoRoom(roomId, questionId)
 

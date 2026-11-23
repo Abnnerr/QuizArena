@@ -15,7 +15,6 @@ import LoginPrompt from "./components/LoginPrompt";
 import Button from "../../../../shared/ui/Button";
 import PasswordField from "./components/PasswordField";
 import RegisterTopbar from "./components/RegisterTopBar";
-import WelcomeBanner from "./components/WelcomeBanner";
 
 const RegisterPage: React.FC = () => {
     const {

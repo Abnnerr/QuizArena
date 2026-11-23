@@ -59,7 +59,6 @@ export const useLobby = ({ roomCode }: UseLobbyProps) => {
     const [room, setRoom] = useState<LobbyRoom | null>(null);
     const [ready, setReady] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [starting, setStarting] = useState(false);
     const [error, setError] = useState<ResponseDTO | null>(null);
 
     const createWarning = (message: string): ResponseDTO => ({
@@ -223,7 +222,6 @@ export const useLobby = ({ roomCode }: UseLobbyProps) => {
         room,
         loading,
         ready,
-        starting,
         error,
         fetchRoom,
         toggleReady,
