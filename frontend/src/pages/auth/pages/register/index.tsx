@@ -66,6 +66,8 @@ const RegisterPage: React.FC = () => {
 
         try {
             await handleSubmit(event);
+
+            toast.success(feedback?.message ?? 'Registrado com sucesso')
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||
