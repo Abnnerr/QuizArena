@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { ZodMiddleware } from "../../middlewares/zod.middleware.js";
-import { createAnswerSchema } from "../answers/schema/createAnswer.schema.js";
 import { RateLimit } from "../../middlewares/rateLimit.middleware.js";
 import questionController from "../../containers/question.container.js";
 import { PolicyMiddleware } from "../../middlewares/policy.middleware.js";

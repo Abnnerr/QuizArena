@@ -4,18 +4,24 @@ import { AppError } from "../../error/AppError.js";
 import { measure } from "../../observability/measure.js";
 import { Logger } from "../../shared/services/logger.service.js";
 import type { AuthPayload } from "../../types/generic.js";
-import type { IQuestionRepository } from "./contracts/question.repository.contract.js";
 import type { IQuestionService } from "./contracts/question.service.contract.js";
 import type { CreateQuestionDTO } from "./schema/createQuestion.js";
-import type { IRoomService } from "../room/contracts/room.service.contract.js";
 import type { UpdateQuestionDTO } from "./schema/updateQuestion.js";
+import type { QuestionRepository } from "./question.repository.js";
+import type { IRoomService } from "../room/contracts/room.service.contract.js";
 
 
 export class QuestionService implements IQuestionService {
+     private roomService!: IRoomService;
+
     constructor(
-        private readonly repo: IQuestionRepository,
-        private readonly roomService: IRoomService
+        private readonly repo: QuestionRepository
     ) { }
+
+    setRoomService(roomService: IRoomService) {
+        this.roomService = roomService;
+    }
+
 
     // Cria uma pergunta
     async createQuestion(question: CreateQuestionDTO, user: AuthPayload): Promise<number> {
@@ -99,7 +105,7 @@ export class QuestionService implements IQuestionService {
                 const question = await this.repo.findQuestion(roomId, position);
 
                 console.log('chegou na question 1');
-                
+
                 if (!question) {
                     Logger.warn("QuestionService", "findQuestion.not_found", {
                         roomId,
