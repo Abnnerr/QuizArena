@@ -28,6 +28,7 @@ const LoginPage = () => {
         setShowPassword,
         handleSubmit,
         loading,
+        feedback
     } = useLogin();
 
     const { colors } = useTheme();
@@ -43,7 +44,7 @@ const LoginPage = () => {
         try {
             await handleSubmit(event);
 
-            toast.success("Usuario encontrado")
+            toast.success(feedback?.message ?? "Usuario logado")
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||
