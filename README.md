@@ -143,3 +143,64 @@ Com o servidor em execução, a documentação Swagger estará disponível em:
 ```text
 http://localhost:PORT/api-docs
 ```
+
+
+## Frontend
+
+### Tecnologias
+
+- **React 19** — construção da interface.
+- **TypeScript** — tipagem estática.
+- **Vite** — ambiente de desenvolvimento e build.
+- **Tailwind CSS 4** — estilização.
+- **React Router** — gerenciamento de rotas.
+- **Axios** — comunicação com a API.
+- **Socket.IO Client** — comunicação em tempo real.
+- **Framer Motion** — animações.
+- **Cypress** — testes E2E.
+
+### Arquitetura
+
+O frontend é organizado por funcionalidades, separando páginas, componentes, hooks, contextos e serviços.
+
+- **Pages:** páginas e funcionalidades da aplicação, como autenticação, dashboard, bibliotecas e salas.
+- **Components:** componentes reutilizáveis e específicos de cada funcionalidade.
+- **Hooks:** encapsulam estados e lógicas reutilizáveis.
+- **Contexts:** gerenciamento de estados globais, como autenticação, jogadores, salas, tema e notificações.
+- **Layouts:** estruturas compartilhadas entre páginas.
+- **Services:** comunicação com a API e gerenciamento da conexão Socket.IO.
+- **Shared:** componentes, constantes, temas e tipos compartilhados.
+
+### Funcionalidades
+
+- Autenticação e gerenciamento de conta.
+- Dashboard e gerenciamento de bibliotecas de perguntas.
+- Criação e gerenciamento de salas.
+- Lobby e partidas em tempo real.
+- Ranking e pódio dos jogadores.
+- Temas e notificações.
+
+### Execução
+
+```bash
+# Instalar dependências
+npm install
+
+# Desenvolvimento
+npm run dev
+
+# Build de produção
+npm run build
+
+# Executar build localmente
+npm run preview
+
+# Verificar código
+npm run lint
+
+# Abrir Cypress
+npm run cy:open
+
+# Executar testes E2E
+npm run test:e2e
+```
