@@ -1,54 +1,40 @@
 
-import type { ResponseDTO } from "../../../contexts/types/authTypes";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../contexts/hooks/useAuth";
+import { useToast } from "../../../contexts/ToastContext";
 
 export function useLogin() {
     const navigate = useNavigate();
     const { login } = useAuth();
+    const { toast } = useToast();
 
-    const [feedback, setFeedback] = useState<ResponseDTO | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [userName, setUserName] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+    const [userName, setUserName] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setFeedback(null);
-        setLoading(true);
 
         try {
-            const dados = { userName, password };
-            const response = await login(dados);
+            setLoading(true);
 
-            if (response.type === 'Success') {
-                setFeedback({
-                    type: "Success",
-                    message: response.message || "Usuário logado com sucesso!"
-                });
-                setTimeout(() => {
-                    setFeedback(null);
-                    navigate('/');
-                }, 1500);
-            } else {
-                setFeedback({
-                    type: "Warning",
-                    message: response.message || "Credenciais inválidas"
-                });
-                setTimeout(() => {
-                    setFeedback(null);
-                }, 2000);
+            const response = await login({ userName, password });
+
+            if (response.type !== "Success") {
+                toast.warning(response.message || "Credenciais inválidas.");
+                return;
             }
+
+            toast.success(response.message || "Usuário logado com sucesso!");
+            navigate("/");
         } catch (error: any) {
-            setFeedback({
-                type: "Warning",
-                message: error?.response?.data?.message || error.message || "Erro ao tentar logar. Tente novamente."
-            });
-            setTimeout(() => {
-                setFeedback(null);
-            }, 1500);
+            toast.error(
+                error?.response?.data?.message ||
+                error.message ||
+                "Erro ao tentar fazer login."
+            );
         } finally {
             setLoading(false);
         }
@@ -58,12 +44,10 @@ export function useLogin() {
         userName,
         password,
         showPassword,
-        feedback,
         loading,
-        setLoading,
         setUserName,
         setPassword,
         setShowPassword,
-        handleSubmit
+        handleSubmit,
     };
 }
