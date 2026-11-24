@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
@@ -114,21 +113,18 @@ const useRoomLive = () => {
         navigate(`/${roomCode}/${round}/ranking`);
     };
 
-    const handleGoToRanking = () => {
+
+    const handleEndRound = () => {
         if (
             !isHost ||
             !roomCode ||
             round === null ||
-            totalPlayers === 0 ||
-            totalAnswers < totalPlayers
+            timeLeft <= 0
         ) {
             return;
         }
 
-        socket.emit("round:go_ranking", {
-            roomCode,
-            roundId: round,
-        });
+        setTimeLeft(0);
     };
 
     const atualizarPergunta = (data: any) => {
@@ -175,6 +171,8 @@ const useRoomLive = () => {
             setAnswered(false);
         }
 
+        setAlternativeStatistics([]);
+        setCorrectAlternative(null);
         setHiddenAlternativeIds([]);
         setError(null);
     };
@@ -272,6 +270,8 @@ const useRoomLive = () => {
         };
 
         const expired = (data: any) => {
+            setTimeLeft(0);
+
             const alternatives: AlternativeStatistics[] =
                 data?.alternative ?? [];
 
@@ -280,7 +280,6 @@ const useRoomLive = () => {
                 return;
             }
 
-            setTimeLeft(0);
             setAlternativeStatistics(alternatives);
 
             const correct = alternatives.find(item => item.isCorrect);
@@ -327,6 +326,7 @@ const useRoomLive = () => {
         };
     }, [roomCode, player?.player_id]);
 
+
     useEffect(() => {
         if (!question || loading || timeLeft <= 0) {
             return;
@@ -339,8 +339,11 @@ const useRoomLive = () => {
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
 
+    
     useEffect(() => {
-        if (!question || !isHost || timeLeft !== 0) return;
+        if (!question || !isHost || timeLeft !== 0 || round === null) {
+            return;
+        }
 
         socket.emit("round:time_expired", {
             roomCode,
@@ -443,7 +446,7 @@ const useRoomLive = () => {
         isCriticalTime,
         handleAnswer,
         handleKeyDown,
-        handleGoToRanking,
+        handleEndRound,
         onConfirmPowerUp,
         setSelectedPowerUp,
         selectedPowerUp,

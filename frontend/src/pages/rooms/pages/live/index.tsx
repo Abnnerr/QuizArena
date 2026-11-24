@@ -33,12 +33,40 @@ const POWER_NAMES: Record<string, string> = {
     FIFTY: "50/50",
 };
 
-const POWER_DESCRIPTIONS: Record<string, string> = {
-    DOUBLE_XP: "Prepare o dobro de XP para sua próxima rodada.",
-    DOUBLEXP: "Prepare o dobro de XP para sua próxima rodada.",
-    SKIP_TURN: "Escolha um jogador para pular esta rodada.",
-    FIFTY_FIFTY: "Elimine duas alternativas incorretas.",
-    FIFTY: "Elimine duas alternativas incorretas.",
+const POWER_COLORS: Record<string, string> = {
+    DOUBLE: "#F59E0B",
+    SKIP: SKIP_COLOR,
+    FIFTY: "#A78BFA",
+};
+
+const EFFECT_CONFIG = {
+    DOUBLE_XP: {
+        title: "XP em dobro ativado!",
+        description: "Bônus preparado para a próxima rodada.",
+        color: "text-amber-400",
+        background: "bg-amber-500/10",
+        border: "border-amber-500/40",
+        shadow: "shadow-[inset_0_0_0_3px_#F59E0B,inset_0_0_30px_#F59E0B25]",
+        icon: <FiZap />,
+    },
+    FIFTY_FIFTY: {
+        title: "50/50 ativado!",
+        description: "Duas alternativas foram eliminadas.",
+        color: "text-violet-400",
+        background: "bg-violet-500/10",
+        border: "border-violet-500/40",
+        shadow: "shadow-[inset_0_0_0_3px_#A78BFA,inset_0_0_30px_#A78BFA25]",
+        icon: <FiTarget />,
+    },
+    SKIP_TURN: {
+        title: "Skip Turn ativado!",
+        description: "Sua rodada foi pulada com sucesso.",
+        color: "text-sky-400",
+        background: "bg-sky-500/10",
+        border: "border-sky-500/40",
+        shadow: "shadow-[inset_0_0_0_3px_#1CB0F6,inset_0_0_30px_#1CB0F625]",
+        icon: <FiSkipForward />,
+    },
 };
 
 const playSound = (src: string, volume = 0.4) => {
@@ -47,16 +75,36 @@ const playSound = (src: string, volume = 0.4) => {
     void audio.play().catch(() => {});
 };
 
+const getPowerName = (type: string) =>
+    POWER_NAMES[type.toUpperCase()] ?? type;
+
+const getPowerColor = (type: string) => {
+    const normalized = type.toUpperCase();
+
+    if (normalized.includes("DOUBLE")) return POWER_COLORS.DOUBLE;
+    if (normalized.includes("SKIP")) return POWER_COLORS.SKIP;
+
+    return POWER_COLORS.FIFTY;
+};
+
+const getPowerIcon = (type: string) => {
+    const normalized = type.toUpperCase();
+
+    if (normalized.includes("DOUBLE")) return <FiZap />;
+    if (normalized.includes("SKIP")) return <FiSkipForward />;
+
+    return <FiTarget />;
+};
+
 export default function RoomLivePage() {
     const { roomCode } = useParams<{ roomCode: string }>();
-
     const { colors } = useTheme();
     const { toast } = useToast();
 
     const {
         handleAnswer,
         handleKeyDown,
-        handleGoToRanking,
+        handleEndRound,
         progress,
         isCriticalTime,
         timeLeft,
@@ -83,7 +131,6 @@ export default function RoomLivePage() {
     const [muted, setMuted] = useState(
         () => localStorage.getItem("mute_ambient:live") !== "false"
     );
-
     const [target, setTarget] = useState<string | null>(null);
     const [showPowerUp, setShowPowerUp] = useState(false);
     const [effect, setEffect] = useState<PowerEffect | null>(null);
@@ -91,6 +138,10 @@ export default function RoomLivePage() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const previousHidden = useRef(0);
     const previousQuestion = useRef<number | null>(null);
+
+    const finished = correctAlternative !== null;
+    const answeredCount = totalAnswers ?? 0;
+    const playerCount = totalPlayers ?? players.length + 1;
 
     const card = {
         backgroundColor: colors.card,
@@ -105,70 +156,44 @@ export default function RoomLivePage() {
         borderRadius: "14px",
     };
 
-    const finished = correctAlternative !== null;
-
-    const answeredCount = totalAnswers ?? 0;
-    const playerCount = totalPlayers ?? players.length + 1;
-
-    const allAnswered =
-        playerCount > 0 && answeredCount >= playerCount;
-
-    const getPowerName = (powerType: string) =>
-        POWER_NAMES[powerType.toUpperCase()] ?? powerType;
-
-    const getPowerIcon = (powerType: string) => {
-        const normalized = powerType.toUpperCase();
-
-        if (normalized.includes("DOUBLE")) return <FiZap />;
-        if (normalized.includes("SKIP")) return <FiSkipForward />;
-
-        return <FiTarget />;
-    };
-
-    const getPowerColor = (powerType: string) => {
-        const normalized = powerType.toUpperCase();
-
-        if (normalized.includes("DOUBLE")) return "#F59E0B";
-        if (normalized.includes("SKIP")) return SKIP_COLOR;
-
-        return "#A78BFA";
-    };
-
+    // Música ambiente
     useEffect(() => {
         const audio = audioRef.current;
-
         if (!audio) return;
 
-        const savedPosition = Number(
+        audio.currentTime = Number(
             localStorage.getItem("live_music_position") ?? 0
         );
-
-        audio.currentTime = savedPosition;
         audio.volume = 0.15;
-
-        if (!muted) {
-            void audio.play().catch(() => {});
-        } else {
-            audio.pause();
-        }
 
         return () => {
             localStorage.setItem(
                 "live_music_position",
                 String(audio.currentTime)
             );
-
             audio.pause();
         };
+    }, []);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        if (muted) {
+            audio.pause();
+        } else {
+            void audio.play().catch(() => {});
+        }
     }, [muted]);
 
     const toggleMusic = () => {
-        const next = !muted;
-
-        setMuted(next);
-        localStorage.setItem("mute_ambient:live", String(next));
+        setMuted(current => {
+            localStorage.setItem("mute_ambient:live", String(!current));
+            return !current;
+        });
     };
 
+    // Sons e efeitos dos power-ups
     useEffect(() => {
         if (
             selectedAnswer !== null &&
@@ -196,35 +221,27 @@ export default function RoomLivePage() {
     }, [skip]);
 
     useEffect(() => {
-        if (!question) return;
+        if (!question || previousQuestion.current === question.id) return;
 
-        if (previousQuestion.current !== question.id) {
-            previousQuestion.current = question.id;
-            previousHidden.current = 0;
-            setEffect(null);
-        }
+        previousQuestion.current = question.id;
+        previousHidden.current = 0;
+        setEffect(null);
     }, [question?.id]);
 
     useEffect(() => {
         if (!effect) return;
 
-        const timeout = window.setTimeout(() => {
-            setEffect(null);
-        }, 2800);
-
+        const timeout = window.setTimeout(() => setEffect(null), 2800);
         return () => window.clearTimeout(timeout);
     }, [effect]);
 
+    // Ativação de power-ups
     const activatePowerUp = async (
         powerupId: number,
         powerType: string,
         targetPlayer?: string
     ) => {
-        const success = await onConfirmPowerUp(
-            powerupId,
-            targetPlayer
-        );
-
+        const success = await onConfirmPowerUp(powerupId, targetPlayer);
         if (!success) return;
 
         setShowPowerUp(false);
@@ -234,14 +251,10 @@ export default function RoomLivePage() {
         if (powerType.includes("DOUBLE")) {
             playSound("/xp.mp3");
             setEffect("DOUBLE_XP");
-        }
-
-        if (powerType.includes("FIFTY")) {
+        } else if (powerType.includes("FIFTY")) {
             playSound("/fifty.mp3");
             setEffect("FIFTY_FIFTY");
-        }
-
-        if (powerType.includes("SKIP")) {
+        } else if (powerType.includes("SKIP")) {
             playSound("/skip.mp3");
             setEffect("SKIP_TURN");
         }
@@ -259,17 +272,16 @@ export default function RoomLivePage() {
             return;
         }
 
-        const powerType = item.powerup_type.toUpperCase();
-
+        const type = item.powerup_type.toUpperCase();
         setSelectedPowerUp(item);
         setTarget(null);
 
         if (
-            powerType === "FIFTY_FIFTY" ||
-            powerType === "FIFTY" ||
-            powerType.includes("DOUBLE")
+            type === "FIFTY_FIFTY" ||
+            type === "FIFTY" ||
+            type.includes("DOUBLE")
         ) {
-            void activatePowerUp(item.powerup_id, powerType);
+            void activatePowerUp(item.powerup_id, type);
             return;
         }
 
@@ -297,43 +309,6 @@ export default function RoomLivePage() {
         );
     };
 
-
-    const effectBorder = {
-        DOUBLE_XP:
-            "shadow-[inset_0_0_0_3px_#F59E0B,inset_0_0_30px_#F59E0B25]",
-        FIFTY_FIFTY:
-            "shadow-[inset_0_0_0_3px_#A78BFA,inset_0_0_30px_#A78BFA25]",
-        SKIP_TURN:
-            "shadow-[inset_0_0_0_3px_#1CB0F6,inset_0_0_30px_#1CB0F625]",
-    };
-
-    const notificationConfig = {
-        DOUBLE_XP: {
-            title: "XP em dobro ativado!",
-            description: "Bônus preparado para a próxima rodada.",
-            color: "text-amber-400",
-            background: "bg-amber-500/10",
-            border: "border-amber-500/40",
-            icon: <FiZap />,
-        },
-        FIFTY_FIFTY: {
-            title: "50/50 ativado!",
-            description: "Duas alternativas foram eliminadas.",
-            color: "text-violet-400",
-            background: "bg-violet-500/10",
-            border: "border-violet-500/40",
-            icon: <FiTarget />,
-        },
-        SKIP_TURN: {
-            title: "Skip Turn ativado!",
-            description: "Sua rodada foi pulada com sucesso.",
-            color: "text-sky-400",
-            background: "bg-sky-500/10",
-            border: "border-sky-500/40",
-            icon: <FiSkipForward />,
-        },
-    };
-
     if (loading) {
         return <Loading message="Carregando Partida" />;
     }
@@ -344,10 +319,7 @@ export default function RoomLivePage() {
                 className="min-h-screen flex items-center justify-center p-5"
                 style={{ backgroundColor: colors.background }}
             >
-                <div
-                    className="w-full max-w-md p-7 text-center"
-                    style={card}
-                >
+                <div className="w-full max-w-md p-7 text-center" style={card}>
                     <FiX
                         className="mx-auto mb-4 text-4xl"
                         style={{ color: colors.danger }}
@@ -385,10 +357,11 @@ export default function RoomLivePage() {
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${
-                    effect ? effectBorder[effect] : ""
+                    effect ? EFFECT_CONFIG[effect].shadow : ""
                 }`}
                 style={{ backgroundColor: colors.background }}
             >
+                {/* Progresso */}
                 <div
                     className="h-2 w-full"
                     style={{ backgroundColor: colors.border }}
@@ -404,7 +377,7 @@ export default function RoomLivePage() {
                     />
                 </div>
 
-                {/* Header */}
+                {/* Cabeçalho */}
                 <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                         <img
@@ -432,6 +405,7 @@ export default function RoomLivePage() {
 
                     <div className="flex items-center gap-2 sm:gap-3">
                         <button
+                            type="button"
                             onClick={toggleMusic}
                             className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:opacity-75"
                             style={surface}
@@ -444,7 +418,6 @@ export default function RoomLivePage() {
                             )}
                         </button>
 
-                        {/* Contador de respostas */}
                         <div
                             className="flex items-center gap-2 px-3 py-2 rounded-xl"
                             style={surface}
@@ -466,21 +439,17 @@ export default function RoomLivePage() {
                             </span>
                         </div>
 
-                        {/* Ranking exclusivo do host */}
                         {isHost && (
                             <Button
                                 variant="primary"
-                                onClick={handleGoToRanking}
-                                disabled={!allAnswered}
+                                onClick={handleEndRound}
+                                disabled={timeLeft <= 0 || finished}
                             >
-                                <span className="hidden sm:inline">
-                                    Ranking
-                                </span>
+                                <span className="hidden sm:inline">Encerrar</span>
                                 <FiArrowRight />
                             </Button>
                         )}
 
-                        {/* Cronômetro */}
                         <div
                             className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-black"
                             style={{
@@ -498,15 +467,12 @@ export default function RoomLivePage() {
                             }}
                         >
                             <FiClock />
-                            <span className="tabular-nums">
-                                {timeLeft}s
-                            </span>
+                            <span className="tabular-nums">{timeLeft}s</span>
                         </div>
                     </div>
                 </header>
 
                 <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-8 flex-1 flex flex-col gap-5">
-
                     {/* Power-ups */}
                     <section className="p-4 sm:p-5" style={card}>
                         <div className="flex items-center justify-between gap-3 mb-4">
@@ -534,10 +500,7 @@ export default function RoomLivePage() {
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {powerUp.map(item => {
-                                const powerColor = getPowerColor(
-                                    item.powerup_type
-                                );
-
+                                const color = getPowerColor(item.powerup_type);
                                 const disabled =
                                     item.used ||
                                     timeLeft <= 0 ||
@@ -555,14 +518,10 @@ export default function RoomLivePage() {
                                         style={{
                                             backgroundColor: colors.surface,
                                             border: `2px solid ${
-                                                item.used
-                                                    ? colors.border
-                                                    : powerColor
+                                                item.used ? colors.border : color
                                             }`,
                                             borderBottom: `4px solid ${
-                                                item.used
-                                                    ? colors.border
-                                                    : powerColor
+                                                item.used ? colors.border : color
                                             }`,
                                             borderRadius: "15px",
                                         }}
@@ -570,8 +529,8 @@ export default function RoomLivePage() {
                                         <span
                                             className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
                                             style={{
-                                                backgroundColor: `${powerColor}20`,
-                                                color: powerColor,
+                                                backgroundColor: `${color}20`,
+                                                color,
                                             }}
                                         >
                                             {getPowerIcon(item.powerup_type)}
@@ -589,16 +548,14 @@ export default function RoomLivePage() {
                                                 className="block text-xs mt-1"
                                                 style={{ color: colors.muted }}
                                             >
-                                                {item.used
-                                                    ? "Já utilizado"
-                                                    : "Disponível"}
+                                                {item.used ? "Já utilizado" : "Disponível"}
                                             </span>
                                         </span>
 
                                         {item.used ? (
                                             <FiCheck style={{ color: colors.muted }} />
                                         ) : (
-                                            <FiArrowRight style={{ color: powerColor }} />
+                                            <FiArrowRight style={{ color }} />
                                         )}
                                     </button>
                                 );
@@ -632,9 +589,11 @@ export default function RoomLivePage() {
                                 className="text-xs font-bold"
                                 style={{ color: colors.muted }}
                             >
-                                {timeLeft > 0
-                                    ? "Responda antes do tempo acabar"
-                                    : "Tempo encerrado"}
+                                {finished
+                                    ? "Resultado da rodada"
+                                    : timeLeft > 0
+                                      ? "Responda antes do tempo acabar"
+                                      : "Aguardando resultado..."}
                             </span>
                         </div>
 
@@ -662,37 +621,31 @@ export default function RoomLivePage() {
                     {!skip && (
                         <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {question.alternatives.map((alternative, index) => {
-                                const hidden = hiddenAlternativeIds.includes(
-                                    alternative.id
-                                );
-
-                                const selected =
-                                    selectedAnswer === alternative.id;
-
+                                const hidden = hiddenAlternativeIds.includes(alternative.id);
+                                const selected = selectedAnswer === alternative.id;
                                 const stats = alternativeStatistics.find(
                                     item => item.alternativeId === alternative.id
                                 );
 
                                 const isCorrect =
-                                    finished &&
-                                    alternative.id === correctAlternative;
+                                    finished && alternative.id === correctAlternative;
+                                const isWrong = finished && selected && !isCorrect;
 
-                                const isWrong =
-                                    finished && selected && !isCorrect;
+                                const borderColor = isCorrect
+                                    ? colors.success
+                                    : isWrong
+                                      ? colors.danger
+                                      : selected
+                                        ? colors.primary
+                                        : colors.border;
 
-                                let borderColor = colors.border;
-                                let backgroundColor = colors.card;
-
-                                if (isCorrect) {
-                                    borderColor = colors.success;
-                                    backgroundColor = `${colors.success}18`;
-                                } else if (isWrong) {
-                                    borderColor = colors.danger;
-                                    backgroundColor = `${colors.danger}15`;
-                                } else if (selected) {
-                                    borderColor = colors.primary;
-                                    backgroundColor = `${colors.primary}15`;
-                                }
+                                const backgroundColor = isCorrect
+                                    ? `${colors.success}18`
+                                    : isWrong
+                                      ? `${colors.danger}15`
+                                      : selected
+                                        ? `${colors.primary}15`
+                                        : colors.card;
 
                                 return (
                                     <button
@@ -702,7 +655,7 @@ export default function RoomLivePage() {
                                             hidden ||
                                             selectedAnswer !== null ||
                                             timeLeft <= 0 ||
-                                            skip
+                                            finished
                                         }
                                         onClick={() => handleAnswer(alternative.id)}
                                         className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${
@@ -754,13 +707,6 @@ export default function RoomLivePage() {
                                             <FiX
                                                 className="text-xl"
                                                 style={{ color: colors.danger }}
-                                            />
-                                        )}
-
-                                        {selected && (
-                                            <FiCheck
-                                                className="text-xl"
-                                                style={{ color: colors.primary }}
                                             />
                                         )}
 
@@ -842,27 +788,21 @@ export default function RoomLivePage() {
                 {/* Notificação de power-up */}
                 {effect && (
                     <div
-                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${
-                            notificationConfig[effect].background
-                        } ${notificationConfig[effect].border}`}
+                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${EFFECT_CONFIG[effect].background} ${EFFECT_CONFIG[effect].border}`}
                     >
                         <div
-                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${
-                                notificationConfig[effect].color
-                            } bg-white/10`}
+                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${EFFECT_CONFIG[effect].color} bg-white/10`}
                         >
-                            {notificationConfig[effect].icon}
+                            {EFFECT_CONFIG[effect].icon}
                         </div>
 
                         <div className="min-w-0">
-                            <p
-                                className={`font-black text-sm ${notificationConfig[effect].color}`}
-                            >
-                                {notificationConfig[effect].title}
+                            <p className={`font-black text-sm ${EFFECT_CONFIG[effect].color}`}>
+                                {EFFECT_CONFIG[effect].title}
                             </p>
 
                             <p className="text-xs mt-1 text-white/75">
-                                {notificationConfig[effect].description}
+                                {EFFECT_CONFIG[effect].description}
                             </p>
                         </div>
                     </div>
@@ -909,6 +849,7 @@ export default function RoomLivePage() {
                                 </div>
 
                                 <button
+                                    type="button"
                                     onClick={closePowerUp}
                                     disabled={usingPowerUp}
                                     className="p-2 rounded-lg hover:bg-black/5 transition disabled:opacity-40"
@@ -922,21 +863,18 @@ export default function RoomLivePage() {
                                 className="text-sm mb-4"
                                 style={{ color: colors.muted }}
                             >
-                                {POWER_DESCRIPTIONS.SKIP_TURN}
+                                Escolha um jogador para pular esta rodada.
                             </p>
 
                             <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                                {players.map((player: any) => {
-                                    const selected =
-                                        target === player.player_id;
+                                {players.map(player => {
+                                    const selected = target === player.player_id;
 
                                     return (
                                         <button
                                             key={player.player_id}
                                             type="button"
-                                            onClick={() =>
-                                                setTarget(player.player_id)
-                                            }
+                                            onClick={() => setTarget(player.player_id)}
                                             className="w-full flex items-center gap-3 p-3 text-left rounded-xl border-2 transition-all duration-200"
                                             style={{
                                                 backgroundColor: selected
@@ -965,9 +903,7 @@ export default function RoomLivePage() {
                                             </span>
 
                                             {selected && (
-                                                <FiCheck
-                                                    style={{ color: SKIP_COLOR }}
-                                                />
+                                                <FiCheck style={{ color: SKIP_COLOR }} />
                                             )}
                                         </button>
                                     );
