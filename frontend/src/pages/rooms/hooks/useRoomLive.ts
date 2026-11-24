@@ -85,10 +85,7 @@ const useRoomLive = () => {
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Impede emitir o encerramento mais de uma vez por rodada.
     const expiredRoundRef = useRef<number | null>(null);
-
-    // Guarda o evento caso o Socket.IO esteja desconectado.
     const pendingExpiredRef = useRef<ExpiredPayload | null>(null);
 
     const getPlayerId = () => {
@@ -105,8 +102,16 @@ const useRoomLive = () => {
         }
     };
 
-    // Emite o evento de encerramento da rodada.
+    // Emite o encerramento da rodada somente uma vez.
     const emitRoundExpired = useCallback(() => {
+        console.log("[ROUND] Tentando emitir:", {
+            isHost,
+            roomCode,
+            round,
+            connected: socket.connected,
+            alreadyExpired: expiredRoundRef.current,
+        });
+
         if (
             !isHost ||
             !roomCode ||
@@ -121,33 +126,38 @@ const useRoomLive = () => {
             roundId: round,
         };
 
-        // Marca a rodada para evitar emissões duplicadas.
         expiredRoundRef.current = round;
 
-        console.log("[ROUND] Emitindo encerramento:", payload);
-
         if (!socket.connected) {
+            console.log("[ROUND] Socket desconectado. Guardando evento.");
+
             pendingExpiredRef.current = payload;
             socket.connect();
+
             return;
         }
+
+        console.log("[ROUND] Emitindo round:time_expired:", payload);
 
         socket.emit("round:time_expired", payload);
     }, [isHost, roomCode, round]);
 
     // Encerramento manual pelo host.
-    // O useEffect será responsável por emitir o evento.
     const handleEndRound = () => {
+        console.log("[ROUND] Clique em encerrar:", {
+            isHost,
+            timeLeft,
+            round,
+            correctAlternative,
+        });
+
         if (
             !isHost ||
             round === null ||
-            correctAlternative !== null ||
-            timeLeft <= 0
+            correctAlternative !== null
         ) {
             return;
         }
-
-        console.log("[ROUND] Encerramento manual solicitado");
 
         setTimeLeft(0);
     };
@@ -188,7 +198,7 @@ const useRoomLive = () => {
         setSkip(data.skip ?? false);
         setRound(newRound);
 
-        // Permite emitir novamente quando a rodada mudar.
+        // Libera a emissão quando uma nova rodada é carregada.
         if (expiredRoundRef.current !== newRound) {
             pendingExpiredRef.current = null;
         }
@@ -280,6 +290,7 @@ const useRoomLive = () => {
         }
     };
 
+    // Eventos do Socket.IO.
     useEffect(() => {
         if (!roomCode) {
             setError("Código da sala não encontrado.");
@@ -288,12 +299,14 @@ const useRoomLive = () => {
         }
 
         const roomJoin = () => {
+            console.log("[SOCKET] Conectado. Entrando na sala:", roomCode);
+
             socket.emit("room:join", roomCode);
 
             const pending = pendingExpiredRef.current;
 
             if (pending) {
-                console.log("[ROUND] Enviando encerramento pendente:", pending);
+                console.log("[SOCKET] Emitindo evento pendente:", pending);
 
                 socket.emit("round:time_expired", pending);
                 pendingExpiredRef.current = null;
@@ -324,7 +337,7 @@ const useRoomLive = () => {
             setPlayerNameUsed(data.userName);
         };
 
-        // Recebe o resultado enviado pelo backend.
+        // Resultado da rodada recebido do backend.
         const expired = (data: any) => {
             console.log("[ROUND] Resultado recebido:", data);
 
@@ -386,17 +399,38 @@ const useRoomLive = () => {
 
     // Cronômetro.
     useEffect(() => {
-        if (!question || loading || timeLeft <= 0) return;
+        if (!question || loading || timeLeft <= 0) {
+            return;
+        }
 
-        const timer = window.setTimeout(() => {
-            setTimeLeft(previous => Math.max(0, previous - 1));
+        console.log("[TIMER] Iniciado:", timeLeft);
+
+        const timer = window.setInterval(() => {
+            setTimeLeft(previous => {
+                const next = Math.max(0, previous - 1);
+
+                console.log("[TIMER] Contagem:", previous, "=>", next);
+
+                return next;
+            });
         }, 1000);
 
-        return () => window.clearTimeout(timer);
-    }, [question, timeLeft, loading]);
+        return () => {
+            window.clearInterval(timer);
+        };
+    }, [question?.id, loading]);
 
-    // Encerra a rodada automaticamente ou após o clique do host.
+    // Emite o evento quando o tempo chega a zero.
     useEffect(() => {
+        console.log("[ROUND] Verificando encerramento:", {
+            timeLeft,
+            isHost,
+            round,
+            loading,
+            question: Boolean(question),
+            alreadyExpired: expiredRoundRef.current,
+        });
+
         if (
             !question ||
             loading ||
@@ -407,15 +441,20 @@ const useRoomLive = () => {
             return;
         }
 
-        console.log("[ROUND] useEffect detectou tempo zerado");
+        if (expiredRoundRef.current === round) {
+            console.log("[ROUND] Rodada já encerrada:", round);
+            return;
+        }
+
+        console.log("[ROUND] TEMPO ENCERRADO. Emitindo evento.");
 
         emitRoundExpired();
     }, [
         timeLeft,
         isHost,
-        question,
         round,
         loading,
+        question,
         emitRoundExpired,
     ]);
 
