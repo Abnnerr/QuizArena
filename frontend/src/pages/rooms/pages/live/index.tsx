@@ -414,6 +414,7 @@ export default function RoomLivePage() {
                     />
                 </div>
 
+                {/* Header */}
                 <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                         <img
@@ -453,6 +454,7 @@ export default function RoomLivePage() {
                             )}
                         </button>
 
+                        {/* Contador de respostas */}
                         <div
                             className="flex items-center gap-2 px-3 py-2 rounded-xl"
                             style={surface}
@@ -474,6 +476,21 @@ export default function RoomLivePage() {
                             </span>
                         </div>
 
+                        {/* Botão de ranking exclusivo do host */}
+                        {isHost && (
+                            <Button
+                                variant="primary"
+                                onClick={handleGoToRanking}
+                                disabled={!allAnswered}
+                            >
+                                <span className="hidden sm:inline">
+                                    Ranking
+                                </span>
+                                <FiArrowRight />
+                            </Button>
+                        )}
+
+                        {/* Cronômetro */}
                         <div
                             className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-black"
                             style={{
@@ -828,46 +845,6 @@ export default function RoomLivePage() {
                                 <FiCheck className="inline mr-2" />
                                 Rodada ignorada com sucesso
                             </div>
-                        </section>
-                    )}
-
-                    {/* Botão para avançar todos ao ranking */}
-                    {isHost && (
-                        <section
-                            className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
-                            style={card}
-                        >
-                            <div className="text-center sm:text-left">
-                                <p
-                                    className="font-black"
-                                    style={{
-                                        color: allAnswered
-                                            ? colors.success
-                                            : colors.text,
-                                    }}
-                                >
-                                    <FiCheck className="inline mr-2" />
-                                    {allAnswered
-                                        ? "Todos responderam!"
-                                        : "Aguardando respostas"}
-                                </p>
-
-                                <p
-                                    className="text-sm mt-1"
-                                    style={{ color: colors.muted }}
-                                >
-                                    {answeredCount}/{playerCount} jogadores responderam.
-                                </p>
-                            </div>
-
-                            <Button
-                                variant="primary"
-                                onClick={handleGoToRanking}
-                                disabled={!allAnswered}
-                            >
-                                Ir para o ranking
-                                <FiArrowRight className="ml-2" />
-                            </Button>
                         </section>
                     )}
 
