@@ -2,7 +2,6 @@
 import { Helmet } from "react-helmet-async";
 import { useEffect, useRef, useState } from "react";
 import {
-
     FiZap,
     FiSkipForward,
     FiTarget,
@@ -13,7 +12,6 @@ import {
     FiVolumeX,
     FiVolume2,
     FiUsers,
-
 } from "react-icons/fi";
 import { useParams } from "react-router";
 
@@ -46,7 +44,7 @@ const POWER_DESCRIPTIONS: Record<string, string> = {
 const playSound = (src: string, volume = 0.4) => {
     const audio = new Audio(src);
     audio.volume = volume;
-    void audio.play().catch(() => { });
+    void audio.play().catch(() => {});
 };
 
 export default function RoomLivePage() {
@@ -78,6 +76,9 @@ export default function RoomLivePage() {
         alternativeStatistics,
         playerNameUsed,
         usingPowerUp,
+        totalPlayers,
+        totalAnswers,
+        everyoneAnswered,
     } = useRoomLive();
 
     const [muted, setMuted] = useState(
@@ -106,6 +107,15 @@ export default function RoomLivePage() {
     };
 
     const finished = correctAlternative !== null;
+
+    const answeredCount = totalAnswers ?? 0;
+    const playerCount = totalPlayers ?? players.length + 1;
+    const waitingCount = Math.max(0, playerCount - answeredCount);
+
+    const answerProgress =
+        playerCount > 0
+            ? Math.min((answeredCount / playerCount) * 100, 100)
+            : 0;
 
     const totalVotes = alternativeStatistics.reduce(
         (total, item) => total + item.count,
@@ -146,7 +156,7 @@ export default function RoomLivePage() {
         audio.volume = 0.15;
 
         if (!muted) {
-            void audio.play().catch(() => { });
+            void audio.play().catch(() => {});
         } else {
             audio.pause();
         }
@@ -338,7 +348,7 @@ export default function RoomLivePage() {
     };
 
     if (loading) {
-        return <Loading message="Carregando Partida"/>
+        return <Loading message="Carregando Partida" />;
     }
 
     if (!question) {
@@ -387,8 +397,9 @@ export default function RoomLivePage() {
             <main
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
-                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${effect ? effectBorder[effect] : ""
-                    }`}
+                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${
+                    effect ? effectBorder[effect] : ""
+                }`}
                 style={{ backgroundColor: colors.background }}
             >
                 <div
@@ -451,10 +462,11 @@ export default function RoomLivePage() {
                                 backgroundColor: isCriticalTime
                                     ? `${colors.danger}18`
                                     : colors.surface,
-                                border: `2px solid ${isCriticalTime
+                                border: `2px solid ${
+                                    isCriticalTime
                                         ? colors.danger
                                         : colors.border
-                                    }`,
+                                }`,
                                 color: isCriticalTime
                                     ? colors.danger
                                     : colors.text,
@@ -469,6 +481,136 @@ export default function RoomLivePage() {
                 </header>
 
                 <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-8 flex-1 flex flex-col gap-5">
+
+                    {/* Acompanhamento das respostas */}
+                    <section className="p-4 sm:p-5" style={card}>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div
+                                    className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
+                                    style={{
+                                        backgroundColor: `${colors.primary}18`,
+                                        color: colors.primary,
+                                    }}
+                                >
+                                    <FiUsers />
+                                </div>
+
+                                <div>
+                                    <h2
+                                        className="font-black"
+                                        style={{ color: colors.text }}
+                                    >
+                                        Respostas da sala
+                                    </h2>
+
+                                    <p
+                                        className="text-xs mt-1"
+                                        style={{ color: colors.muted }}
+                                    >
+                                        Acompanhe o andamento da rodada
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 sm:gap-5">
+                                <div>
+                                    <p
+                                        className="text-xs"
+                                        style={{ color: colors.muted }}
+                                    >
+                                        Jogadores
+                                    </p>
+
+                                    <p
+                                        className="text-xl font-black tabular-nums"
+                                        style={{ color: colors.text }}
+                                    >
+                                        {playerCount}
+                                    </p>
+                                </div>
+
+                                <div
+                                    className="w-px h-10"
+                                    style={{ backgroundColor: colors.border }}
+                                />
+
+                                <div>
+                                    <p
+                                        className="text-xs"
+                                        style={{ color: colors.muted }}
+                                    >
+                                        Responderam
+                                    </p>
+
+                                    <p
+                                        className="text-xl font-black tabular-nums"
+                                        style={{ color: colors.success }}
+                                    >
+                                        {answeredCount}
+                                    </p>
+                                </div>
+
+                                <div
+                                    className="w-px h-10"
+                                    style={{ backgroundColor: colors.border }}
+                                />
+
+                                <div>
+                                    <p
+                                        className="text-xs"
+                                        style={{ color: colors.muted }}
+                                    >
+                                        Pendentes
+                                    </p>
+
+                                    <p
+                                        className="text-xl font-black tabular-nums"
+                                        style={{ color: colors.danger }}
+                                    >
+                                        {waitingCount}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="w-full h-2.5 rounded-full overflow-hidden mt-5"
+                            style={{ backgroundColor: colors.border }}
+                        >
+                            <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                    width: `${answerProgress}%`,
+                                    backgroundColor: colors.success,
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-3 mt-2">
+                            <span
+                                className="text-xs font-semibold"
+                                style={{ color: colors.muted }}
+                            >
+                                {answeredCount} de {playerCount} jogadores
+                            </span>
+
+                            <span
+                                className="text-xs font-black"
+                                style={{
+                                    color: everyoneAnswered
+                                        ? colors.success
+                                        : colors.muted,
+                                }}
+                            >
+                                {everyoneAnswered
+                                    ? "Todos responderam!"
+                                    : `${Math.round(answerProgress)}% concluído`}
+                            </span>
+                        </div>
+                    </section>
+
+                    {/* Power-ups */}
                     <section className="p-4 sm:p-5" style={card}>
                         <div className="flex items-center justify-between gap-3 mb-4">
                             <div>
@@ -515,14 +657,16 @@ export default function RoomLivePage() {
                                         className="p-3 flex items-center gap-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                                         style={{
                                             backgroundColor: colors.surface,
-                                            border: `2px solid ${item.used
+                                            border: `2px solid ${
+                                                item.used
                                                     ? colors.border
                                                     : powerColor
-                                                }`,
-                                            borderBottom: `4px solid ${item.used
+                                            }`,
+                                            borderBottom: `4px solid ${
+                                                item.used
                                                     ? colors.border
                                                     : powerColor
-                                                }`,
+                                            }`,
                                             borderRadius: "15px",
                                         }}
                                     >
@@ -555,13 +699,9 @@ export default function RoomLivePage() {
                                         </span>
 
                                         {item.used ? (
-                                            <FiCheck
-                                                style={{ color: colors.muted }}
-                                            />
+                                            <FiCheck style={{ color: colors.muted }} />
                                         ) : (
-                                            <FiArrowRight
-                                                style={{ color: powerColor }}
-                                            />
+                                            <FiArrowRight style={{ color: powerColor }} />
                                         )}
                                     </button>
                                 );
@@ -578,8 +718,9 @@ export default function RoomLivePage() {
                         </div>
                     </section>
 
+                    {/* Pergunta */}
                     <section className="p-5 sm:p-8" style={card}>
-                        <div className="flex items-center justify-between gap-3 mb-5">
+                        <div className="flex items-center justify-between gap-3 mb-4">
                             <span
                                 className="text-xs font-black uppercase tracking-wider px-3 py-2 rounded-lg"
                                 style={{
@@ -620,128 +761,127 @@ export default function RoomLivePage() {
                         )}
                     </section>
 
+                    {/* Alternativas */}
                     {!skip && (
                         <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {question.alternatives.map(
-                                (alternative, index) => {
-                                    const hidden =
-                                        hiddenAlternativeIds.includes(
-                                            alternative.id
-                                        );
+                            {question.alternatives.map((alternative, index) => {
+                                const hidden = hiddenAlternativeIds.includes(
+                                    alternative.id
+                                );
 
-                                    const selected =
-                                        selectedAnswer === alternative.id;
+                                const selected =
+                                    selectedAnswer === alternative.id;
 
-                                    const stats = getAlternativeStats(
-                                        alternative.id
-                                    );
+                                const stats = getAlternativeStats(
+                                    alternative.id
+                                );
 
-                                    const isCorrect =
-                                        finished &&
-                                        alternative.id === correctAlternative;
+                                const isCorrect =
+                                    finished &&
+                                    alternative.id === correctAlternative;
 
-                                    const isWrong =
-                                        finished && selected && !isCorrect;
+                                const isWrong =
+                                    finished && selected && !isCorrect;
 
-                                    let borderColor = colors.border;
-                                    let backgroundColor = colors.card;
+                                let borderColor = colors.border;
+                                let backgroundColor = colors.card;
 
-                                    if (isCorrect) {
-                                        borderColor = colors.success;
-                                        backgroundColor = `${colors.success}18`;
-                                    } else if (isWrong) {
-                                        borderColor = colors.danger;
-                                        backgroundColor = `${colors.danger}15`;
-                                    } else if (selected) {
-                                        borderColor = colors.primary;
-                                        backgroundColor = `${colors.primary}15`;
-                                    }
+                                if (isCorrect) {
+                                    borderColor = colors.success;
+                                    backgroundColor = `${colors.success}18`;
+                                } else if (isWrong) {
+                                    borderColor = colors.danger;
+                                    backgroundColor = `${colors.danger}15`;
+                                } else if (selected) {
+                                    borderColor = colors.primary;
+                                    backgroundColor = `${colors.primary}15`;
+                                }
 
-                                    return (
-                                        <button
-                                            key={alternative.id}
-                                            type="button"
-                                            disabled={
-                                                hidden ||
-                                                answered ||
-                                                timeLeft <= 0 ||
-                                                finished
-                                            }
-                                            onClick={() =>
-                                                handleAnswer(alternative.id)
-                                            }
-                                            className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${hidden
-                                                    ? "opacity-35 scale-[0.98] cursor-not-allowed"
-                                                    : "hover:-translate-y-0.5"
-                                                } disabled:cursor-not-allowed`}
+                                return (
+                                    <button
+                                        key={alternative.id}
+                                        type="button"
+                                        disabled={
+                                            hidden ||
+                                            answered ||
+                                            timeLeft <= 0 ||
+                                            finished
+                                        }
+                                        onClick={() => handleAnswer(alternative.id)}
+                                        className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${
+                                            hidden
+                                                ? "opacity-35 scale-[0.98] cursor-not-allowed"
+                                                : "hover:-translate-y-0.5"
+                                        } disabled:cursor-not-allowed`}
+                                        style={{
+                                            backgroundColor,
+                                            border: `2px solid ${borderColor}`,
+                                            borderBottom: `5px solid ${borderColor}`,
+                                            borderRadius: "18px",
+                                        }}
+                                    >
+                                        <span
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center font-black shrink-0"
                                             style={{
-                                                backgroundColor,
-                                                border: `2px solid ${borderColor}`,
-                                                borderBottom: `5px solid ${borderColor}`,
-                                                borderRadius: "18px",
+                                                backgroundColor: `${colors.primary}18`,
+                                                color: colors.primary,
                                             }}
                                         >
+                                            {String.fromCharCode(65 + index)}
+                                        </span>
+
+                                        <span
+                                            className={`flex-1 font-bold text-sm sm:text-base ${
+                                                hidden ? "line-through" : ""
+                                            }`}
+                                            style={{ color: colors.text }}
+                                        >
+                                            {alternative.text}
+                                        </span>
+
+                                        {hidden && (
+                                            <FiX
+                                                className="text-xl"
+                                                style={{ color: colors.muted }}
+                                            />
+                                        )}
+
+                                        {isCorrect && (
+                                            <FiCheck
+                                                className="text-xl"
+                                                style={{ color: colors.success }}
+                                            />
+                                        )}
+
+                                        {isWrong && (
+                                            <FiX
+                                                className="text-xl"
+                                                style={{ color: colors.danger }}
+                                            />
+                                        )}
+
+                                        {selected && !finished && (
+                                            <FiCheck
+                                                className="text-xl"
+                                                style={{ color: colors.primary }}
+                                            />
+                                        )}
+
+                                        {finished && stats && (
                                             <span
-                                                className="w-10 h-10 rounded-xl flex items-center justify-center font-black shrink-0"
-                                                style={{
-                                                    backgroundColor: `${colors.primary}18`,
-                                                    color: colors.primary,
-                                                }}
+                                                className="text-xs font-black tabular-nums"
+                                                style={{ color: colors.muted }}
                                             >
-                                                {String.fromCharCode(65 + index)}
+                                                {stats.count} voto(s)
                                             </span>
-
-                                            <span
-                                                className={`flex-1 font-bold text-sm sm:text-base ${hidden ? "line-through" : ""
-                                                    }`}
-                                                style={{ color: colors.text }}
-                                            >
-                                                {alternative.text}
-                                            </span>
-
-                                            {hidden && (
-                                                <FiX
-                                                    className="text-xl"
-                                                    style={{ color: colors.muted }}
-                                                />
-                                            )}
-
-                                            {isCorrect && (
-                                                <FiCheck
-                                                    className="text-xl"
-                                                    style={{ color: colors.success }}
-                                                />
-                                            )}
-
-                                            {isWrong && (
-                                                <FiX
-                                                    className="text-xl"
-                                                    style={{ color: colors.danger }}
-                                                />
-                                            )}
-
-                                            {selected && !finished && (
-                                                <FiCheck
-                                                    className="text-xl"
-                                                    style={{ color: colors.primary }}
-                                                />
-                                            )}
-
-                                            {finished && stats && (
-                                                <span
-                                                    className="text-xs font-black tabular-nums"
-                                                    style={{ color: colors.muted }}
-                                                >
-                                                    {stats.count} voto(s)
-                                                </span>
-                                            )}
-                                        </button>
-                                    );
-                                }
-                            )}
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </section>
                     )}
 
+                    {/* Skip Turn */}
                     {skip && (
                         <section
                             className="p-8 sm:p-12 text-center flex flex-col items-center gap-5 shadow-lg animate-pulse"
@@ -801,6 +941,7 @@ export default function RoomLivePage() {
                         </section>
                     )}
 
+                    {/* Resultado */}
                     {finished && !skip && (
                         <section
                             className="p-4 flex items-center justify-between gap-3"
@@ -844,18 +985,25 @@ export default function RoomLivePage() {
                     )}
                 </div>
 
+                {/* Notificação de power-up */}
                 {effect && (
                     <div
-                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${notificationConfig[effect].background} ${notificationConfig[effect].border}`}
+                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${
+                            notificationConfig[effect].background
+                        } ${notificationConfig[effect].border}`}
                     >
                         <div
-                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${notificationConfig[effect].color} bg-white/10`}
+                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${
+                                notificationConfig[effect].color
+                            } bg-white/10`}
                         >
                             {notificationConfig[effect].icon}
                         </div>
 
                         <div className="min-w-0">
-                            <p className={`font-black text-sm ${notificationConfig[effect].color}`}>
+                            <p
+                                className={`font-black text-sm ${notificationConfig[effect].color}`}
+                            >
                                 {notificationConfig[effect].title}
                             </p>
 
@@ -864,9 +1012,9 @@ export default function RoomLivePage() {
                             </p>
                         </div>
                     </div>
-                )
-                }
+                )}
 
+                {/* Modal Skip Turn */}
                 {showPowerUp && selectedPowerUp && (
                     <div
                         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -924,7 +1072,7 @@ export default function RoomLivePage() {
                             </p>
 
                             <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                                {(players as any[]).map(player => {
+                                {players.map((player: any) => {
                                     const selected =
                                         target === player.player_id;
 
@@ -935,10 +1083,7 @@ export default function RoomLivePage() {
                                             onClick={() =>
                                                 setTarget(player.player_id)
                                             }
-                                            className={`w-full flex items-center gap-3 p-3 text-left rounded-xl border-2 transition-all duration-200 ${selected
-                                                    ? "bg-sky-500/10 border-sky-500"
-                                                    : "border-transparent hover:border-sky-500/40"
-                                                }`}
+                                            className="w-full flex items-center gap-3 p-3 text-left rounded-xl border-2 transition-all duration-200"
                                             style={{
                                                 backgroundColor: selected
                                                     ? `${SKIP_COLOR}18`
@@ -974,7 +1119,7 @@ export default function RoomLivePage() {
                                     );
                                 })}
 
-                                {(players as any[]).length === 0 && (
+                                {players.length === 0 && (
                                     <p
                                         className="text-center text-sm py-5"
                                         style={{ color: colors.muted }}
@@ -1007,7 +1152,7 @@ export default function RoomLivePage() {
                         </div>
                     </div>
                 )}
-            </main >
+            </main>
         </>
     );
 }

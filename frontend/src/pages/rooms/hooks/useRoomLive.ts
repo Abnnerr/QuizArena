@@ -6,15 +6,8 @@ import { AXIOS } from "../../../service";
 import { socket } from "../../../service/socket";
 import { useNavigate, useParams } from "react-router";
 
-
 const QUESTION_TIME = 20;
 
-
-// type powerUp = {
-//     powerup_id: number,
-//     powerup_type: string,
-//     descricao: string
-// }
 type Alternative = {
     id: number;
     text: string;
@@ -40,11 +33,13 @@ interface PowerFiftyPayload {
         alternative_text?: string;
     }>;
 }
+
 interface AlternativeStatistics {
     alternativeId: number;
     isCorrect: boolean;
     count: number;
 }
+
 const useRoomLive = () => {
     const { roomCode } = useParams<{ roomCode: string }>();
     const navigate = useNavigate();
@@ -54,11 +49,11 @@ const useRoomLive = () => {
 
     const isHost = Boolean(user);
 
-    const [playerNameUsed, setPlayerNameUsed] = useState(null)
+    const [playerNameUsed, setPlayerNameUsed] = useState<string | null>(null);
     const [alternativeStatistics, setAlternativeStatistics] = useState<AlternativeStatistics[]>([]);
     const [correctAlternative, setCorrectAlternative] = useState<number | null>(null);
-    const [players, setPlayers] = useState([])
-    const [skip, setSkip] = useState<boolean>(false)
+    const [players, setPlayers] = useState<any[]>([]);
+    const [skip, setSkip] = useState(false);
     const [selectedPowerUp, setSelectedPowerUp] = useState<any | null>(null);
     const [position, setPosition] = useState(0);
     const [round, setRound] = useState<number | null>(null);
@@ -72,6 +67,11 @@ const useRoomLive = () => {
     const [totalQuestion, setTotalQuestion] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [answered, setAnswered] = useState(false);
+    const [everyoneAnswered, setEveryoneAnswered] = useState(false);
+
+    const [totalPlayers, setTotalPlayers] = useState(0);
+    const [totalAnswers, setTotalAnswers] = useState(0);
+
     const [loading, setLoading] = useState(true);
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -93,7 +93,12 @@ const useRoomLive = () => {
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-        if (event.key !== "Enter" || timeLeft > 0 || round === null || !isHost) {
+        if (
+            event.key !== "Enter" ||
+            timeLeft > 0 ||
+            round === null ||
+            !isHost
+        ) {
             return;
         }
 
@@ -122,6 +127,10 @@ const useRoomLive = () => {
         setSkip(data.skip ?? false);
         setRound(data.round_id);
 
+        setTotalPlayers(data.totalPlayers ?? 0);
+        setTotalAnswers(data.totalAnswers ?? 0);
+        setEveryoneAnswered(data.everyoneAnswered ?? false);
+
         setCorrectAlternative(null);
         setAlternativeStatistics([]);
 
@@ -135,17 +144,9 @@ const useRoomLive = () => {
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
-
-        const playerId = getPlayerId();
-
-        const playerAnswer = (data.answers ?? []).find(
-            (answer: any) =>
-                answer.player_id === playerId ||
-                answer.playerId === playerId
-        );
+        const playerAnswer = data.answers?.[0];
 
         if (playerAnswer) {
-
             setSelectedAnswer(
                 playerAnswer.alternative_id ??
                 playerAnswer.alternativeId
@@ -153,7 +154,6 @@ const useRoomLive = () => {
 
             setAnswered(true);
         } else {
-            
             setSelectedAnswer(null);
             setAnswered(false);
         }
@@ -162,8 +162,6 @@ const useRoomLive = () => {
         setError(null);
     };
 
-
-  
     const buscarRound = async () => {
         try {
             const playerId = getPlayerId();
@@ -172,10 +170,9 @@ const useRoomLive = () => {
                 ? `/round/${roomCode}/${playerId}/findRound`
                 : `/round/${roomCode}/findRound`;
 
-
             const [response, responsePlayers] = await Promise.all([
                 AXIOS.get(url),
-                AXIOS.get(`/player/${roomCode}/podium`)
+                AXIOS.get(`/player/${roomCode}/podium`),
             ]);
 
             const data = response.data;
@@ -199,10 +196,13 @@ const useRoomLive = () => {
             setTotalQuestion(roundData.count_questions ?? 0);
             setPosition(roundData.position ?? 0);
 
+            const plays = dataPlayers.data
+                .map((item: any) => item.players)
+                .filter(
+                    (item: any) => item.player_id !== player?.player_id
+                );
 
-            const plays = dataPlayers.data.map((item: any) => item.players).filter((item: any) => item.player_id !== player?.player_id);
             setPlayers(plays);
-
 
             atualizarPergunta(roundData);
         } catch (err) {
@@ -233,7 +233,6 @@ const useRoomLive = () => {
             sessionStorage.clear();
         };
 
-    
         const handlePowerFifty = (data: PowerFiftyPayload) => {
             const currentPlayerId = getPlayerId();
 
@@ -251,15 +250,15 @@ const useRoomLive = () => {
         const skiped = (data: any) => {
             if (data.target === player?.player_id) {
                 setSkip(data.skiped);
-                setPlayerNameUsed(data.userName)
-                return;
+                setPlayerNameUsed(data.userName);
             }
-            return;
         };
+
         const expired = (data: any) => {
             console.log("Rodada expirada:", data);
 
-            const alternatives: AlternativeStatistics[] = data?.alternative ?? [];
+            const alternatives: AlternativeStatistics[] =
+                data?.alternative ?? [];
 
             if (!alternatives.length) {
                 console.error("Estatísticas não encontradas:", data);
@@ -299,7 +298,6 @@ const useRoomLive = () => {
         };
     }, [roomCode, player?.player_id]);
 
-
     useEffect(() => {
         if (!question || loading || timeLeft <= 0) {
             return;
@@ -312,19 +310,23 @@ const useRoomLive = () => {
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
 
-
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0) return;
 
         socket.emit("round:time_expired", {
             roomCode,
-            roundId: round
+            roundId: round,
         });
     }, [timeLeft, isHost, roomCode, question]);
 
- 
     const handleAnswer = async (answerId: number) => {
-        if (!question || answered || skip || timeLeft <= 0 || round === null) {
+        if (
+            !question ||
+            answered ||
+            skip ||
+            timeLeft <= 0 ||
+            round === null
+        ) {
             return;
         }
 
@@ -345,28 +347,43 @@ const useRoomLive = () => {
                 setError(data.message ?? "Não foi possível enviar a resposta.");
                 setAnswered(false);
                 setSelectedAnswer(null);
+                return;
             }
+
+            // Atualização otimista da contagem para o próprio jogador.
+            setTotalAnswers(previous => {
+                const updated = previous + 1;
+
+                if (updated >= totalPlayers && totalPlayers > 0) {
+                    setEveryoneAnswered(true);
+                }
+
+                return updated;
+            });
         } catch (err: any) {
-            console.error( err?.response?.data?.message ?? "Erro ao enviar resposta");
+            console.error(
+                err?.response?.data?.message ?? "Erro ao enviar resposta"
+            );
+
             setError("Não foi possível enviar sua resposta.");
             setAnswered(false);
             setSelectedAnswer(null);
         }
     };
 
-
-
     const handleUsePowerUp = async (
         powerupId: number,
         targetPlayer?: string
     ): Promise<boolean> => {
-        if (usingPowerUp || !getPlayerId()) return false;
+        const playerId = getPlayerId();
+
+        if (usingPowerUp || !playerId) return false;
 
         try {
             setUsingPowerUp(true);
 
             const { data } = await AXIOS.post(
-                `/player/${roomCode}/${getPlayerId()}/${powerupId}/${player?.player_name}/powerup`,
+                `/player/${roomCode}/${playerId}/${powerupId}/${player?.player_name}/powerup`,
                 targetPlayer ? { target: targetPlayer } : undefined
             );
 
@@ -401,7 +418,6 @@ const useRoomLive = () => {
         return await handleUsePowerUp(powerupId, playerId);
     };
 
-
     const progress = (timeLeft / questionTime) * 100;
     const isCriticalTime = timeLeft <= 5;
 
@@ -422,6 +438,10 @@ const useRoomLive = () => {
         question,
         selectedAnswer,
         answered,
+        everyoneAnswered,
+
+        totalPlayers,
+        totalAnswers,
 
         powerUp,
         hiddenAlternativeIds,
@@ -431,7 +451,7 @@ const useRoomLive = () => {
         players,
         correctAlternative,
         alternativeStatistics,
-        playerNameUsed
+        playerNameUsed,
     };
 };
 

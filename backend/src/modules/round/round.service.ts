@@ -18,14 +18,17 @@ export class RoundService implements IRoundService {
         private readonly repoPower: IPowerRepository,
         private readonly socket: SocketService,
     ) { }
-    async findRound(roomCode: string, playerId?: string): Promise<RoundResponseDTO> {
+    async findRound(
+        roomCode: string,
+        playerId?: string
+    ): Promise<RoundResponseDTO> {
         return measure("RoundService.findRound", async () => {
             const context = "RoundService";
 
             try {
                 Logger.debug(context, "findRound.started", {
                     roomCode,
-                    hasPlayer: Boolean(playerId)
+                    hasPlayer: Boolean(playerId),
                 });
 
                 const room = await this.roomService.findRoom(roomCode);
@@ -40,13 +43,14 @@ export class RoundService implements IRoundService {
                     Logger.warn(context, "findRound.not_found", {
                         roomCode,
                         roomId: room.room_id,
-                        playerId
+                        playerId,
                     });
 
                     throw new AppError(404, "Nenhuma rodada ativa encontrada");
                 }
 
                 let skip = false;
+                let fiftyUsed = false;
 
                 if (playerId) {
                     const [power, fifty] = await Promise.all([
@@ -60,18 +64,30 @@ export class RoundService implements IRoundService {
                             playerId,
                             room.room_id,
                             "FIFTY_FIFTY"
-                        )
+                        ),
                     ]);
 
                     skip = Boolean(power);
+                    fiftyUsed = Boolean(fifty?.used);
 
                     Logger.debug(context, "findRound.powerups_checked", {
                         playerId,
                         roundId: round.round_id,
                         skip,
-                        fiftyUsed: Boolean(fifty?.used)
+                        fiftyUsed,
                     });
                 }
+
+                const totalPlayers = round.rooms._count.roomPlayers;
+
+                const totalAnswers = playerId
+                    ? undefined
+                    : round.answers.length;
+
+                const everyoneAnswered =
+                    totalAnswers !== undefined &&
+                    totalPlayers > 0 &&
+                    totalAnswers >= totalPlayers;
 
                 const result = {
                     round_id: round.round_id,
@@ -91,18 +107,24 @@ export class RoundService implements IRoundService {
                                 powerup_id: use.powerup.powerup_id,
                                 powerup_type: use.powerup.powerup_type,
                                 descricao: use.powerup.descricao,
-                                used: use.used
-                            })) ?? []
+                                used: use.used,
+                            })) ?? [],
                     }),
+
                     skip,
-                    answers: round.answers
+                    fiftyUsed,
+                    answers: round.answers,
+                    ...(everyoneAnswered !== undefined && {
+                        everyoneAnswered,
+                    }),
                 };
 
                 Logger.info(context, "findRound.completed", {
                     roomCode,
                     roomId: room.room_id,
                     roundId: round.round_id,
-                    playerId
+                    playerId,
+                    everyoneAnswered,
                 });
 
                 return result;
@@ -123,7 +145,6 @@ export class RoundService implements IRoundService {
             }
         });
     }
-
 
 
     async roundFinished(roomCode: string, round_id: number, playerId: string): Promise<void> {
@@ -153,21 +174,21 @@ export class RoundService implements IRoundService {
                 }
 
                 console.log('log chegou aqui 1');
-                
+
 
                 const room = await this.roomService.updateRoomPosition(roomCode);
 
                 console.log(room);
-                
+
                 const question = await this.questionService.findQuestion(
                     room.room_id,
                     room.position
                 );
 
                 console.log(question, " < - question");
-                
+
                 console.log('chegou aqui 2');
-                
+
                 if (!question) {
                     throw new AppError(
                         404,

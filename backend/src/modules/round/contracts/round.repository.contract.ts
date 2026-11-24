@@ -9,7 +9,8 @@ export type IRoundRepository = {
     findById(
         roomId?: number,
         roundId?: number,
-        playerId?: string
+        playerId?: string, 
+        checkAllAnswers?: boolean
     ): Promise<RoundWithRelations | null>;
 
     updateRound: (roundId: number) => Promise<void>;

@@ -17,36 +17,44 @@ export type RoundWithQuestion = Prisma.RoundGetPayload<{
     };
 }>;
 
-
 export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
     include: {
         rooms: {
             select: {
                 time_limit: true,
                 position: true,
+                room_status: true,
                 roomPlayers: {
-                    include: {
+                    select: {
+                        player_id: true,
                         powerUpUses: {
-                            include: {
+                            select: {
+                                used: true,
                                 powerup: {
                                     select: {
                                         powerup_type: true,
                                         descricao: true,
-                                        powerup_id: true
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                        powerup_id: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
                 _count: {
                     select: {
-                        roomQuestions: true
-                    }
-                }
-            }
+                        roomQuestions: true,
+                        roomPlayers: true,
+                    },
+                },
+            },
         },
-        answers: true,
+        answers: {
+            select: {
+                player_id: true,
+                alternative_id: true,
+            },
+        },
         questions: {
             select: {
                 question_id: true,
@@ -55,16 +63,17 @@ export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
                     select: {
                         alternative_id: true,
                         alternative_text: true,
-                        is_correct: true
-                    }
-                }
-            }
-        }
-    }
+                        is_correct: true,
+                    },
+                },
+            },
+        },
+    },
 });
 
-export type RoundWithRelations = Prisma.RoundGetPayload<typeof roundWithRelations>;
-
+export type RoundWithRelations = Prisma.RoundGetPayload<
+    typeof roundWithRelations
+>;
 
 
 
@@ -86,11 +95,7 @@ export interface RoundResponseDTO {
     }[];
     skip: boolean;
     answers: {
-        alternative_id: number;
-        round_id: number;
         player_id: string;
-        answer_id: number;
-        points: number;
-        answered_at: Date;
+        alternative_id: number;
     }[]
 }

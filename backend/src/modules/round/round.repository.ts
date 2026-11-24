@@ -31,12 +31,12 @@ export class RoundRepository implements IRoundRepository {
             throw error
         }
     }
-    async findById(roomId?: number, roundId?: number, playerId?: string): Promise<RoundWithRelations | null> {
+    async findById( roomId?: number,roundId?: number,playerId?: string, checkAllAnswers: boolean = false): Promise<RoundWithRelations | null> {
 
         return await prisma.round.findFirst({
             where: {
-                ...(roomId && { room_id: roomId! }),
-                ...(roundId && { round_id: roundId! }),
+                ...(roomId && { room_id: roomId }),
+                ...(roundId && { round_id: roundId }),
                 closed_at: null,
             },
             include: {
@@ -45,11 +45,17 @@ export class RoundRepository implements IRoundRepository {
                         time_limit: true,
                         position: true,
                         room_status: true,
+
                         roomPlayers: {
-                            where: {
-                                ...(playerId && { player_id: playerId })
-                            },
-                            include: {
+                            ...(checkAllAnswers
+                                ? {}
+                                : {
+                                    where: {
+                                        ...(playerId && { player_id: playerId }),
+                                    },
+                                }),
+                            select: {
+                                player_id: true,
                                 powerUpUses: {
                                     select: {
                                         used: true,
@@ -57,25 +63,36 @@ export class RoundRepository implements IRoundRepository {
                                             select: {
                                                 powerup_type: true,
                                                 descricao: true,
-                                                powerup_id: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        _count: {
-                            select: {
-                                roomQuestions: true,
+                                                powerup_id: true,
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
-                    }
+
+                        ...(checkAllAnswers && {
+                            _count: {
+                                select: {
+                                    roomPlayers: true,
+                                },
+                            },
+                        }),
+                    },
                 },
+
                 answers: {
                     where: {
-                        ...(playerId && { player_id: playerId })
-                    }
+                        ...(!checkAllAnswers && playerId && {
+                            player_id: playerId,
+                        }),
+                    },
+                    select: {
+                        player_id: true,
+                        alternative_id: true,
+                    },
                 },
+
                 questions: {
                     select: {
                         question_id: true,
@@ -84,7 +101,7 @@ export class RoundRepository implements IRoundRepository {
                             select: {
                                 alternative_id: true,
                                 alternative_text: true,
-                                is_correct: true
+                                is_correct: true,
                             },
                         },
                     },
