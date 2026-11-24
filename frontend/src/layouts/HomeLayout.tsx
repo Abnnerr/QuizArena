@@ -39,20 +39,21 @@ const HomeLayout: React.FC = () => {
 
     return (
         <div
-            className="min-h-screen flex flex-col"
+            className="min-h-screen flex flex-col overflow-x-hidden"
             style={{
                 backgroundColor: colors.background,
                 color: colors.text,
             }}
         >
-            {/* CONTEÚDO PRINCIPAL */}
             <main className="flex-1 min-w-0">
-
                 {/* HEADER */}
                 <header
                     className="
-                        h-20 border-b-2 px-4 sm:px-8
+                        min-h-16 sm:min-h-20
+                        border-b-2 px-3 sm:px-6 lg:px-8
+                        py-3 sm:py-0
                         flex items-center justify-between
+                        gap-3
                         sticky top-0 z-30 shadow-sm
                     "
                     style={{
@@ -61,12 +62,15 @@ const HomeLayout: React.FC = () => {
                     }}
                 >
                     {/* LOGO E IDENTIFICAÇÃO */}
-                    <div className="flex items-center gap-4">
-                        <Link to="/" className="flex items-center gap-3 group">
+                    <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                        <Link
+                            to="/"
+                            className="flex items-center gap-2 sm:gap-3 group shrink-0"
+                        >
                             <div
                                 className="
-                                    w-10 h-10 rounded-xl
-                                    border-2 border-b-4 p-1
+                                    w-9 h-9 sm:w-10 sm:h-10
+                                    rounded-xl border-2 border-b-4 p-1
                                     flex items-center justify-center
                                     group-hover:scale-105 transition-transform
                                 "
@@ -82,17 +86,17 @@ const HomeLayout: React.FC = () => {
                                 />
                             </div>
 
-                            <span className="text-xl font-black tracking-tight hidden sm:inline">
+                            <span className="text-lg sm:text-xl font-black tracking-tight hidden xs:inline">
                                 Quiz<span className="text-[#1CB0F6]">Arena</span>
                             </span>
                         </Link>
 
                         <div
-                            className="hidden sm:block h-8 w-[2px]"
+                            className="hidden sm:block h-8 w-[2px] shrink-0"
                             style={{ backgroundColor: colors.border }}
                         />
 
-                        <div>
+                        <div className="min-w-0 hidden sm:block">
                             <p
                                 className="text-[10px] font-black uppercase tracking-widest"
                                 style={{ color: colors.muted }}
@@ -100,15 +104,14 @@ const HomeLayout: React.FC = () => {
                                 QuizArena / Início
                             </p>
 
-                            <h2 className="text-base sm:text-lg font-black">
+                            <h2 className="text-base sm:text-lg font-black truncate">
                                 {isHome ? "Página inicial" : "QuizArena"}
                             </h2>
                         </div>
                     </div>
 
                     {/* AÇÕES */}
-                    <div className="flex items-center gap-2 sm:gap-3">
-
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                         {/* CONFIGURAÇÕES */}
                         <button
                             type="button"
@@ -116,10 +119,11 @@ const HomeLayout: React.FC = () => {
                             aria-label="Abrir configurações"
                             title="Configurações"
                             className="
-                                w-11 h-11 flex items-center justify-center
+                                w-10 h-10 sm:w-11 sm:h-11
+                                flex items-center justify-center
                                 rounded-xl border-2 border-b-4
                                 active:border-b-2 active:translate-y-0.5
-                                transition-all
+                                transition-all shrink-0
                             "
                             style={{
                                 backgroundColor: colors.surface,
@@ -136,9 +140,11 @@ const HomeLayout: React.FC = () => {
                                 <Link
                                     to="/auth/login"
                                     className="
-                                        h-11 flex items-center justify-center
+                                        h-10 sm:h-11
+                                        flex items-center justify-center
                                         rounded-xl border-2 border-b-4
-                                        px-3 sm:px-4 text-xs font-black
+                                        px-3 sm:px-4
+                                        text-[10px] sm:text-xs font-black
                                         uppercase tracking-wider
                                         transition-all hover:-translate-y-0.5
                                         active:translate-y-0.5 active:border-b-2
@@ -156,10 +162,12 @@ const HomeLayout: React.FC = () => {
                                 <Link
                                     to="/auth/register"
                                     className="
-                                        h-11 flex items-center justify-center
+                                        h-10 sm:h-11
+                                        flex items-center justify-center
                                         rounded-xl border-2 border-b-4
                                         border-[#0092D6] bg-[#1CB0F6]
-                                        px-3 sm:px-4 text-xs font-black
+                                        px-3 sm:px-4
+                                        text-[10px] sm:text-xs font-black
                                         uppercase tracking-wider text-white
                                         transition-all hover:-translate-y-0.5
                                         hover:bg-[#00A2ED]
@@ -184,7 +192,8 @@ const HomeLayout: React.FC = () => {
                                 aria-label="Ir para o dashboard"
                                 title="Dashboard"
                                 className="
-                                    h-11 flex items-center justify-center gap-2
+                                    h-10 sm:h-11
+                                    flex items-center justify-center gap-2
                                     rounded-xl border-2 border-b-4
                                     border-[#0092D6] bg-[#1CB0F6]
                                     px-3 sm:px-4
@@ -205,8 +214,8 @@ const HomeLayout: React.FC = () => {
                 </header>
 
                 {/* CONTEÚDO DAS PÁGINAS */}
-                <div className="flex flex-col min-h-[calc(100vh-5rem)]">
-                    <div className="flex-1 w-full max-w-[1500px] mx-auto">
+                <div className="flex flex-col min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
+                    <div className="flex-1 w-full max-w-[1500px] mx-auto min-w-0 px-3 sm:px-6 lg:px-8">
                         <Outlet />
                     </div>
 
@@ -220,13 +229,17 @@ const HomeLayout: React.FC = () => {
                     >
                         <div
                             className="
-                                mx-auto max-w-[1500px] px-4 sm:px-8 py-5
-                                flex flex-col sm:flex-row items-center
-                                justify-between gap-3
+                                mx-auto max-w-[1500px]
+                                px-4 sm:px-6 lg:px-8 py-5
+                                flex flex-col sm:flex-row
+                                items-center justify-between gap-3
                             "
                         >
                             <div
-                                className="flex items-center gap-2 text-xs font-semibold"
+                                className="
+                                    flex flex-wrap items-center justify-center
+                                    gap-2 text-xs font-semibold text-center
+                                "
                                 style={{ color: colors.muted }}
                             >
                                 <FiHome size={15} />
@@ -242,6 +255,7 @@ const HomeLayout: React.FC = () => {
                                         text-xs font-black uppercase
                                         tracking-wider text-[#1CB0F6]
                                         transition hover:text-[#0092D6]
+                                        text-center
                                     "
                                 >
                                     Crie sua conta Host
@@ -256,8 +270,9 @@ const HomeLayout: React.FC = () => {
             {showSettings && (
                 <div
                     className="
-                        fixed inset-0 z-50 flex items-center
-                        justify-center bg-black/60 p-4 backdrop-blur-sm
+                        fixed inset-0 z-50
+                        flex items-center justify-center
+                        bg-black/60 p-3 sm:p-4 backdrop-blur-sm
                     "
                     onClick={() => setShowSettings(false)}
                 >
@@ -266,9 +281,11 @@ const HomeLayout: React.FC = () => {
                         aria-modal="true"
                         aria-labelledby="settings-title"
                         className="
-                            w-full max-w-md overflow-hidden
+                            w-full max-w-md max-h-[90dvh]
+                            overflow-y-auto overflow-x-hidden
                             rounded-2xl border-2 border-b-8
-                            shadow-2xl animate-in fade-in zoom-in-95 duration-200
+                            shadow-2xl
+                            animate-in fade-in zoom-in-95 duration-200
                         "
                         style={{
                             backgroundColor: colors.card,
@@ -280,11 +297,12 @@ const HomeLayout: React.FC = () => {
                         <div
                             className="
                                 flex items-center justify-between
-                                border-b-2 p-5
+                                border-b-2 p-4 sm:p-5
+                                gap-3
                             "
                             style={{ borderColor: colors.border }}
                         >
-                            <div>
+                            <div className="min-w-0">
                                 <div className="flex items-center gap-2">
                                     <FiSettings
                                         size={20}
@@ -293,7 +311,7 @@ const HomeLayout: React.FC = () => {
 
                                     <h2
                                         id="settings-title"
-                                        className="text-lg font-black"
+                                        className="text-base sm:text-lg font-black"
                                         style={{ color: colors.text }}
                                     >
                                         Personalização
@@ -313,9 +331,10 @@ const HomeLayout: React.FC = () => {
                                 onClick={() => setShowSettings(false)}
                                 aria-label="Fechar configurações"
                                 className="
-                                    flex h-10 w-10 items-center
-                                    justify-center rounded-xl
-                                    border-2 border-b-4 transition-all
+                                    flex h-9 w-9 sm:h-10 sm:w-10
+                                    shrink-0 items-center justify-center
+                                    rounded-xl border-2 border-b-4
+                                    transition-all
                                     active:translate-y-0.5 active:border-b-2
                                 "
                                 style={{
@@ -329,7 +348,7 @@ const HomeLayout: React.FC = () => {
                         </div>
 
                         {/* APARÊNCIA */}
-                        <div className="p-5">
+                        <div className="p-4 sm:p-5">
                             <div className="mb-3 flex items-center gap-2">
                                 <FiSun
                                     size={18}
@@ -347,8 +366,7 @@ const HomeLayout: React.FC = () => {
                                 </h3>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {/* TEMA ESCURO */}
                                 <button
                                     type="button"
@@ -369,9 +387,9 @@ const HomeLayout: React.FC = () => {
                                 >
                                     <div
                                         className="
-                                            mb-3 flex h-20 items-center
-                                            justify-center rounded-xl
-                                            border-2 border-[#383838]
+                                            mb-3 flex h-16 sm:h-20
+                                            items-center justify-center
+                                            rounded-xl border-2 border-[#383838]
                                             bg-[#121212]
                                         "
                                     >
@@ -381,7 +399,7 @@ const HomeLayout: React.FC = () => {
                                         />
                                     </div>
 
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between gap-2">
                                         <span
                                             className="text-sm font-black"
                                             style={{ color: colors.text }}
@@ -420,9 +438,9 @@ const HomeLayout: React.FC = () => {
                                 >
                                     <div
                                         className="
-                                            mb-3 flex h-20 items-center
-                                            justify-center rounded-xl
-                                            border-2 border-[#E7E4DA]
+                                            mb-3 flex h-16 sm:h-20
+                                            items-center justify-center
+                                            rounded-xl border-2 border-[#E7E4DA]
                                             bg-[#F5F3ED]
                                         "
                                     >
@@ -432,7 +450,7 @@ const HomeLayout: React.FC = () => {
                                         />
                                     </div>
 
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between gap-2">
                                         <span
                                             className="text-sm font-black"
                                             style={{ color: colors.text }}
@@ -455,7 +473,7 @@ const HomeLayout: React.FC = () => {
 
                         {/* RODAPÉ DO MODAL */}
                         <div
-                            className="border-t-2 p-5"
+                            className="border-t-2 p-4 sm:p-5"
                             style={{ borderColor: colors.border }}
                         >
                             <Button
