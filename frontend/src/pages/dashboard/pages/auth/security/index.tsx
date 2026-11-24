@@ -32,7 +32,6 @@ const Security = () => {
             </Helmet>
 
             <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-                {/* Cabeçalho */}
                 <section
                     className="flex flex-col gap-4 rounded-2xl border-2 p-5 sm:flex-row sm:items-center sm:p-6"
                     style={cardStyle}
@@ -75,7 +74,6 @@ const Security = () => {
                     </div>
                 </section>
 
-                {/* Segurança da conta */}
                 <section className="flex flex-col gap-3">
                     <div>
                         <h2
@@ -124,8 +122,6 @@ const Security = () => {
                             </p>
                         </div>
                     </div>
-
-                    {/* Alteração de senha */}
                     <div
                         className="flex flex-col gap-4 rounded-2xl border-2 p-5 sm:flex-row sm:items-center"
                         style={cardStyle}
@@ -172,8 +168,6 @@ const Security = () => {
                         </button>
                     </div>
                 </section>
-
-                {/* Recomendações */}
                 <section
                     className="flex items-start gap-3 rounded-2xl border-2 p-5"
                     style={{

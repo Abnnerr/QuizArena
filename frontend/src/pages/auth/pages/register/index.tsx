@@ -111,7 +111,6 @@ const RegisterPage: React.FC = () => {
             >
                 <RegisterTopbar colors={colors} />
 
-                {/* CABEÇALHO */}
                 <section
                     className="relative overflow-hidden rounded-2xl border-2 p-5 sm:p-6"
                     style={cardStyle}
@@ -165,10 +164,8 @@ const RegisterPage: React.FC = () => {
                     </div>
                 </section>
 
-                {/* CONTEÚDO */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
-                    {/* FORMULÁRIO */}
                     <div
                         className="
                             rounded-2xl border-2 border-b-4
@@ -289,7 +286,6 @@ const RegisterPage: React.FC = () => {
                         </form>
                     </div>
 
-                    {/* INFORMAÇÕES */}
                     <div className="flex flex-col gap-5">
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
@@ -342,7 +338,6 @@ const RegisterPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* LOGIN */}
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
                             style={cardStyle}

@@ -8,7 +8,6 @@ const AuthLayout: React.FC = () => {
 
     return (
         <>
-            {/* HEADER */}
             <header
                 className="
                     w-full border-b-2
@@ -49,13 +48,9 @@ const AuthLayout: React.FC = () => {
                     </span>
                 </Link>
             </header>
-
-            {/* CONTEÚDO */}
             <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden">
                 <Outlet />
             </div>
-
-            {/* FOOTER */}
             <footer
                 className="
                     w-full border-t-2

@@ -64,7 +64,6 @@ const RoomLobbyPage = () => {
         preloadRoomLivePage();
     }, []);
 
-    // Música da sala.
     useEffect(() => {
         const audio = audioRef.current;
 
@@ -80,7 +79,7 @@ const RoomLobbyPage = () => {
         }
 
         audio.play().catch(() => {
-            // Reprodução automática pode ser bloqueada pelo navegador.
+          
         });
 
         return () => {
@@ -89,7 +88,6 @@ const RoomLobbyPage = () => {
         };
     }, [isMuted]);
 
-    // Erros vindos do hook.
     useEffect(() => {
         if (!error) {
             lastErrorRef.current = null;
@@ -246,7 +244,6 @@ const RoomLobbyPage = () => {
             >
                 <div className="mx-auto w-full max-w-5xl space-y-6">
 
-                    {/* Cabeçalho */}
                     <header className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                             <div
@@ -289,7 +286,6 @@ const RoomLobbyPage = () => {
                         </Button>
                     </header>
 
-                    {/* Boas-vindas */}
                     <section
                         className="relative overflow-hidden rounded-2xl border-2 border-b-[6px] p-6 sm:p-8"
                         style={{
@@ -317,7 +313,6 @@ const RoomLobbyPage = () => {
                         <div className="pointer-events-none absolute -bottom-20 right-32 h-44 w-44 rounded-full bg-white/10" />
                     </section>
 
-                    {/* Código da sala */}
                     <section
                         className="rounded-2xl border-2 border-b-[5px] p-5 sm:p-6"
                         style={cardStyle}
@@ -357,12 +352,10 @@ const RoomLobbyPage = () => {
                         </div>
                     </section>
 
-                    {/* Jogador e status */}
                     <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[0.85fr_1.4fr]">
 
                         <div className="space-y-5">
 
-                            {/* Identificação */}
                             <section
                                 className="rounded-2xl border-2 border-b-[5px] p-5"
                                 style={cardStyle}
@@ -422,7 +415,6 @@ const RoomLobbyPage = () => {
                                 </div>
                             </section>
 
-                            {/* Botão de prontidão */}
                             <section
                                 className="rounded-2xl border-2 border-b-[5px] p-5"
                                 style={cardStyle}
@@ -472,8 +464,6 @@ const RoomLobbyPage = () => {
                                         : "Estou pronto!"}
                                 </Button>
                             </section>
-
-                            {/* Sair */}
                             <Button
                                 variant="danger"
                                 fullWidth
@@ -484,8 +474,6 @@ const RoomLobbyPage = () => {
                                 Sair da sala
                             </Button>
                         </div>
-
-                        {/* Participantes */}
                         <div className="space-y-5">
 
                             <section

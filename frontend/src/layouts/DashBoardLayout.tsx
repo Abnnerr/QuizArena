@@ -32,7 +32,6 @@ const DashBoardLayout: React.FC = () => {
                 color: colors.text,
             }}
         >
-            {/* SIDEBAR */}
             <aside
                 className="hidden lg:flex w-64 shrink-0 flex-col border-r-2 min-h-screen sticky top-0 h-screen"
                 style={{
@@ -40,7 +39,6 @@ const DashBoardLayout: React.FC = () => {
                     borderColor: colors.border,
                 }}
             >
-                {/* LOGO */}
                 <div
                     className="h-20 flex items-center px-6 border-b-2"
                     style={{ borderColor: colors.border }}
@@ -65,8 +63,6 @@ const DashBoardLayout: React.FC = () => {
                         </span>
                     </Link>
                 </div>
-
-                {/* NAVEGAÇÃO */}
                 <div className="p-4 flex-1">
                     <p
                         className="text-[11px] uppercase tracking-widest font-black px-3 mb-4"
@@ -124,8 +120,6 @@ const DashBoardLayout: React.FC = () => {
                         Configurações
                     </Link>
                 </div>
-
-                {/* PERFIL */}
                 <div
                     className="p-4 border-t-2"
                     style={{ borderColor: colors.border }}
@@ -155,11 +149,7 @@ const DashBoardLayout: React.FC = () => {
                     </div>
                 </div>
             </aside>
-
-            {/* CONTEÚDO PRINCIPAL */}
             <main className="flex-1 min-w-0">
-
-                {/* HEADER */}
                 <header
                     className="h-20 border-b-2 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-sm"
                     style={{
@@ -190,8 +180,6 @@ const DashBoardLayout: React.FC = () => {
                         </Link>
                     </div>
                 </header>
-
-                {/* DASHBOARD */}
                 <div className="p-4 sm:p-7 lg:p-9 max-w-[1500px] mx-auto">
                     <Outlet />
                 </div>

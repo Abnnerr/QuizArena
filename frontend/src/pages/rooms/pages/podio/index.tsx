@@ -59,7 +59,6 @@ export default function PodioPage() {
     const lastPlayedReveal = useRef(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Reproduz um som a cada jogador revelado.
     useEffect(() => {
         if (loading || visibleCount === 0 || topThree.length === 0) {
             return;
@@ -92,7 +91,6 @@ export default function PodioPage() {
         });
     }, [visibleCount, loading, topThree.length]);
 
-    // Limpa o áudio ao sair da página.
     useEffect(() => {
         return () => {
             if (audioRef.current) {
@@ -103,7 +101,6 @@ export default function PodioPage() {
         };
     }, []);
 
-    // Reinicia o controle de áudio quando o pódio é recarregado.
     useEffect(() => {
         lastPlayedReveal.current = 0;
     }, [topThree]);
@@ -124,7 +121,7 @@ export default function PodioPage() {
                 }}
             >
                 <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-                    {/* Cabeçalho */}
+                
                     <header className="text-center">
                         <div
                             className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border-2"
@@ -156,7 +153,7 @@ export default function PodioPage() {
                         </p>
                     </header>
 
-                    {/* Card principal */}
+                 
                     <section
                         className="overflow-hidden rounded-3xl border-2 border-b-[6px] p-4 sm:p-6"
                         style={{
@@ -164,7 +161,7 @@ export default function PodioPage() {
                             borderColor: colors.border,
                         }}
                     >
-                        {/* Título do card */}
+                    
                         <div className="mb-5 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
                                 <FiAward
@@ -190,7 +187,7 @@ export default function PodioPage() {
                             )}
                         </div>
 
-                        {/* Erro */}
+        
                         {error && (
                             <div
                                 className="mb-4 flex items-start justify-between gap-3 rounded-xl border p-3 text-sm"
@@ -213,7 +210,7 @@ export default function PodioPage() {
                             </div>
                         )}
 
-                        {/* Carregamento */}
+                       
                         {loading ? (
                             <div className="flex min-h-64 flex-col items-center justify-center gap-3">
                                 <div
@@ -232,7 +229,7 @@ export default function PodioPage() {
                                 </p>
                             </div>
                         ) : topThree.length === 0 ? (
-                            /* Estado vazio */
+                          
                             <div className="flex min-h-64 flex-col items-center justify-center text-center">
                                 <div
                                     className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
@@ -258,7 +255,7 @@ export default function PodioPage() {
                             </div>
                         ) : (
                             <>
-                                {/* Pódio */}
+                               
                                 <div className="flex min-h-64 items-end justify-center gap-2 pt-5 sm:gap-4">
                                     {orderedPodium.map(
                                         ({
@@ -281,7 +278,7 @@ export default function PodioPage() {
                                                             : "translateY(35px)",
                                                     }}
                                                 >
-                                                    {/* Medalha */}
+                                                 
                                                     <div
                                                         className="mb-2 flex h-10 w-10 items-center justify-center rounded-full text-xl sm:h-12 sm:w-12 sm:text-2xl"
                                                         style={{
@@ -292,7 +289,7 @@ export default function PodioPage() {
                                                         {medal.icon}
                                                     </div>
 
-                                                    {/* Nome e pontuação */}
+                                                   
                                                     <div className="mb-3 w-full text-center">
                                                         <p
                                                             className="truncate text-sm font-extrabold sm:text-base"
@@ -316,7 +313,7 @@ export default function PodioPage() {
                                                         </p>
                                                     </div>
 
-                                                    {/* Base do pódio */}
+                                                   
                                                     <div
                                                         className={`flex w-full ${medal.height} flex-col items-center justify-start rounded-t-2xl border-2 border-b-0 pt-4`}
                                                         style={{
@@ -341,7 +338,7 @@ export default function PodioPage() {
                                     )}
                                 </div>
 
-                                {/* Mensagem de conclusão */}
+                                
                                 <div
                                     className="mt-5 rounded-xl p-3 text-center text-xs font-semibold sm:text-sm"
                                     style={{
@@ -357,7 +354,7 @@ export default function PodioPage() {
                         )}
                     </section>
 
-                    {/* Ações */}
+                    
                     <footer className="flex flex-col-reverse gap-3 sm:flex-row">
                         <button
                             type="button"

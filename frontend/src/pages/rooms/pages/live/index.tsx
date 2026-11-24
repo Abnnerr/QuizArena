@@ -133,7 +133,6 @@ export default function RoomLivePage() {
         return "#A78BFA";
     };
 
-    // Música ambiente
     useEffect(() => {
         const audio = audioRef.current;
 
@@ -169,7 +168,6 @@ export default function RoomLivePage() {
         localStorage.setItem("mute_ambient:live", String(next));
     };
 
-    // Som de resposta correta
     useEffect(() => {
         if (
             selectedAnswer !== null &&
@@ -180,7 +178,6 @@ export default function RoomLivePage() {
         }
     }, [selectedAnswer, correctAlternative]);
 
-    // 50/50 recebido
     useEffect(() => {
         if (hiddenAlternativeIds.length > previousHidden.current) {
             playSound("/fifty.mp3");
@@ -190,7 +187,6 @@ export default function RoomLivePage() {
         previousHidden.current = hiddenAlternativeIds.length;
     }, [hiddenAlternativeIds]);
 
-    // Skip recebido pelo jogador
     useEffect(() => {
         if (skip) {
             playSound("/skip.mp3");
@@ -198,7 +194,6 @@ export default function RoomLivePage() {
         }
     }, [skip]);
 
-    // Reseta os efeitos quando chega uma nova pergunta
     useEffect(() => {
         if (!question) return;
 
@@ -209,7 +204,6 @@ export default function RoomLivePage() {
         }
     }, [question?.id]);
 
-    // Remove a notificação depois de alguns segundos
     useEffect(() => {
         if (!effect) return;
 
@@ -220,7 +214,6 @@ export default function RoomLivePage() {
         return () => window.clearTimeout(timeout);
     }, [effect]);
 
-    // Ativa o power-up
     const activatePowerUp = async (
         powerupId: number,
         powerType: string,
@@ -270,7 +263,6 @@ export default function RoomLivePage() {
         setSelectedPowerUp(item);
         setTarget(null);
 
-        // 50/50 e Double XP são ativados diretamente
         if (
             powerType === "FIFTY_FIFTY" ||
             powerType === "FIFTY" ||
@@ -280,7 +272,6 @@ export default function RoomLivePage() {
             return;
         }
 
-        // Skip Turn precisa escolher um jogador
         setShowPowerUp(true);
     };
 
@@ -310,7 +301,6 @@ export default function RoomLivePage() {
             item => item.alternativeId === alternativeId
         );
 
-    // Classes do efeito de borda
     const effectBorder = {
         DOUBLE_XP:
             "shadow-[inset_0_0_0_3px_#F59E0B,inset_0_0_30px_#F59E0B25]",
@@ -401,7 +391,6 @@ export default function RoomLivePage() {
                     }`}
                 style={{ backgroundColor: colors.background }}
             >
-                {/* Barra de progresso */}
                 <div
                     className="h-2 w-full"
                     style={{ backgroundColor: colors.border }}
@@ -417,7 +406,6 @@ export default function RoomLivePage() {
                     />
                 </div>
 
-                {/* Header */}
                 <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                         <img
@@ -481,7 +469,6 @@ export default function RoomLivePage() {
                 </header>
 
                 <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-8 flex-1 flex flex-col gap-5">
-                    {/* Power-ups */}
                     <section className="p-4 sm:p-5" style={card}>
                         <div className="flex items-center justify-between gap-3 mb-4">
                             <div>
@@ -591,7 +578,6 @@ export default function RoomLivePage() {
                         </div>
                     </section>
 
-                    {/* Pergunta */}
                     <section className="p-5 sm:p-8" style={card}>
                         <div className="flex items-center justify-between gap-3 mb-5">
                             <span
@@ -634,7 +620,6 @@ export default function RoomLivePage() {
                         )}
                     </section>
 
-                    {/* Alternativas */}
                     {!skip && (
                         <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {question.alternatives.map(
@@ -757,7 +742,6 @@ export default function RoomLivePage() {
                         </section>
                     )}
 
-                    {/* Skip Turn */}
                     {skip && (
                         <section
                             className="p-8 sm:p-12 text-center flex flex-col items-center gap-5 shadow-lg animate-pulse"
@@ -817,7 +801,6 @@ export default function RoomLivePage() {
                         </section>
                     )}
 
-                    {/* Resultado */}
                     {finished && !skip && (
                         <section
                             className="p-4 flex items-center justify-between gap-3"
@@ -851,7 +834,6 @@ export default function RoomLivePage() {
                         </section>
                     )}
 
-                    {/* Orientação do host */}
                     {isHost && timeLeft <= 0 && (
                         <p
                             className="text-center text-sm font-semibold"
@@ -862,7 +844,6 @@ export default function RoomLivePage() {
                     )}
                 </div>
 
-                {/* Notificação discreta */}
                 {effect && (
                     <div
                         className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${notificationConfig[effect].background} ${notificationConfig[effect].border}`}
@@ -886,7 +867,6 @@ export default function RoomLivePage() {
                 )
                 }
 
-                {/* Modal Skip Turn */}
                 {showPowerUp && selectedPowerUp && (
                     <div
                         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"

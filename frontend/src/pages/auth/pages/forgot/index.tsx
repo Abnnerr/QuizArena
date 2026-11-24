@@ -1,23 +1,24 @@
 
 import { Helmet } from "react-helmet-async";
+import { BiMailSend } from "react-icons/bi";
+import { BsArrowRight, BsShieldLock } from "react-icons/bs";
+
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { useForgot } from "../../hooks/useForgot";
-import { BiMailSend } from "react-icons/bi";
-import { BsArrowRight } from "react-icons/bs";
+
+import ForgotPasswordHeader from "./components/ForgotPasswordHeader";
+import ForgotPasswordTopbar from "./components/ForgotPasswordTopbar";
 import LoginPrompt from "./components/LoginPrompt";
+
 import Button from "../../../../shared/ui/Button";
 import Input from "../../../../shared/ui/Input";
-import ForgotPasswordHeader from "./components/ForgotPasswordHeader";
-import FeedbackMessage from "../../../../shared/ui/FeedBackMessage";
-import ForgotPasswordTopbar from "./components/ForgotPasswordTopbar";
 
 const ForgotPage: React.FC = () => {
     const {
         email,
         loading,
-        feedback,
         setEmail,
-        handleSubmit
+        handleSubmit,
     } = useForgot();
 
     const { colors } = useTheme();
@@ -28,35 +29,64 @@ const ForgotPage: React.FC = () => {
                 <title>Recuperar Senha | QuizArena</title>
             </Helmet>
 
-            <div
+            <main
                 data-cy="forgot-page"
                 className="
-                    w-full max-w-xl mx-auto
-                    flex flex-col items-center
-                    flex-shrink-0 relative z-10
-                    px-4 py-5 sm:py-6
+                    w-full max-w-7xl mx-auto
+                    flex flex-col gap-5
+                    px-4 py-6
                 "
+                style={{ color: colors.text }}
             >
                 <ForgotPasswordTopbar colors={colors} />
 
-                <div data-cy="forgot-feedback">
-                    <FeedbackMessage
-                        feedBack={feedback}
-                        colors={colors}
-                    />
-                </div>
-
                 <ForgotPasswordHeader colors={colors} />
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="w-full space-y-4"
-                    data-cy="forgot-form"
-                >
-                    <div
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                    <section
                         className="
-                            border-2 border-b-8 rounded-3xl
-                            shadow-sm space-y-4
+                            rounded-2xl border-2 border-b-4
+                            p-5 sm:p-6
+                            flex flex-col gap-4
+                        "
+                        style={{
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                        }}
+                    >
+                        <div
+                            className="
+                                w-12 h-12 rounded-xl
+                                flex items-center justify-center
+                            "
+                            style={{
+                                backgroundColor: colors.surface,
+                                color: colors.text,
+                            }}
+                        >
+                            <BsShieldLock className="w-6 h-6" />
+                        </div>
+
+                        <div className="space-y-2">
+                            <h2 className="text-lg font-bold">
+                                Segurança da sua conta
+                            </h2>
+
+                            <p
+                                className="text-sm leading-relaxed"
+                                style={{ color: colors.muted }}
+                            >
+                                Não se preocupe! Você pode recuperar
+                                o acesso à sua conta seguindo as
+                                instruções enviadas para seu e-mail.
+                            </p>
+                        </div>
+                    </section>
+                    <section
+                        className="
+                            lg:col-span-2
+                            rounded-2xl border-2 border-b-4
                             p-5 sm:p-8
                         "
                         style={{
@@ -64,59 +94,77 @@ const ForgotPage: React.FC = () => {
                             borderColor: colors.border,
                         }}
                     >
-                        <div data-cy="forgot-email">
-                            <Input
-                                type="email"
-                                label="E-mail da Conta"
-                                required
-                                disabled={loading}
-                                value={email}
-                                onChange={(event) =>
-                                    setEmail(event.target.value)
-                                }
-                                placeholder="seu@email.com"
-                                icon={<BiMailSend className="w-7 h-7" />}
-                                color={colors.surface}
-                                border={colors.border}
-                                className="
-                                    py-4 text-center
-                                    text-lg sm:text-xl
-                                "
-                            />
-                        </div>
-                    </div>
-
-                    <div data-cy="forgot-submit-container">
-                        <Button
-                            type="submit"
-                            variant={
-                                !email || loading
-                                    ? "secondary"
-                                    : "success"
-                            }
-                            size="lg"
-                            fullWidth
-                            disabled={!email || loading}
-                            rightIcon={
-                                !loading ? (
-                                    <BsArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                                ) : undefined
-                            }
-                            className="
-                                h-14 rounded-2xl
-                                text-xs sm:text-sm
-                                tracking-wider shadow-md
-                            "
+                        <form
+                            onSubmit={handleSubmit}
+                            data-cy="forgot-form"
+                            className="flex flex-col gap-6"
                         >
-                            {loading ? "Enviando..." : "Enviar Instruções"}
-                        </Button>
-                    </div>
-                </form>
+                            <div className="space-y-2">
+                                <h2 className="text-xl font-bold">
+                                    Recuperar senha
+                                </h2>
 
-                <div data-cy="forgot-login-prompt">
-                    <LoginPrompt muted={colors.muted} />
+                                <p
+                                    className="text-sm"
+                                    style={{ color: colors.muted }}
+                                >
+                                    Informe o e-mail cadastrado na sua
+                                    conta para receber as instruções.
+                                </p>
+                            </div>
+
+                            <div data-cy="forgot-email">
+                                <Input
+                                    type="email"
+                                    label="E-mail da Conta"
+                                    required
+                                    disabled={loading}
+                                    value={email}
+                                    onChange={(event) =>
+                                        setEmail(event.target.value)
+                                    }
+                                    placeholder="seu@email.com"
+                                    icon={
+                                        <BiMailSend className="w-6 h-6" />
+                                    }
+                                    color={colors.surface}
+                                    border={colors.border}
+                                    className="py-4"
+                                />
+                            </div>
+
+                            <div
+                                data-cy="forgot-submit-container"
+                                className="flex flex-col gap-4"
+                            >
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="lg"
+                                    fullWidth
+                                    isLoading={loading}
+                                    disabled={!email.trim() || loading}
+                                    rightIcon={
+                                        !loading ? (
+                                            <BsArrowRight className="w-5 h-5" />
+                                        ) : undefined
+                                    }
+                                    className="
+                                        h-13 rounded-xl
+                                        text-sm tracking-wide
+                                    "
+                                >
+                                    Enviar instruções
+                                </Button>
+
+                                <div className="text-center">
+                                    <LoginPrompt muted={colors.muted} />
+                                </div>
+                            </div>
+                        </form>
+                    </section>
                 </div>
-            </div>
+            </main>
         </>
     );
 };

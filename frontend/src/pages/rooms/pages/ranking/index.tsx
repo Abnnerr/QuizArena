@@ -111,8 +111,6 @@ const RankingPage = () => {
                 style={{ backgroundColor: colors.background }}
             >
                 <div className="mx-auto w-full max-w-3xl space-y-6">
-
-                    {/* Cabeçalho */}
                     <header className="space-y-5">
                         <button
                             type="button"
@@ -165,8 +163,6 @@ const RankingPage = () => {
                             </div>
                         </div>
                     </header>
-
-                    {/* Conteúdo */}
                     <section
                         className="overflow-hidden rounded-2xl border-2 border-b-8"
                         style={{
@@ -174,7 +170,6 @@ const RankingPage = () => {
                             borderColor: colors.border,
                         }}
                     >
-                        {/* Título da classificação */}
                         <div
                             className="flex items-center justify-between gap-3 border-b-2 px-5 py-5 sm:px-7"
                             style={{ borderColor: colors.border }}
@@ -210,7 +205,6 @@ const RankingPage = () => {
 
                         <div className="space-y-3 p-4 sm:p-6">
 
-                            {/* Erro */}
                             {error && (
                                 <div
                                     className="rounded-xl border-2 p-4"
@@ -225,8 +219,6 @@ const RankingPage = () => {
                                     </p>
                                 </div>
                             )}
-
-                            {/* Carregamento */}
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center py-16">
                                     <div
@@ -245,7 +237,6 @@ const RankingPage = () => {
                                     </p>
                                 </div>
                             ) : rankingList.length === 0 ? (
-                                /* Ranking vazio */
                                 <div className="flex flex-col items-center justify-center py-16 text-center">
                                     <div
                                         className="flex h-16 w-16 items-center justify-center rounded-2xl"
@@ -273,7 +264,6 @@ const RankingPage = () => {
                                     </p>
                                 </div>
                             ) : (
-                                /* Lista de jogadores */
                                 rankingList.map((player) => {
                                     const positionStyle = getPositionStyle(
                                         player.currentPos
@@ -294,7 +284,6 @@ const RankingPage = () => {
                                                         : colors.border,
                                             }}
                                         >
-                                            {/* Posição */}
                                             <div
                                                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 text-sm font-black sm:h-12 sm:w-12"
                                                 style={positionStyle}
@@ -341,8 +330,6 @@ const RankingPage = () => {
                                                     )}
                                                 </p>
                                             </div>
-
-                                            {/* Pontuação e diferença */}
                                             <div className="flex shrink-0 flex-col items-end gap-1">
                                                 <span
                                                     className="text-base font-black tabular-nums sm:text-lg"
@@ -374,8 +361,6 @@ const RankingPage = () => {
                                 })
                             )}
                         </div>
-
-                        {/* Legenda */}
                         {!loading && rankingList.length > 0 && (
                             <div
                                 className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t-2 px-5 py-4 sm:px-7"
@@ -410,7 +395,6 @@ const RankingPage = () => {
                         )}
                     </section>
 
-                    {/* Ações */}
                     <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
                         <Button
                             variant="secondary"

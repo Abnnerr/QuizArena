@@ -94,7 +94,6 @@ interface ResponseDTO<T> {
     data: T;
 }
 
-/* CONSTANTS */
 
 const API = {
     room: (code: string) => `/room/${code}`,
@@ -169,8 +168,6 @@ export default function BoardRoomPage() {
         boxSizing: "border-box",
     };
 
-    /* DATA */
-
     const questions: Question[] = (room?.roomQuestions ?? [])
         .slice()
         .sort((a, b) => a.position - b.position)
@@ -194,11 +191,9 @@ export default function BoardRoomPage() {
     const readyPlayers = room?.roomPlayers.filter(player => player.ready).length ?? 0;
     const readyPercentage = totalPlayers ? (readyPlayers / totalPlayers) * 100 : 0;
 
-    // Verifica se a pergunta pertence ao usuário autenticado.
     const canEditQuestion = (question: Question) =>
         String(question.user_id) === String(user?.user_id);
 
-    /* REQUESTS */
 
     async function findRoom() {
         if (!roomCode) return;
@@ -432,7 +427,6 @@ export default function BoardRoomPage() {
         }
     }
 
-    /* DELETE */
 
     async function removeQuestion(questionId: number | null) {
         if (!room || !questionId) return;
@@ -453,8 +447,6 @@ export default function BoardRoomPage() {
             toast.error(error?.response?.data?.message || "Erro ao remover pergunta.");
         }
     }
-
-    /* ROOM ACTIONS */
 
     async function copyRoomCode() {
         if (!room) return;
@@ -493,7 +485,6 @@ export default function BoardRoomPage() {
         }
     }
 
-    /* LOADING */
 
     if (loading) {
         return (
@@ -515,7 +506,6 @@ export default function BoardRoomPage() {
         >
             <div className="mx-auto max-w-6xl">
 
-                {/* HEADER */}
 
                 <Button
                     variant="secondary"
@@ -536,7 +526,6 @@ export default function BoardRoomPage() {
                         {room.room_name}
                     </h1>
 
-                    {/* ROOM CODE */}
 
                     <div
                         className="mt-4 flex flex-wrap items-center gap-5 rounded-xl border-2 p-4"
@@ -574,8 +563,6 @@ export default function BoardRoomPage() {
                             />
                         </div>
                     </div>
-
-                    {/* ROOM INFO */}
 
                     <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-5">
                         <div className="rounded-xl border-2 p-4" style={{ background: colors.surface, borderColor: colors.border }}>
@@ -618,8 +605,6 @@ export default function BoardRoomPage() {
                         </div>
                     </div>
                 </header>
-
-                {/* QUESTIONS */}
 
                 <section>
                     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -770,8 +755,6 @@ export default function BoardRoomPage() {
                     )}
                 </section>
 
-                {/* START GAME */}
-
                 <footer
                     className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 p-5"
                     style={{
@@ -798,7 +781,6 @@ export default function BoardRoomPage() {
                 </footer>
             </div>
 
-            {/* QUESTION DRAWER */}
 
             {sidebar && (
                 <div
@@ -841,8 +823,6 @@ export default function BoardRoomPage() {
 
                         <div className="flex-1 space-y-5 overflow-y-auto p-5">
 
-                            {/* CATEGORY */}
-
                             <label className="block space-y-2">
                                 <span className="text-sm font-black">Categoria</span>
 
@@ -870,8 +850,6 @@ export default function BoardRoomPage() {
                                     </p>
                                 )}
                             </label>
-
-                            {/* VISIBILITY */}
 
                             <div className="space-y-3">
                                 <div>
@@ -921,8 +899,6 @@ export default function BoardRoomPage() {
                                 </div>
                             </div>
 
-                            {/* TYPE */}
-
                             <div className="space-y-2">
                                 <span className="text-sm font-black">Tipo de pergunta</span>
 
@@ -947,8 +923,6 @@ export default function BoardRoomPage() {
                                 </div>
                             </div>
 
-                            {/* TITLE */}
-
                             <label className="block space-y-2">
                                 <span className="text-sm font-black">Enunciado</span>
 
@@ -964,8 +938,6 @@ export default function BoardRoomPage() {
                                     }}
                                 />
                             </label>
-
-                            {/* DIFFICULTY */}
 
                             <label className="block space-y-2">
                                 <span className="text-sm font-black">Dificuldade</span>
@@ -984,8 +956,6 @@ export default function BoardRoomPage() {
                                     <option value="HARD">Difícil</option>
                                 </select>
                             </label>
-
-                            {/* ALTERNATIVES */}
 
                             <div className="space-y-3">
                                 <div>

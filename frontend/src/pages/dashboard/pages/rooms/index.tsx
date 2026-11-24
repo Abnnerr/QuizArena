@@ -46,14 +46,12 @@ const BoardRoomsPage = () => {
     const [creating, setCreating] = useState(false);
     const [deletingRoomId, setDeletingRoomId] = useState<number | null>(null);
 
-    // Formulário
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [roomName, setRoomName] = useState("");
     const [maxPlayers, setMaxPlayers] = useState(5);
     const [timeLimit, setTimeLimit] = useState(15);
     const [roomMode, setRoomMode] = useState<RoomMode>("NORMAL");
 
-    // Busca todas as salas
     async function findRooms() {
         try {
             const { data } = await AXIOS.get("/room/findRooms");
@@ -72,7 +70,6 @@ const BoardRoomsPage = () => {
         void findRooms();
     }, []);
 
-    // Cria uma sala
     async function handleCreateRoom(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
@@ -111,7 +108,6 @@ const BoardRoomsPage = () => {
         }
     }
 
-    // Exclui uma sala
     async function deleteRoom(room: Room) {
         if (deletingRoomId !== null) return;
 
@@ -171,7 +167,6 @@ const BoardRoomsPage = () => {
         >
             <div className="mx-auto max-w-7xl">
 
-                {/* Cabeçalho */}
                 <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                     <div>
                         <div className="mb-2 flex items-center gap-3">
@@ -198,7 +193,6 @@ const BoardRoomsPage = () => {
                     </Button>
                 </div>
 
-                {/* Estatísticas */}
                 <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
                     {[
                         {
@@ -248,7 +242,6 @@ const BoardRoomsPage = () => {
                     ))}
                 </div>
 
-                {/* Lista de salas */}
                 <div className="mb-5 flex items-center justify-between">
                     <h2 className="text-xl font-black">
                         Suas salas
@@ -360,7 +353,6 @@ const BoardRoomsPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Informações */}
                                     <div className="mb-5 grid grid-cols-2 gap-3">
                                         <div
                                             className="rounded-xl p-3"
@@ -399,7 +391,6 @@ const BoardRoomsPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Modo de jogo */}
                                     <div className="mb-4 flex items-center justify-between text-sm">
                                         <span style={{ color: colors.muted }}>
                                             Modo de jogo
@@ -429,7 +420,6 @@ const BoardRoomsPage = () => {
                 )}
             </div>
 
-            {/* Drawer de criação */}
             {isCreateOpen && (
                 <div
                     className="fixed inset-0 z-50 flex justify-end"
@@ -445,7 +435,6 @@ const BoardRoomsPage = () => {
                             borderColor: colors.border,
                         }}
                     >
-                        {/* Cabeçalho */}
                         <div
                             className="flex items-center justify-between border-b-2 p-6"
                             style={{ borderColor: colors.border }}
@@ -476,14 +465,11 @@ const BoardRoomsPage = () => {
                             />
                         </div>
 
-                        {/* Formulário */}
                         <form
                             onSubmit={handleCreateRoom}
                             className="flex flex-1 flex-col overflow-y-auto"
                         >
                             <div className="flex-1 space-y-6 p-6">
-
-                                {/* Nome */}
                                 <div>
                                     <label className="mb-2 block text-sm font-black">
                                         Nome da sala
@@ -511,8 +497,6 @@ const BoardRoomsPage = () => {
                                         {roomName.length}/50
                                     </p>
                                 </div>
-
-                                {/* Jogadores */}
                                 <div>
                                     <div className="mb-3 flex items-center justify-between">
                                         <label className="flex items-center gap-2 text-sm font-black">
@@ -542,8 +526,6 @@ const BoardRoomsPage = () => {
                                         <span>30 jogadores</span>
                                     </div>
                                 </div>
-
-                                {/* Tempo */}
                                 <div>
                                     <label className="mb-3 flex items-center gap-2 text-sm font-black">
                                         <FiClock className="text-[#1CB0F6]" />
@@ -564,8 +546,6 @@ const BoardRoomsPage = () => {
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* Modo */}
                                 <div>
                                     <label className="mb-3 block text-sm font-black">
                                         Modo de jogo
@@ -616,7 +596,6 @@ const BoardRoomsPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Resumo */}
                                 <div
                                     className="rounded-xl border-2 p-4"
                                     style={{
@@ -658,8 +637,6 @@ const BoardRoomsPage = () => {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Rodapé */}
                             <div
                                 className="border-t-2 p-6"
                                 style={{

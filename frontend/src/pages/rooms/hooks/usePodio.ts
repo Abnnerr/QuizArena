@@ -65,7 +65,6 @@ const usePodio = () => {
     const [clearing, setClearing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Busca os resultados da partida.
     const fetchPodium = useCallback(async () => {
         if (!roomCode) {
             setTopThree([]);
@@ -128,12 +127,10 @@ const usePodio = () => {
         }
     }, [roomCode]);
 
-    // Carrega o pódio quando a sala muda.
     useEffect(() => {
         void fetchPodium();
     }, [fetchPodium]);
 
-    // Revela os jogadores gradualmente.
     useEffect(() => {
         if (loading || topThree.length === 0) {
             setVisibleCount(0);
@@ -157,7 +154,6 @@ const usePodio = () => {
         return () => clearInterval(interval);
     }, [topThree, loading]);
 
-    // Organiza visualmente: segundo, primeiro e terceiro.
     const orderedPodium: OrderedPlayer[] = topThree.length === 3
         ? [
             {
@@ -182,7 +178,6 @@ const usePodio = () => {
             revealOrder: topThree.length - index,
         }));
 
-    // Encerra a partida e limpa a sala.
     const clearRoom = useCallback(async () => {
         if (!roomCode || !round || clearing) {
             setError("Não foi possível identificar a partida atual.");

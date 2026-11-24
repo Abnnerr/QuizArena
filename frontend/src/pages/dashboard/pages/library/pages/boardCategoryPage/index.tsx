@@ -22,7 +22,7 @@ import { useAuth } from "../../../../../../contexts/hooks/useAuth";
 import { AXIOS } from "../../../../../../service";
 import Button from "../../../../../../shared/ui/Button";
 
-/* TYPES */
+
 
 interface Alternative {
     alternative_id?: number;
@@ -73,7 +73,6 @@ interface QuestionForm {
     alternatives: Alternative[];
 }
 
-/* CONSTANTS */
 
 const emptyQuestion = (): QuestionForm => ({
     question_text: "",
@@ -98,7 +97,7 @@ const difficultyColors: Record<string, string> = {
     HARD: "#DC2626",
 };
 
-/* PAGE */
+
 
 const BoardCategoryPage = () => {
     const navigate = useNavigate();
@@ -117,14 +116,12 @@ const BoardCategoryPage = () => {
     const [category, setCategory] = useState<Category | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Drawer de pergunta
     const [sidebar, setSidebar] = useState(false);
     const [form, setForm] = useState<QuestionForm>(emptyQuestion);
     const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
     const [saving, setSaving] = useState(false);
     const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(null);
 
-    // Modal de salas
     const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loadingRooms, setLoadingRooms] = useState(false);
@@ -146,7 +143,7 @@ const BoardCategoryPage = () => {
         boxSizing: "border-box",
     };
 
-    /* CATEGORY */
+
 
     const findCategory = async () => {
         if (!categoryId) {
@@ -187,8 +184,6 @@ const BoardCategoryPage = () => {
     const handleFilterChange = (mine: boolean) => {
         setSearchParams(mine ? { onlyMine: "true" } : {});
     };
-
-    /* QUESTION FORM */
 
     const updateForm = (changes: Partial<QuestionForm>) => {
         setForm(previous => ({ ...previous, ...changes }));
@@ -351,7 +346,6 @@ const BoardCategoryPage = () => {
         }
     };
 
-    /* DELETE QUESTION */
 
     const handleDeleteQuestion = async (question: Question) => {
 
@@ -385,7 +379,6 @@ const BoardCategoryPage = () => {
         }
     };
 
-    /* ROOMS */
 
     const findRooms = async () => {
         try {
@@ -456,7 +449,7 @@ const BoardCategoryPage = () => {
 
     const goBack = () => navigate(`/dashboard/library/${libraryId}`);
 
-    /* STATES */
+
 
     if (loading) {
         return (
@@ -489,8 +482,6 @@ const BoardCategoryPage = () => {
 
     return (
         <div className="relative space-y-6 pb-10">
-
-            {/* HEADER */}
 
             <div className="space-y-4">
                 <button
@@ -537,7 +528,6 @@ const BoardCategoryPage = () => {
                     )}
                 </div>
 
-                {/* FILTER */}
 
                 <div
                     className="flex w-fit flex-wrap gap-2 rounded-xl border-2 p-1.5"
@@ -564,7 +554,6 @@ const BoardCategoryPage = () => {
                 </div>
             </div>
 
-            {/* QUESTIONS */}
 
             {questions.length === 0 ? (
                 <div
@@ -614,7 +603,6 @@ const BoardCategoryPage = () => {
                                     borderColor: colors.border,
                                 }}
                             >
-                                {/* BADGES */}
 
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span
@@ -653,7 +641,6 @@ const BoardCategoryPage = () => {
                                     </span>
                                 </div>
 
-                                {/* QUESTION */}
 
                                 <h3
                                     className="mt-4 text-sm font-bold leading-relaxed"
@@ -662,7 +649,6 @@ const BoardCategoryPage = () => {
                                     {index + 1}. {question.question_text}
                                 </h3>
 
-                                {/* ALTERNATIVES */}
 
                                 <div className="mt-4 flex-1 space-y-2">
                                     <p
@@ -717,7 +703,6 @@ const BoardCategoryPage = () => {
                                     ))}
                                 </div>
 
-                                {/* ACTIONS */}
 
                                 <div
                                     className="mt-4 flex items-center gap-2 border-t pt-3"
@@ -763,8 +748,6 @@ const BoardCategoryPage = () => {
                 </div>
             )}
 
-            {/* QUESTION DRAWER */}
-
             {sidebar && canManageQuestions && (
                 <div
                     className="fixed inset-0 z-50 flex justify-end"
@@ -806,7 +789,6 @@ const BoardCategoryPage = () => {
 
                         <div className="flex-1 space-y-5 overflow-y-auto p-5">
 
-                            {/* CATEGORY */}
 
                             <div className="space-y-2">
                                 <label className="text-sm font-black" style={{ color: colors.text }}>
@@ -825,8 +807,6 @@ const BoardCategoryPage = () => {
                                     <span className="text-sm font-bold">{category.title}</span>
                                 </div>
                             </div>
-
-                            {/* VISIBILITY */}
 
                             <div className="space-y-3">
                                 <div>
@@ -877,7 +857,6 @@ const BoardCategoryPage = () => {
                                 </div>
                             </div>
 
-                            {/* QUESTION TYPE */}
 
                             <div className="space-y-2">
                                 <span className="text-sm font-black" style={{ color: colors.text }}>
@@ -905,8 +884,6 @@ const BoardCategoryPage = () => {
                                 </div>
                             </div>
 
-                            {/* QUESTION TEXT */}
-
                             <label className="block space-y-2">
                                 <span className="text-sm font-black" style={{ color: colors.text }}>
                                     Enunciado
@@ -927,8 +904,6 @@ const BoardCategoryPage = () => {
                                 />
                             </label>
 
-                            {/* DIFFICULTY */}
-
                             <label className="block space-y-2">
                                 <span className="text-sm font-black" style={{ color: colors.text }}>
                                     Dificuldade
@@ -946,8 +921,6 @@ const BoardCategoryPage = () => {
                                     <option value="HARD">Difícil</option>
                                 </select>
                             </label>
-
-                            {/* ALTERNATIVES */}
 
                             <div className="space-y-3">
                                 <div>
@@ -1043,8 +1016,6 @@ const BoardCategoryPage = () => {
                             </div>
                         </div>
 
-                        {/* DRAWER FOOTER */}
-
                         <footer
                             className="flex gap-3 border-t-2 p-5"
                             style={{ borderColor: colors.border }}
@@ -1072,8 +1043,6 @@ const BoardCategoryPage = () => {
                     </aside>
                 </div>
             )}
-
-            {/* ROOM MODAL */}
 
             {isRoomModalOpen && (
                 <div

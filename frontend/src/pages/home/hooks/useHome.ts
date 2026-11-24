@@ -67,7 +67,6 @@ export function useHome() {
         }
     }, [roomCode, user, navigate, toast]);
 
-    // Entrada automática pelo QR Code
     useEffect(() => {
         const code = searchParams.get("room")?.trim().toUpperCase();
 

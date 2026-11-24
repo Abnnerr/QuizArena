@@ -38,8 +38,6 @@ const BoardConfigPage = () => {
 
     return (
         <div className="space-y-6 pb-10">
-
-            {/* Cabeçalho */}
             <div>
                 <button
                     onClick={() => navigate(-1)}
@@ -75,8 +73,6 @@ const BoardConfigPage = () => {
                     Gerencie suas preferências e configurações da conta.
                 </p>
             </div>
-
-            {/* Configurações da conta */}
             <section className="space-y-3">
                 <h2 className="text-lg font-bold">
                     Conta e preferências
@@ -133,7 +129,6 @@ const BoardConfigPage = () => {
                 </div>
             </section>
 
-            {/* Sobre */}
             <section className="space-y-3">
                 <h2 className="text-lg font-bold">
                     Sobre a plataforma

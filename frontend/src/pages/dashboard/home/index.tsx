@@ -41,7 +41,6 @@ const BoardHomePage = () => {
     return (
         <div className="space-y-8 pb-10">
 
-            {/* Boas-vindas */}
             <div
                 className="overflow-hidden rounded-2xl p-6 md:p-8"
                 style={{
@@ -82,8 +81,6 @@ const BoardHomePage = () => {
                     </Button>
                 </div>
             </div>
-
-            {/* Atalhos */}
             <div>
                 <div className="mb-4">
                     <h2 className="text-xl font-black">
@@ -141,8 +138,6 @@ const BoardHomePage = () => {
                     ))}
                 </div>
             </div>
-
-            {/* Dica */}
             <div
                 className="flex items-start gap-4 rounded-2xl border-2 p-5"
                 style={{

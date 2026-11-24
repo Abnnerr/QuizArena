@@ -70,8 +70,6 @@ const HomePage = () => {
             </Helmet>
 
             <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center gap-5 px-4 py-6 sm:px-6 lg:px-8">
-
-                {/* HEADER */}
                 <section
                     className="relative overflow-hidden rounded-2xl border-2 p-5 sm:p-6"
                     style={cardStyle}
@@ -121,10 +119,8 @@ const HomePage = () => {
                     </div>
                 </section>
 
-                {/* CONTENT */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
-                    {/* JOIN CARD */}
                     <div
                         className="min-h-[28rem] rounded-2xl border-2 border-b-4 p-5 sm:p-6 lg:col-span-2"
                         style={cardStyle}
@@ -161,8 +157,6 @@ const HomePage = () => {
                                 </p>
                             </div>
                         </div>
-
-                        {/* PROGRESS */}
                         <div className="mb-6 grid grid-cols-2 gap-3">
                             {["Código da sala", "Jogador"].map((label, index) => {
                                 const active = index === 0
@@ -194,8 +188,6 @@ const HomePage = () => {
                                 );
                             })}
                         </div>
-
-                        {/* FORM */}
                         <form
                             onSubmit={(event) => {
                                 event.preventDefault();
@@ -308,8 +300,6 @@ const HomePage = () => {
                             )}
                         </form>
                     </div>
-
-                    {/* SIDE CONTENT */}
                     <aside className="flex flex-col gap-5">
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"

@@ -58,7 +58,6 @@ const BoardLibraryDetailsPage = () => {
     const [categoryTitle, setCategoryTitle] = useState("");
     const [creating, setCreating] = useState(false);
 
-    // Buscar biblioteca
     const findLibrary = async () => {
         if (!libraryId) {
             setLoading(false);
@@ -95,12 +94,10 @@ const BoardLibraryDetailsPage = () => {
         findLibrary();
     }, [libraryId]);
 
-    // Categorias filtradas
     const categories = (library?.categories ?? []).filter((category) =>
         category.title.toLowerCase().includes(search.toLowerCase().trim())
     );
 
-    // Estatísticas
     const totalCategories = library?.categories.length ?? 0;
 
     const totalQuestions = (library?.categories ?? []).reduce(
@@ -108,7 +105,6 @@ const BoardLibraryDetailsPage = () => {
         0
     );
 
-    // Criar categoria
     const handleCreateCategory = async () => {
         const title = categoryTitle.trim();
 
@@ -151,7 +147,6 @@ const BoardLibraryDetailsPage = () => {
         navigate("/dashboard/library");
     };
 
-    // Carregamento
     if (loading) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
@@ -165,7 +160,6 @@ const BoardLibraryDetailsPage = () => {
         );
     }
 
-    // Biblioteca não encontrada
     if (!library) {
         return (
             <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
@@ -191,7 +185,6 @@ const BoardLibraryDetailsPage = () => {
 
     return (
         <div className="min-h-screen space-y-8 pb-10">
-            {/* Voltar */}
             <button
                 type="button"
                 onClick={goBack}
@@ -202,7 +195,6 @@ const BoardLibraryDetailsPage = () => {
                 Todas as bibliotecas
             </button>
 
-            {/* Cabeçalho */}
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="mb-2 flex items-center gap-2">
@@ -246,7 +238,6 @@ const BoardLibraryDetailsPage = () => {
                 )}
             </div>
 
-            {/* Estatísticas */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div
                     className="rounded-2xl border-2 p-5"
@@ -321,7 +312,6 @@ const BoardLibraryDetailsPage = () => {
                 </div>
             </div>
 
-            {/* Categorias */}
             <div className="space-y-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -483,7 +473,6 @@ const BoardLibraryDetailsPage = () => {
                 )}
             </div>
 
-            {/* Drawer de criação */}
             {isCreateOpen && isAdmin && (
                 <div className="fixed inset-0 z-50 flex justify-end">
                     <div

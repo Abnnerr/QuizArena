@@ -9,12 +9,10 @@ import RoomLobbyPage from "../pages/rooms/pages/lobby";
 import NotFoundPage from "../shared/pages/NotFound";
 import RoomLivePage from "../pages/rooms/pages/live"
 import AuthLayout from "../layouts/AuthLayout";
-import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
 import RankingPage from "../pages/rooms/pages/ranking";
 import PageLayout from "../layouts/PageLayout";
 import RoomLayout from "../layouts/RoomLayout";
 import PublicLayout from "../layouts/PublicLayout";
-import UserPage from "../pages/auth/pages/user";
 import PodioPage from "../pages/rooms/pages/podio";
 import DashBoardLayout from "../layouts/DashBoardLayout";
 import BoardGate from "../pages/dashboard/components/BoardGate";
@@ -42,7 +40,6 @@ const Paths = () => {
                 <Route element={<PageLayout />}>
                     <Route path="/auth" element={<AuthLayout />} >
                         <Route path="login" element={<LoginPage />} />
-                        <Route path="user" element={<UserPage />} />
                         <Route path="register" element={<RegisterPage />} />
                         <Route path="forgot-password" element={<ForgotPage />} />
                         <Route path="reset-password/:token" element={<ResetPage />} />
@@ -51,7 +48,6 @@ const Paths = () => {
                         <Route index element={<HomePage />} />
                     </Route>
                     <Route path="/room">
-                        <Route path="create" element={<RoomCreatePage />} />
                         <Route path=":roomCode/live" element={<RoomLivePage />} />
                         <Route element={<RoomLayout />}>
                             <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />

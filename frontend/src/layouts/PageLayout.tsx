@@ -28,7 +28,6 @@ const PageLayout = () => {
                 }}
             /> */}
 
-            {/* PÁGINAS */}
             <div className="relative z-10 flex flex-col flex-1 min-h-dvh">
                 <Outlet />
             </div>

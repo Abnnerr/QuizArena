@@ -167,7 +167,6 @@ const BoardLibraryPage = () => {
 
     return (
         <div className="min-h-screen space-y-8 pb-10">
-            {/* Cabeçalho */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="mb-2 flex items-center gap-2">
@@ -202,8 +201,6 @@ const BoardLibraryPage = () => {
                     </Button>
                 )}
             </div>
-
-            {/* Estatísticas */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {stats.map((item) => (
                     <div
@@ -243,8 +240,6 @@ const BoardLibraryPage = () => {
                     </div>
                 ))}
             </div>
-
-            {/* Bibliotecas */}
             <section className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -258,8 +253,6 @@ const BoardLibraryPage = () => {
                             {libraries.length} biblioteca(s) disponível(is)
                         </p>
                     </div>
-
-                    {/* Pesquisa preparada para implementação futura */}
                     <div className="relative w-full sm:max-w-xs">
                         <FiSearch
                             className="absolute left-3 top-1/2 -translate-y-1/2"
@@ -461,7 +454,6 @@ const BoardLibraryPage = () => {
                 )}
             </section>
 
-            {/* Drawer de criação */}
             {isCreateOpen && isAdmin && (
                 <div className="fixed inset-0 z-50 flex justify-end">
                     <div

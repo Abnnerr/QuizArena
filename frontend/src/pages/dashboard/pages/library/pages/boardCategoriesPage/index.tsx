@@ -88,7 +88,6 @@ const BoardCategoriesPage = () => {
     return (
         <div className="space-y-6 pb-10">
 
-            {/* Cabeçalho */}
             <div>
                 <button
                     onClick={() => navigate(-1)}
@@ -119,7 +118,6 @@ const BoardCategoriesPage = () => {
                 </p>
             </div>
 
-            {/* Estatísticas */}
             <div className="grid grid-cols-2 gap-3">
                 <div
                     className="flex items-center gap-3 rounded-xl border-2 p-4"
@@ -160,7 +158,6 @@ const BoardCategoriesPage = () => {
                 </div>
             </div>
 
-            {/* Categorias */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold">

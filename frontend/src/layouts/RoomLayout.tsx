@@ -6,8 +6,6 @@ const RoomLayout = () => {
 
     return (
         <div className="w-full min-h-dvh flex flex-col relative">
-
-            {/* HEADER */}
             <header
                 className="
                     w-full border-b-2
@@ -49,13 +47,9 @@ const RoomLayout = () => {
                     </span>
                 </Link>
             </header>
-
-            {/* CONTEÚDO */}
             <div className="flex-1 min-h-0 w-full relative z-10">
                 <Outlet />
             </div>
-
-            {/* FOOTER */}
             <footer
                 className="
                     w-full border-t-2

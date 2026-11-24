@@ -76,7 +76,6 @@ const useRoomLive = () => {
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Identifica o jogador, inclusive quando a página é recarregada.
     const getPlayerId = () => {
         if (player?.player_id) {
             return player.player_id;
@@ -106,9 +105,6 @@ const useRoomLive = () => {
         navigate(`/${roomCode}/${round}/ranking`);
     };
 
-    // Atualiza a pergunta recebida do backend
-
-    // Atualiza a pergunta recebida do backend
     const atualizarPergunta = (data: any) => {
         const questionData = data.questions ?? data;
 
@@ -126,7 +122,6 @@ const useRoomLive = () => {
         setSkip(data.skip ?? false);
         setRound(data.round_id);
 
-        // Reseta informações da rodada anterior
         setCorrectAlternative(null);
         setAlternativeStatistics([]);
 
@@ -140,7 +135,7 @@ const useRoomLive = () => {
         setQuestionTime(duration);
         setTimeLeft(remaining);
 
-        // Recupera a resposta do jogador diretamente do backend
+
         const playerId = getPlayerId();
 
         const playerAnswer = (data.answers ?? []).find(
@@ -150,7 +145,7 @@ const useRoomLive = () => {
         );
 
         if (playerAnswer) {
-            // O jogador já respondeu: restaura sua alternativa
+
             setSelectedAnswer(
                 playerAnswer.alternative_id ??
                 playerAnswer.alternativeId
@@ -158,7 +153,7 @@ const useRoomLive = () => {
 
             setAnswered(true);
         } else {
-            // O jogador ainda não respondeu
+            
             setSelectedAnswer(null);
             setAnswered(false);
         }
@@ -168,7 +163,7 @@ const useRoomLive = () => {
     };
 
 
-    // Busca a rodada atual.
+  
     const buscarRound = async () => {
         try {
             const playerId = getPlayerId();
@@ -238,7 +233,7 @@ const useRoomLive = () => {
             sessionStorage.clear();
         };
 
-        // Recebe o evento do power-up 50/50.
+    
         const handlePowerFifty = (data: PowerFiftyPayload) => {
             const currentPlayerId = getPlayerId();
 
@@ -304,7 +299,7 @@ const useRoomLive = () => {
         };
     }, [roomCode, player?.player_id]);
 
-    // Contagem regressiva.
+
     useEffect(() => {
         if (!question || loading || timeLeft <= 0) {
             return;
@@ -327,7 +322,7 @@ const useRoomLive = () => {
         });
     }, [timeLeft, isHost, roomCode, question]);
 
-    // Envia resposta.
+ 
     const handleAnswer = async (answerId: number) => {
         if (!question || answered || skip || timeLeft <= 0 || round === null) {
             return;
@@ -359,7 +354,7 @@ const useRoomLive = () => {
         }
     };
 
-    // Ativa power-up.
+
 
     const handleUsePowerUp = async (
         powerupId: number,

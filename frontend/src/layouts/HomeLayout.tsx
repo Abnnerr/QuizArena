@@ -46,7 +46,6 @@ const HomeLayout: React.FC = () => {
             }}
         >
             <main className="flex-1 min-w-0">
-                {/* HEADER */}
                 <header
                     className="
                         min-h-16 sm:min-h-20
@@ -61,7 +60,6 @@ const HomeLayout: React.FC = () => {
                         borderColor: colors.border,
                     }}
                 >
-                    {/* LOGO E IDENTIFICAÇÃO */}
                     <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                         <Link
                             to="/"
@@ -109,10 +107,7 @@ const HomeLayout: React.FC = () => {
                             </h2>
                         </div>
                     </div>
-
-                    {/* AÇÕES */}
                     <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                        {/* CONFIGURAÇÕES */}
                         <button
                             type="button"
                             onClick={() => setShowSettings(true)}
@@ -136,7 +131,6 @@ const HomeLayout: React.FC = () => {
 
                         {!user && (
                             <>
-                                {/* LOGIN */}
                                 <Link
                                     to="/auth/login"
                                     className="
@@ -157,8 +151,6 @@ const HomeLayout: React.FC = () => {
                                 >
                                     Entrar
                                 </Link>
-
-                                {/* CADASTRO */}
                                 <Link
                                     to="/auth/register"
                                     className="
@@ -184,8 +176,6 @@ const HomeLayout: React.FC = () => {
                                 </Link>
                             </>
                         )}
-
-                        {/* DASHBOARD */}
                         {user && (
                             <Link
                                 to="/dashboard"
@@ -212,14 +202,10 @@ const HomeLayout: React.FC = () => {
                         )}
                     </div>
                 </header>
-
-                {/* CONTEÚDO DAS PÁGINAS */}
                 <div className="flex flex-col min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
                     <div className="flex-1 w-full max-w-[1500px] mx-auto min-w-0 px-3 sm:px-6 lg:px-8">
                         <Outlet />
                     </div>
-
-                    {/* FOOTER */}
                     <footer
                         className="border-t-2 mt-auto"
                         style={{
@@ -265,8 +251,6 @@ const HomeLayout: React.FC = () => {
                     </footer>
                 </div>
             </main>
-
-            {/* MODAL DE CONFIGURAÇÕES */}
             {showSettings && (
                 <div
                     className="
@@ -293,7 +277,6 @@ const HomeLayout: React.FC = () => {
                         }}
                         onClick={(event) => event.stopPropagation()}
                     >
-                        {/* CABEÇALHO */}
                         <div
                             className="
                                 flex items-center justify-between
@@ -346,8 +329,6 @@ const HomeLayout: React.FC = () => {
                                 <FiX size={20} />
                             </button>
                         </div>
-
-                        {/* APARÊNCIA */}
                         <div className="p-4 sm:p-5">
                             <div className="mb-3 flex items-center gap-2">
                                 <FiSun
@@ -367,7 +348,6 @@ const HomeLayout: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {/* TEMA ESCURO */}
                                 <button
                                     type="button"
                                     onClick={() => setTheme("darkTheme")}
@@ -417,8 +397,6 @@ const HomeLayout: React.FC = () => {
                                         )}
                                     </div>
                                 </button>
-
-                                {/* TEMA CLARO */}
                                 <button
                                     type="button"
                                     onClick={() => setTheme("lightTheme")}
@@ -470,8 +448,6 @@ const HomeLayout: React.FC = () => {
                                 </button>
                             </div>
                         </div>
-
-                        {/* RODAPÉ DO MODAL */}
                         <div
                             className="border-t-2 p-4 sm:p-5"
                             style={{ borderColor: colors.border }}

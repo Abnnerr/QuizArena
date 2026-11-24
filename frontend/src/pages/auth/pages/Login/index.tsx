@@ -77,7 +77,6 @@ const LoginPage = () => {
                 "
                 data-cy="login-page"
             >
-                {/* CABEÇALHO */}
                 <section
                     className="relative overflow-hidden rounded-2xl border-2 p-5 sm:p-6"
                     style={cardStyle}
@@ -131,10 +130,8 @@ const LoginPage = () => {
                     </div>
                 </section>
 
-                {/* CONTEÚDO */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
-                    {/* FORMULÁRIO */}
                     <div
                         className="
                             rounded-2xl border-2 border-b-4
@@ -175,7 +172,6 @@ const LoginPage = () => {
                             className="space-y-4"
                             data-cy="login-form"
                         >
-                            {/* USUÁRIO */}
                             <div>
                                 <label
                                     className="mb-2 block text-sm font-bold"
@@ -199,7 +195,6 @@ const LoginPage = () => {
                                 />
                             </div>
 
-                            {/* SENHA */}
                             <div>
                                 <div className="mb-2 flex items-center justify-between">
                                     <label
@@ -257,7 +252,6 @@ const LoginPage = () => {
                                 </div>
                             </div>
 
-                            {/* BOTÃO */}
                             <Button
                                 type="submit"
                                 variant="primary"
@@ -274,7 +268,6 @@ const LoginPage = () => {
                         </form>
                     </div>
 
-                    {/* INFORMAÇÕES */}
                     <div className="flex flex-col gap-5">
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
@@ -327,7 +320,6 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        {/* CADASTRO */}
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
                             style={cardStyle}
