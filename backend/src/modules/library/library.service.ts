@@ -43,10 +43,8 @@ export class LibraryService {
     }
     async libraryDelete(libraryId: number) {
         try {
-            return await this.repo.libraryFindId(libraryId)
+            await this.repo.libraryDelete(libraryId)
         } catch (error) {
-            console.log(error);
-
             if (error instanceof AppError) {
                 throw error
             }

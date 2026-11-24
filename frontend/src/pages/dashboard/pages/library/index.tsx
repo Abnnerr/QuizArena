@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
     FiBookOpen,
@@ -19,22 +19,16 @@ import { useAuth } from "../../../../contexts/hooks/useAuth";
 import { AXIOS } from "../../../../service";
 import Button from "../../../../shared/ui/Button";
 
-interface LibraryCategory {
-    category_id: number;
-    title: string;
-    _count?: {
-        questions: number;
-    };
-}
-
 interface Library {
     library_id: number;
     title: string;
     description: string | null;
-    categories: LibraryCategory[];
-    _count?: {
-        categories: number;
-    };
+    categories: {
+        category_id: number;
+        title: string;
+        _count?: { questions: number };
+    }[];
+    _count?: { categories: number };
 }
 
 const BoardLibraryPage = () => {
@@ -50,28 +44,21 @@ const BoardLibraryPage = () => {
     const [search, setSearch] = useState("");
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [creating, setCreating] = useState(false);
-
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const findLibraries = async () => {
         try {
-            setLoading(true);
-
             const { data } = await AXIOS.get("/library/findLibraries");
 
-            if (data.type === "Success") {
-                setLibraries(Array.isArray(data.data) ? data.data : []);
-            } else {
-                setLibraries([]);
-                toast.error(data.message || "Erro ao carregar bibliotecas.");
+            if (data.type !== "Success") {
+                throw new Error(data.message);
             }
+
+            setLibraries(data.data || []);
         } catch (error) {
-            console.error("Erro ao buscar bibliotecas:", error);
-            setLibraries([]);
             toast.error("Não foi possível carregar as bibliotecas.");
         } finally {
             setLoading(false);
@@ -82,47 +69,23 @@ const BoardLibraryPage = () => {
         findLibraries();
     }, []);
 
-    const filteredLibraries = useMemo(() => {
-        const normalizedSearch = search.toLowerCase().trim();
-
-        if (!normalizedSearch) return libraries;
-
-        return libraries.filter((library) =>
-            library.title.toLowerCase().includes(normalizedSearch)
-        );
-    }, [libraries, search]);
-
-    const getCategoryCount = (library: Library) => {
-        return library._count?.categories ?? library.categories?.length ?? 0;
-    };
-
-    const getQuestionCount = (library: Library) => {
-        return (
-            library.categories?.reduce(
-                (total, category) =>
-                    total + (category._count?.questions ?? 0),
-                0
-            ) ?? 0
-        );
-    };
-
     const totalCategories = libraries.reduce(
-        (total, library) => total + getCategoryCount(library),
+        (total, library) => total + (library._count?.categories ?? library.categories.length),
         0
     );
 
     const totalQuestions = libraries.reduce(
-        (total, library) => total + getQuestionCount(library),
+        (total, library) =>
+            total +
+            library.categories.reduce(
+                (sum, category) => sum + (category._count?.questions ?? 0),
+                0
+            ),
         0
     );
 
     const handleCreateLibrary = async () => {
-        if (!isAdmin) return;
-
-        if (!title.trim()) {
-            toast.error("Informe o nome da biblioteca.");
-            return;
-        }
+        if (!isAdmin || !title.trim()) return;
 
         try {
             setCreating(true);
@@ -144,23 +107,21 @@ const BoardLibraryPage = () => {
             setIsCreateOpen(false);
 
             await findLibraries();
-        } catch (error) {
-            console.error("Erro ao criar biblioteca:", error);
+        } catch {
             toast.error("Não foi possível criar a biblioteca.");
         } finally {
             setCreating(false);
         }
     };
 
-    const handleDeleteLibrary = async (library: Library) => {
+    const handleDeleteLibrary = async (libraryId: number) => {
         if (!isAdmin || deletingId !== null) return;
 
-
         try {
-            setDeletingId(library.library_id);
+            setDeletingId(libraryId);
 
             const { data } = await AXIOS.delete(
-                `/library/${library.library_id}/delete`
+                `/library/${libraryId}/delete`
             );
 
             if (data.type !== "Success") {
@@ -169,23 +130,40 @@ const BoardLibraryPage = () => {
             }
 
             setLibraries((current) =>
-                current.filter(
-                    (item) => item.library_id !== library.library_id
-                )
+                current.filter((item) => item.library_id !== libraryId)
             );
 
-            toast.success("Biblioteca excluída com sucesso!");
-        } catch (error) {
-            console.error("Erro ao excluir biblioteca:", error);
-            toast.error("Não foi possível excluir a biblioteca.");
+            toast.success(data.message || "Biblioteca excluída com sucesso!");
+        } catch (error: any) {
+            toast.error(
+                error.response?.data?.message ||
+                "Não foi possível excluir a biblioteca."
+            );
         } finally {
             setDeletingId(null);
         }
     };
 
-    const openLibrary = (libraryId: number) => {
-        navigate(`/dashboard/library/${libraryId}`);
-    };
+    const stats = [
+        {
+            label: "Bibliotecas",
+            value: libraries.length,
+            icon: <FiBookOpen size={23} />,
+            color: colors.primary,
+        },
+        {
+            label: "Categorias",
+            value: totalCategories,
+            icon: <FiFolder size={23} />,
+            color: colors.success,
+        },
+        {
+            label: "Perguntas",
+            value: totalQuestions,
+            icon: <FiLayers size={23} />,
+            color: colors.primary,
+        },
+    ];
 
     return (
         <div className="min-h-screen space-y-8 pb-10">
@@ -194,7 +172,6 @@ const BoardLibraryPage = () => {
                 <div>
                     <div className="mb-2 flex items-center gap-2">
                         <BiLibrary size={24} style={{ color: colors.primary }} />
-
                         <span
                             className="text-sm font-bold uppercase tracking-wider"
                             style={{ color: colors.primary }}
@@ -228,26 +205,7 @@ const BoardLibraryPage = () => {
 
             {/* Estatísticas */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {[
-                    {
-                        label: "Bibliotecas",
-                        value: libraries.length,
-                        icon: <FiBookOpen size={24} />,
-                        color: colors.primary,
-                    },
-                    {
-                        label: "Categorias",
-                        value: totalCategories,
-                        icon: <FiFolder size={24} />,
-                        color: colors.success,
-                    },
-                    {
-                        label: "Perguntas",
-                        value: totalQuestions,
-                        icon: <FiLayers size={24} />,
-                        color: colors.primary,
-                    },
-                ].map((item) => (
+                {stats.map((item) => (
                     <div
                         key={item.label}
                         className="rounded-2xl border-2 p-5"
@@ -264,7 +222,6 @@ const BoardLibraryPage = () => {
                                 >
                                     {item.label}
                                 </p>
-
                                 <h2
                                     className="mt-2 text-3xl font-black"
                                     style={{ color: colors.text }}
@@ -287,8 +244,8 @@ const BoardLibraryPage = () => {
                 ))}
             </div>
 
-            {/* Pesquisa e listagem */}
-            <div className="space-y-4">
+            {/* Bibliotecas */}
+            <section className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2
@@ -297,18 +254,17 @@ const BoardLibraryPage = () => {
                         >
                             Todas as bibliotecas
                         </h2>
-
                         <p className="mt-1 text-sm" style={{ color: colors.muted }}>
-                            {filteredLibraries.length} biblioteca(s) encontrada(s)
+                            {libraries.length} biblioteca(s) disponível(is)
                         </p>
                     </div>
 
+                    {/* Pesquisa preparada para implementação futura */}
                     <div className="relative w-full sm:max-w-xs">
                         <FiSearch
                             className="absolute left-3 top-1/2 -translate-y-1/2"
                             style={{ color: colors.muted }}
                         />
-
                         <input
                             type="text"
                             value={search}
@@ -336,7 +292,7 @@ const BoardLibraryPage = () => {
                             Carregando bibliotecas...
                         </p>
                     </div>
-                ) : filteredLibraries.length === 0 ? (
+                ) : libraries.length === 0 ? (
                     <div
                         className="rounded-2xl border-2 border-dashed p-10 text-center"
                         style={{
@@ -344,35 +300,24 @@ const BoardLibraryPage = () => {
                             borderColor: colors.border,
                         }}
                     >
-                        <div
-                            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
-                            style={{
-                                backgroundColor: `${colors.primary}20`,
-                                color: colors.primary,
-                            }}
-                        >
-                            <FiBookOpen size={30} />
-                        </div>
+                        <FiBookOpen
+                            size={32}
+                            className="mx-auto mb-4"
+                            style={{ color: colors.primary }}
+                        />
 
                         <h3
                             className="text-lg font-black"
                             style={{ color: colors.text }}
                         >
-                            {search
-                                ? "Nenhuma biblioteca encontrada"
-                                : "Nenhuma biblioteca cadastrada"}
+                            Nenhuma biblioteca cadastrada
                         </h3>
 
-                        <p
-                            className="mx-auto mt-2 max-w-md text-sm"
-                            style={{ color: colors.muted }}
-                        >
-                            {search
-                                ? "Tente pesquisar usando outro nome."
-                                : "Ainda não existem bibliotecas disponíveis."}
+                        <p className="mt-2 text-sm" style={{ color: colors.muted }}>
+                            Ainda não existem bibliotecas disponíveis.
                         </p>
 
-                        {!search && isAdmin && (
+                        {isAdmin && (
                             <div className="mt-5">
                                 <Button
                                     variant="primary"
@@ -386,20 +331,31 @@ const BoardLibraryPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredLibraries.map((library) => {
-                            const isDeleting =
-                                deletingId === library.library_id;
+                        {libraries.map((library) => {
+                            const questionCount = library.categories.reduce(
+                                (total, category) =>
+                                    total + (category._count?.questions ?? 0),
+                                0
+                            );
+
+                            const categoryCount =
+                                library._count?.categories ??
+                                library.categories.length;
+
+                            const isDeleting = deletingId === library.library_id;
 
                             return (
                                 <div
                                     key={library.library_id}
+                                    onClick={() =>
+                                        navigate(`/dashboard/library/${library.library_id}`)
+                                    }
                                     className="group flex cursor-pointer flex-col rounded-2xl border-2 p-5 transition hover:-translate-y-1"
                                     style={{
                                         backgroundColor: colors.card,
                                         borderColor: colors.border,
                                         opacity: isDeleting ? 0.6 : 1,
                                     }}
-                                    onClick={() => openLibrary(library.library_id)}
                                 >
                                     <div className="mb-5 flex items-start justify-between">
                                         <div
@@ -428,12 +384,11 @@ const BoardLibraryPage = () => {
                                                     type="button"
                                                     disabled={deletingId !== null}
                                                     title="Excluir biblioteca"
-                                                    aria-label={`Excluir biblioteca ${library.title}`}
                                                     onClick={(event) => {
                                                         event.stopPropagation();
-                                                        handleDeleteLibrary(library);
+                                                        handleDeleteLibrary(library.library_id);
                                                     }}
-                                                    className="flex h-9 w-9 items-center justify-center rounded-xl border-2 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    className="flex h-9 w-9 items-center justify-center rounded-xl border-2 transition hover:bg-red-500/10 disabled:opacity-50"
                                                     style={{
                                                         borderColor: `${colors.danger}50`,
                                                         color: colors.danger,
@@ -469,30 +424,22 @@ const BoardLibraryPage = () => {
                                         style={{ borderColor: colors.border }}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <FiFolder
-                                                size={16}
-                                                style={{ color: colors.muted }}
-                                            />
-
+                                            <FiFolder size={16} style={{ color: colors.muted }} />
                                             <span
                                                 className="text-sm font-bold"
                                                 style={{ color: colors.text }}
                                             >
-                                                {getCategoryCount(library)} categorias
+                                                {categoryCount} categorias
                                             </span>
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <FiLayers
-                                                size={16}
-                                                style={{ color: colors.muted }}
-                                            />
-
+                                            <FiLayers size={16} style={{ color: colors.muted }} />
                                             <span
                                                 className="text-sm font-bold"
                                                 style={{ color: colors.text }}
                                             >
-                                                {getQuestionCount(library)} perguntas
+                                                {questionCount} perguntas
                                             </span>
                                         </div>
                                     </div>
@@ -502,10 +449,9 @@ const BoardLibraryPage = () => {
                                         style={{ color: colors.primary }}
                                     >
                                         <span>Explorar biblioteca</span>
-
                                         <FiArrowRight
-                                            className="transition-transform group-hover:translate-x-1"
                                             size={18}
+                                            className="transition-transform group-hover:translate-x-1"
                                         />
                                     </div>
                                 </div>
@@ -513,16 +459,14 @@ const BoardLibraryPage = () => {
                         })}
                     </div>
                 )}
-            </div>
+            </section>
 
             {/* Drawer de criação */}
             {isCreateOpen && isAdmin && (
                 <div className="fixed inset-0 z-50 flex justify-end">
                     <div
                         className="absolute inset-0 bg-black/50"
-                        onClick={() => {
-                            if (!creating) setIsCreateOpen(false);
-                        }}
+                        onClick={() => !creating && setIsCreateOpen(false)}
                     />
 
                     <div
@@ -540,11 +484,7 @@ const BoardLibraryPage = () => {
                                 >
                                     Nova biblioteca
                                 </h2>
-
-                                <p
-                                    className="mt-1 text-sm"
-                                    style={{ color: colors.muted }}
-                                >
+                                <p className="mt-1 text-sm" style={{ color: colors.muted }}>
                                     Cadastre uma nova biblioteca de perguntas.
                                 </p>
                             </div>
@@ -567,13 +507,10 @@ const BoardLibraryPage = () => {
                                 >
                                     Nome da biblioteca
                                 </label>
-
                                 <input
                                     type="text"
                                     value={title}
-                                    onChange={(event) =>
-                                        setTitle(event.target.value)
-                                    }
+                                    onChange={(event) => setTitle(event.target.value)}
                                     placeholder="Ex: Conhecimentos gerais"
                                     maxLength={100}
                                     className="w-full rounded-xl border-2 p-3 text-sm outline-none"
@@ -598,12 +535,9 @@ const BoardLibraryPage = () => {
                                         (opcional)
                                     </span>
                                 </label>
-
                                 <textarea
                                     value={description}
-                                    onChange={(event) =>
-                                        setDescription(event.target.value)
-                                    }
+                                    onChange={(event) => setDescription(event.target.value)}
                                     placeholder="Descreva o conteúdo desta biblioteca..."
                                     rows={5}
                                     maxLength={500}
@@ -614,7 +548,6 @@ const BoardLibraryPage = () => {
                                         color: colors.text,
                                     }}
                                 />
-
                                 <p
                                     className="mt-1 text-right text-xs"
                                     style={{ color: colors.muted }}

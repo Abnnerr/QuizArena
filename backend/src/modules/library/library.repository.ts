@@ -71,7 +71,7 @@ export class LibraryRepository {
         });
     }
 
-    async deleteLibrary(libraryId: number) {
+    async libraryDelete(libraryId: number) {
         return await prisma.$transaction(async (tx) => {
             // 1. Verifica se a biblioteca existe
             const library = await tx.libraries.findUnique({
@@ -79,7 +79,7 @@ export class LibraryRepository {
             });
 
             if (!library) {
-                throw new Error("Biblioteca não encontrada.");
+                throw new AppError(400, "Biblioteca não encontrada.");
             }
 
             // 2. Busca as categorias
@@ -104,7 +104,6 @@ export class LibraryRepository {
                 (question) => question.question_id
             );
 
-            // 4. Verifica se alguma pergunta já foi utilizada
             const rounds = await tx.round.count({
                 where: {
                     question_id: { in: questionIds },
@@ -112,37 +111,28 @@ export class LibraryRepository {
             });
 
             if (rounds > 0) {
-                throw new AppError(500,"Não é possível excluir esta biblioteca. Existem perguntas utilizadas em partidas."
-);
+                throw new AppError(500, "salas estao usando questoes dessa library"
+                );
             }
 
-            // 5. Exclui as relações com salas
             await tx.roomQuestion.deleteMany({
                 where: {
                     question_id: { in: questionIds },
                 },
             });
-
-            // 6. Exclui as alternativas
             await tx.alternatives.deleteMany({
                 where: {
                     question_id: { in: questionIds },
                 },
             });
-
-            // 7. Exclui as perguntas
             await tx.questions.deleteMany({
                 where: {
                     category_id: { in: categoryIds },
                 },
             });
-
-            // 8. Exclui as categorias
             await tx.category.deleteMany({
                 where: { library_id: libraryId },
             });
-
-            // 9. Exclui a biblioteca
             return await tx.libraries.delete({
                 where: { library_id: libraryId },
             });

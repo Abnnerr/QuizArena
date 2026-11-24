@@ -12,7 +12,7 @@ export class LibraryController {
         this.libraryFindId = this.libraryFindId.bind(this)
         this.libraryDelete = this.libraryDelete.bind(this)
     }
-    
+
     async libraryCreate(req: Request<{}, {}, CreateLibraryDTO, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             await this.service.libraryCreate(req.body)
@@ -50,7 +50,7 @@ export class LibraryController {
     }
     async libraryDelete(req: Request<{ libraryId: string }, {}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
-            const result = await this.service.libraryFindId(Number(req.params.libraryId))
+            const result = await this.service.libraryDelete(Number(req.params.libraryId))
 
             return HttpResponse.success(res, 200, 'library encontrado', result)
         } catch (error) {
