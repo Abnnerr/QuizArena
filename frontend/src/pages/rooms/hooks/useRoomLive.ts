@@ -45,6 +45,11 @@ interface RankingPayload {
     roundId: number;
 }
 
+interface ExpiredPayload {
+    roomCode: string;
+    roundId: number;
+}
+
 const useRoomLive = () => {
     const { roomCode } = useParams<{ roomCode: string }>();
     const navigate = useNavigate();
@@ -80,14 +85,11 @@ const useRoomLive = () => {
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Controla a emissão para não enviar o evento duas vezes.
+    // Evita emitir o encerramento mais de uma vez por rodada.
     const expiredRoundRef = useRef<number | null>(null);
 
     // Guarda o evento caso o Socket.IO esteja desconectado.
-    const pendingExpiredRef = useRef<{
-        roomCode: string;
-        roundId: number;
-    } | null>(null);
+    const pendingExpiredRef = useRef<ExpiredPayload | null>(null);
 
     const getPlayerId = () => {
         if (player?.player_id) return player.player_id;
@@ -102,7 +104,6 @@ const useRoomLive = () => {
         }
     };
 
-    // Emissão centralizada do encerramento.
     const emitRoundExpired = useCallback(() => {
         if (
             !isHost ||
@@ -113,10 +114,9 @@ const useRoomLive = () => {
             return;
         }
 
-        // Marca a rodada para impedir emissões duplicadas.
         expiredRoundRef.current = round;
 
-        const payload = {
+        const payload: ExpiredPayload = {
             roomCode,
             roundId: round,
         };
@@ -130,9 +130,16 @@ const useRoomLive = () => {
         socket.emit("round:time_expired", payload);
     }, [isHost, roomCode, round]);
 
-    // Encerramento manual pelo botão.
+    // Encerramento manual pelo host.
     const handleEndRound = () => {
-        if (!isHost || timeLeft <= 0 || round === null) return;
+        if (
+            !isHost ||
+            timeLeft <= 0 ||
+            round === null ||
+            correctAlternative !== null
+        ) {
+            return;
+        }
 
         setTimeLeft(0);
         emitRoundExpired();
@@ -174,7 +181,7 @@ const useRoomLive = () => {
         setSkip(data.skip ?? false);
         setRound(newRound);
 
-        // Só libera uma nova emissão quando for outra rodada.
+        // Libera uma nova emissão quando a rodada mudar.
         if (expiredRoundRef.current !== newRound) {
             pendingExpiredRef.current = null;
         }
@@ -186,7 +193,11 @@ const useRoomLive = () => {
         const start = new Date(data.round_opened).getTime();
         const serverNow = new Date(data.server_now).getTime();
 
-        const elapsed = Math.floor((serverNow - start) / 1000);
+        const elapsed =
+            Number.isFinite(start) && Number.isFinite(serverNow)
+                ? Math.floor((serverNow - start) / 1000)
+                : 0;
+
         const remaining = Math.max(0, duration - elapsed);
 
         setQuestionTime(duration);
@@ -501,6 +512,7 @@ const useRoomLive = () => {
         correctAlternative,
         alternativeStatistics,
         playerNameUsed,
+        round,
     };
 };
 

@@ -13,7 +13,7 @@ import {
     FiVolume2,
     FiUsers,
 } from "react-icons/fi";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import useRoomLive from "../../hooks/useRoomLive";
 import { useTheme } from "../../../../contexts/ThemeContext";
@@ -98,6 +98,8 @@ const getPowerIcon = (type: string) => {
 
 export default function RoomLivePage() {
     const { roomCode } = useParams<{ roomCode: string }>();
+    const navigate = useNavigate();
+
     const { colors } = useTheme();
     const { toast } = useToast();
 
@@ -126,6 +128,7 @@ export default function RoomLivePage() {
         usingPowerUp,
         totalPlayers,
         totalAnswers,
+        round,
     } = useRoomLive();
 
     const [muted, setMuted] = useState(
@@ -154,6 +157,12 @@ export default function RoomLivePage() {
         backgroundColor: colors.surface,
         border: `2px solid ${colors.border}`,
         borderRadius: "14px",
+    };
+
+    const handleGoToRanking = () => {
+        if (!roomCode || round === null || round === undefined) return;
+
+        navigate(`/${roomCode}/${round}/ranking`);
     };
 
     // Música ambiente
@@ -440,14 +449,29 @@ export default function RoomLivePage() {
                         </div>
 
                         {isHost && (
-                            <Button
-                                variant="primary"
-                                onClick={handleEndRound}
-                                disabled={timeLeft <= 0 || finished}
-                            >
-                                <span className="hidden sm:inline">Encerrar</span>
-                                <FiArrowRight />
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleGoToRanking}
+                                    disabled={round === null || round === undefined}
+                                >
+                                    <FiUsers />
+                                    <span className="hidden sm:inline">
+                                        Ranking
+                                    </span>
+                                </Button>
+
+                                <Button
+                                    variant="primary"
+                                    onClick={handleEndRound}
+                                    disabled={timeLeft <= 0 || finished}
+                                >
+                                    <span className="hidden sm:inline">
+                                        Encerrar
+                                    </span>
+                                    <FiArrowRight />
+                                </Button>
+                            </div>
                         )}
 
                         <div
