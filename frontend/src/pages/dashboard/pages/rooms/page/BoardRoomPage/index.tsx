@@ -479,7 +479,7 @@ export default function BoardRoomPage() {
 
             toast.success("Partida iniciada com sucesso!");
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Erro ao iniciar partida.");
+            toast.error(error?.response?.data?.message);
         } finally {
             setStarting(false);
         }
