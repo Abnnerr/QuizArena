@@ -297,10 +297,6 @@ export default function RoomLivePage() {
         );
     };
 
-    const getAlternativeStats = (alternativeId: number) =>
-        alternativeStatistics.find(
-            item => item.alternativeId === alternativeId
-        );
 
     const effectBorder = {
         DOUBLE_XP:
