@@ -78,7 +78,6 @@ export default function RoomLivePage() {
         usingPowerUp,
         totalPlayers,
         totalAnswers,
-        everyoneAnswered,
     } = useRoomLive();
 
     const [muted, setMuted] = useState(
@@ -110,12 +109,6 @@ export default function RoomLivePage() {
 
     const answeredCount = totalAnswers ?? 0;
     const playerCount = totalPlayers ?? players.length + 1;
-    const waitingCount = Math.max(0, playerCount - answeredCount);
-
-    const answerProgress =
-        playerCount > 0
-            ? Math.min((answeredCount / playerCount) * 100, 100)
-            : 0;
 
     const totalVotes = alternativeStatistics.reduce(
         (total, item) => total + item.count,
@@ -442,7 +435,7 @@ export default function RoomLivePage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                         <button
                             onClick={toggleMusic}
                             className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:opacity-75"
@@ -456,8 +449,30 @@ export default function RoomLivePage() {
                             )}
                         </button>
 
+                        {/* Contador compacto */}
                         <div
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl font-black"
+                            className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                            style={surface}
+                        >
+                            <FiUsers style={{ color: colors.primary }} />
+
+                            <span
+                                className="text-sm font-black tabular-nums"
+                                style={{ color: colors.text }}
+                            >
+                                {answeredCount}/{playerCount}
+                            </span>
+
+                            <span
+                                className="text-xs hidden sm:inline"
+                                style={{ color: colors.muted }}
+                            >
+                                responderam
+                            </span>
+                        </div>
+
+                        <div
+                            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-black"
                             style={{
                                 backgroundColor: isCriticalTime
                                     ? `${colors.danger}18`
@@ -481,134 +496,6 @@ export default function RoomLivePage() {
                 </header>
 
                 <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-8 flex-1 flex flex-col gap-5">
-
-                    {/* Acompanhamento das respostas */}
-                    <section className="p-4 sm:p-5" style={card}>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <div
-                                    className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
-                                    style={{
-                                        backgroundColor: `${colors.primary}18`,
-                                        color: colors.primary,
-                                    }}
-                                >
-                                    <FiUsers />
-                                </div>
-
-                                <div>
-                                    <h2
-                                        className="font-black"
-                                        style={{ color: colors.text }}
-                                    >
-                                        Respostas da sala
-                                    </h2>
-
-                                    <p
-                                        className="text-xs mt-1"
-                                        style={{ color: colors.muted }}
-                                    >
-                                        Acompanhe o andamento da rodada
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-3 sm:gap-5">
-                                <div>
-                                    <p
-                                        className="text-xs"
-                                        style={{ color: colors.muted }}
-                                    >
-                                        Jogadores
-                                    </p>
-
-                                    <p
-                                        className="text-xl font-black tabular-nums"
-                                        style={{ color: colors.text }}
-                                    >
-                                        {playerCount}
-                                    </p>
-                                </div>
-
-                                <div
-                                    className="w-px h-10"
-                                    style={{ backgroundColor: colors.border }}
-                                />
-
-                                <div>
-                                    <p
-                                        className="text-xs"
-                                        style={{ color: colors.muted }}
-                                    >
-                                        Responderam
-                                    </p>
-
-                                    <p
-                                        className="text-xl font-black tabular-nums"
-                                        style={{ color: colors.success }}
-                                    >
-                                        {answeredCount}
-                                    </p>
-                                </div>
-
-                                <div
-                                    className="w-px h-10"
-                                    style={{ backgroundColor: colors.border }}
-                                />
-
-                                <div>
-                                    <p
-                                        className="text-xs"
-                                        style={{ color: colors.muted }}
-                                    >
-                                        Pendentes
-                                    </p>
-
-                                    <p
-                                        className="text-xl font-black tabular-nums"
-                                        style={{ color: colors.danger }}
-                                    >
-                                        {waitingCount}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            className="w-full h-2.5 rounded-full overflow-hidden mt-5"
-                            style={{ backgroundColor: colors.border }}
-                        >
-                            <div
-                                className="h-full rounded-full transition-all duration-500"
-                                style={{
-                                    width: `${answerProgress}%`,
-                                    backgroundColor: colors.success,
-                                }}
-                            />
-                        </div>
-
-                        <div className="flex justify-between items-center gap-3 mt-2">
-                            <span
-                                className="text-xs font-semibold"
-                                style={{ color: colors.muted }}
-                            >
-                                {answeredCount} de {playerCount} jogadores
-                            </span>
-
-                            <span
-                                className="text-xs font-black"
-                                style={{
-                                    color: everyoneAnswered
-                                        ? colors.success
-                                        : colors.muted,
-                                }}
-                            >
-                                {everyoneAnswered
-                                    ? "Todos responderam!"
-                                    : `${Math.round(answerProgress)}% concluído`}
-                            </span>
-                        </div>
-                    </section>
 
                     {/* Power-ups */}
                     <section className="p-4 sm:p-5" style={card}>
