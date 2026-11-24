@@ -79,13 +79,9 @@ export class RoundService implements IRoundService {
                 }
 
                 const totalPlayers = round.rooms._count.roomPlayers;
-
-                const totalAnswers = playerId
-                    ? undefined
-                    : round.answers.length;
+                const totalAnswers = round._count.answers;
 
                 const everyoneAnswered =
-                    totalAnswers !== undefined &&
                     totalPlayers > 0 &&
                     totalAnswers >= totalPlayers;
 
@@ -93,12 +89,18 @@ export class RoundService implements IRoundService {
                     round_id: round.round_id,
                     round_opened: round.opened_at,
                     server_now: new Date(),
+
                     question_id: round.questions.question_id,
                     question_text: round.questions.question_text,
                     alternatives: round.questions.alternatives,
+
                     time_limit: round.rooms.time_limit,
                     count_questions: round.rooms._count.roomQuestions,
                     position: round.rooms.position,
+
+                    totalPlayers,
+                    totalAnswers,
+                    everyoneAnswered,
 
                     ...(playerId && {
                         powers: round.rooms.roomPlayers
@@ -114,9 +116,6 @@ export class RoundService implements IRoundService {
                     skip,
                     fiftyUsed,
                     answers: round.answers,
-                    ...(everyoneAnswered !== undefined && {
-                        everyoneAnswered,
-                    }),
                 };
 
                 Logger.info(context, "findRound.completed", {
@@ -124,6 +123,8 @@ export class RoundService implements IRoundService {
                     roomId: room.room_id,
                     roundId: round.round_id,
                     playerId,
+                    totalPlayers,
+                    totalAnswers,
                     everyoneAnswered,
                 });
 

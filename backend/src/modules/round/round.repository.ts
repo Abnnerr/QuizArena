@@ -31,7 +31,12 @@ export class RoundRepository implements IRoundRepository {
             throw error
         }
     }
-    async findById( roomId?: number,roundId?: number,playerId?: string, checkAllAnswers: boolean = false): Promise<RoundWithRelations | null> {
+    async findById(
+        roomId?: number,
+        roundId?: number,
+        playerId?: string,
+        checkAllAnswers: boolean = false
+    ): Promise<RoundWithRelations | null> {
 
         return await prisma.round.findFirst({
             where: {
@@ -40,20 +45,34 @@ export class RoundRepository implements IRoundRepository {
                 closed_at: null,
             },
             include: {
+                _count: {
+                    select: {
+                        answers: true,
+                    },
+                },
+
                 rooms: {
                     select: {
                         time_limit: true,
                         position: true,
                         room_status: true,
 
+                        _count: {
+                            select: {
+                                roomPlayers: true,
+                                roomQuestions: true,
+                            },
+                        },
+
                         roomPlayers: {
-                            ...(checkAllAnswers
-                                ? {}
-                                : {
+                            ...(!checkAllAnswers && playerId
+                                ? {
                                     where: {
-                                        ...(playerId && { player_id: playerId }),
+                                        player_id: playerId,
                                     },
-                                }),
+                                }
+                                : {}),
+
                             select: {
                                 player_id: true,
                                 powerUpUses: {
@@ -70,14 +89,6 @@ export class RoundRepository implements IRoundRepository {
                                 },
                             },
                         },
-
-                        ...(checkAllAnswers && {
-                            _count: {
-                                select: {
-                                    roomPlayers: true,
-                                },
-                            },
-                        }),
                     },
                 },
 

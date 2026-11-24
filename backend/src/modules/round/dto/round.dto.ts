@@ -16,14 +16,20 @@ export type RoundWithQuestion = Prisma.RoundGetPayload<{
         };
     };
 }>;
-
 export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
     include: {
+        _count: {
+            select: {
+                answers: true,
+            },
+        },
+
         rooms: {
             select: {
                 time_limit: true,
                 position: true,
                 room_status: true,
+
                 roomPlayers: {
                     select: {
                         player_id: true,
@@ -41,6 +47,7 @@ export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
                         },
                     },
                 },
+
                 _count: {
                     select: {
                         roomQuestions: true,
@@ -49,12 +56,14 @@ export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
                 },
             },
         },
+
         answers: {
             select: {
                 player_id: true,
                 alternative_id: true,
             },
         },
+
         questions: {
             select: {
                 question_id: true,
@@ -74,7 +83,6 @@ export const roundWithRelations = Prisma.validator<Prisma.RoundDefaultArgs>()({
 export type RoundWithRelations = Prisma.RoundGetPayload<
     typeof roundWithRelations
 >;
-
 
 
 export interface RoundResponseDTO {
