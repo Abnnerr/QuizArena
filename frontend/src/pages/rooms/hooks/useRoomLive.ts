@@ -142,7 +142,6 @@ const useRoomLive = () => {
         }
 
         setTimeLeft(1.5);
-        emitRoundExpired();
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
