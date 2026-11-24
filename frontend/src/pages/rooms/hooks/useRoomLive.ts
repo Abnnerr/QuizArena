@@ -141,7 +141,7 @@ const useRoomLive = () => {
             return;
         }
 
-        setTimeLeft(0);
+        setTimeLeft(1.5);
         emitRoundExpired();
     };
 
