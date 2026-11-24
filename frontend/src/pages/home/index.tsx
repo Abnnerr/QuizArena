@@ -1,5 +1,6 @@
 
 import { Helmet } from "react-helmet-async";
+
 import {
     FiArrowLeft,
     FiArrowRight,
@@ -9,6 +10,7 @@ import {
     FiUser,
     FiUsers,
 } from "react-icons/fi";
+
 import { FaGamepad } from "react-icons/fa";
 
 import { useTheme } from "../../contexts/ThemeContext";
@@ -119,10 +121,12 @@ const HomePage = () => {
                     </div>
                 </section>
 
+                {/* CONTENT */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
+                    {/* JOIN CARD */}
                     <div
-                        className="rounded-2xl h-112 border-2 border-b-4 p-5 sm:p-6 lg:col-span-2"
+                        className="min-h-[28rem] rounded-2xl border-2 border-b-4 p-5 sm:p-6 lg:col-span-2"
                         style={cardStyle}
                     >
                         <div className="mb-6 flex items-center gap-3">
@@ -161,7 +165,9 @@ const HomePage = () => {
                         {/* PROGRESS */}
                         <div className="mb-6 grid grid-cols-2 gap-3">
                             {["Código da sala", "Jogador"].map((label, index) => {
-                                const active = index === 0 ? isRoomStep : !isRoomStep;
+                                const active = index === 0
+                                    ? isRoomStep
+                                    : !isRoomStep;
 
                                 return (
                                     <div key={label} className="space-y-1">
@@ -173,6 +179,7 @@ const HomePage = () => {
                                                     : colors.border,
                                             }}
                                         />
+
                                         <span
                                             className="text-[10px] font-bold uppercase"
                                             style={{
@@ -188,12 +195,16 @@ const HomePage = () => {
                             })}
                         </div>
 
+                        {/* FORM */}
                         <form
                             onSubmit={(event) => {
                                 event.preventDefault();
-                                isRoomStep
-                                    ? handleJoinRoom()
-                                    : handlePlayerSubmit();
+
+                                if (isRoomStep) {
+                                    void handleJoinRoom();
+                                } else {
+                                    void handlePlayerSubmit();
+                                }
                             }}
                             className="space-y-4"
                         >
@@ -202,7 +213,9 @@ const HomePage = () => {
                                     className="mb-2 block text-sm font-bold"
                                     style={{ color: colors.text }}
                                 >
-                                    {isRoomStep ? "Código da sala" : "Nome do jogador"}
+                                    {isRoomStep
+                                        ? "Código da sala"
+                                        : "Nome do jogador"}
                                 </label>
 
                                 <Input
@@ -227,11 +240,10 @@ const HomePage = () => {
                                             ? <FiHash className="h-5 w-5" />
                                             : <FiUser className="h-5 w-5" />
                                     }
-                                    className={`h-14 ${
-                                        isRoomStep
+                                    className={`h-14 ${isRoomStep
                                             ? "text-center text-xl font-black tracking-[0.2em] uppercase"
                                             : "text-base font-bold"
-                                    }`}
+                                        }`}
                                 />
 
                                 <div className="mt-2 flex justify-between">
@@ -275,7 +287,9 @@ const HomePage = () => {
                                 rightIcon={<FiArrowRight />}
                                 className="h-13 rounded-xl"
                             >
-                                {isRoomStep ? "Encontrar sala" : "Entrar na partida"}
+                                {isRoomStep
+                                    ? "Encontrar sala"
+                                    : "Entrar na partida"}
                             </Button>
 
                             {!isRoomStep && (
@@ -310,7 +324,10 @@ const HomePage = () => {
 
                             <div className="mt-5 space-y-5">
                                 {steps.map((item, index) => (
-                                    <div key={item.title} className="flex gap-3">
+                                    <div
+                                        key={item.title}
+                                        className="flex gap-3"
+                                    >
                                         <div
                                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                                             style={iconStyle}

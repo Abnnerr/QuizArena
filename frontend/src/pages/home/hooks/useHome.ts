@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { AxiosError } from "axios";
 
 import { useAuth } from "../../../contexts/hooks/useAuth";
@@ -16,6 +16,7 @@ interface ApiError {
 
 export function useHome() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const { user } = useAuth();
     const { setPlayer } = usePlayer();
@@ -26,8 +27,10 @@ export function useHome() {
     const [playerName, setPlayerName] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleJoinRoom = async () => {
-        const code = roomCode.trim();
+    const processedRoom = useRef<string | null>(null);
+
+    const handleJoinRoom = useCallback(async (codeFromUrl?: string) => {
+        const code = (codeFromUrl ?? roomCode).trim().toUpperCase();
 
         if (!code) {
             toast.warning("Informe o código da sala.");
@@ -36,6 +39,7 @@ export function useHome() {
 
         try {
             setLoading(true);
+            setRoomCode(code);
 
             const { data } = await AXIOS.get(`/room/${code}`);
 
@@ -55,25 +59,46 @@ export function useHome() {
             const err = error as AxiosError<ApiError>;
 
             toast.error(
-                err.response?.data?.message || "Não foi possível entrar na sala."
+                err.response?.data?.message ||
+                "Não foi possível entrar na sala."
             );
         } finally {
             setLoading(false);
         }
-    };
+    }, [roomCode, user, navigate, toast]);
+
+    // Entrada automática pelo QR Code
+    useEffect(() => {
+        const code = searchParams.get("room")?.trim().toUpperCase();
+
+        if (!code || code.length > 12) return;
+        if (processedRoom.current === code) return;
+
+        processedRoom.current = code;
+
+        setRoomCode(code);
+        void handleJoinRoom(code);
+    }, [searchParams, handleJoinRoom]);
 
     const handlePlayerSubmit = async () => {
         const name = playerName.trim();
+        const code = roomCode.trim().toUpperCase();
 
         if (name.length < 2) {
             toast.warning("O nome deve ter pelo menos 2 caracteres.");
             return;
         }
 
+        if (!code) {
+            toast.warning("Código da sala não informado.");
+            setStep("room");
+            return;
+        }
+
         try {
             setLoading(true);
 
-            const { data } = await AXIOS.post(`/room/join/${roomCode}`, {
+            const { data } = await AXIOS.post(`/room/join/${code}`, {
                 userName: name,
             });
 
@@ -89,12 +114,13 @@ export function useHome() {
 
             toast.success("Você entrou na sala!");
 
-            navigate(`/room/${roomCode}/lobby`);
+            navigate(`/room/${code}/lobby`);
         } catch (error) {
             const err = error as AxiosError<ApiError>;
 
             toast.error(
-                err.response?.data?.message || "Não foi possível entrar na sala."
+                err.response?.data?.message ||
+                "Não foi possível entrar na sala."
             );
         } finally {
             setLoading(false);

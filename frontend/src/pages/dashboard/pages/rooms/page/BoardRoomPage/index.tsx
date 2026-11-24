@@ -567,7 +567,7 @@ export default function BoardRoomPage() {
 
                         <div className="rounded-xl bg-white p-3">
                             <QRCodeSVG
-                                value={`${window.location.origin}/room/${room.room_code}`}
+                                value={`${window.location.origin}/?room=${roomCode}`}
                                 size={130}
                                 level="H"
                                 includeMargin
