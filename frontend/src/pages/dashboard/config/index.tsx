@@ -2,9 +2,7 @@
 import { useNavigate } from "react-router";
 import {
     FiArrowLeft,
-    FiUser,
     FiShield,
-    FiBell,
     FiMonitor,
 
     FiChevronRight,
