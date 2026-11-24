@@ -1,7 +1,6 @@
 import { AppError } from "../../error/AppError.js";
 import { measure } from "../../observability/measure.js";
 import { Logger } from "../../shared/services/logger.service.js";
-import type { IPlayerService } from "../players/contracts/player.service.contract.js";
 import type { IPowerService } from "../powers/contracts/power.service.contract.js";
 import type { IRoomService } from "../room/contracts/room.service.contract.js";
 import type { IRoundService } from "../round/contracts/round.service.contract.js";
@@ -16,7 +15,6 @@ export class AnswerService implements IAnswerService {
         private readonly roomService: IRoomService,
         private readonly roundService: IRoundService,
         private readonly powerService: IPowerService,
-        private readonly playerService: IPlayerService
     ) { }
 
 

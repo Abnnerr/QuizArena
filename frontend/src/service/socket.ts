@@ -1,8 +1,8 @@
 import { io } from "socket.io-client";
+const URL = import.meta.env.NODE_MODE !== 'dev' ? import.meta.env.VITE_BACKEND_PROD : import.meta.env.VITE_BACKEND_DEV
 
 export const socket = io(
-    // "https://quizarena-api-ytz7.onrender.com",
-    "http://localhost:9000",
+    URL,
     {
         autoConnect: false,
         transports: ["websocket", "polling"],
