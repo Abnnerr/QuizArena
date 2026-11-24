@@ -3,15 +3,8 @@ import type { IAnswerRepository } from "./contracts/answer.repository.contract.j
 
 export class AnswerRepository implements IAnswerRepository {
 
-    async createAnswer(
-        roomId: number,
-        roundId: number,
-        playerId: string,
-        alternativeId: number,
-        scores: number
-    ): Promise<void> {
+    async createAnswer(roomId: number, roundId: number, playerId: string, alternativeId: number, scores: number): Promise<void> {
         await prisma.$transaction(async (tx) => {
-            // Atualiza a pontuação de forma atômica.
             const updated = await tx.roomPlayer.updateMany({
                 where: {
                     room_id: roomId,
@@ -32,7 +25,7 @@ export class AnswerRepository implements IAnswerRepository {
                     "PLAYER_SCORE_NOT_UPDATED"
                 );
             }
-            
+
             await tx.answers.create({
                 data: {
                     round_id: roundId,

@@ -7,6 +7,7 @@ import { randomBytes } from "node:crypto";
 import type { RoomWithPlayers } from "./dto/room.dto.js";
 import { AppError } from "../../error/AppError.js";
 
+
 export class RoomRepository implements IRoomRepository {
     async createRoom(userId: string, dados: RoomCreateDTO): Promise<Rooms> {
         try {
@@ -25,14 +26,24 @@ export class RoomRepository implements IRoomRepository {
                 },
             });
         } catch (error) {
-            throw error
+            throw error;
         }
     }
-    async findByRoom(name?: string, roomCode?: string, id?: number): Promise<RoomWithPlayers | null> {
+
+    async findByRoom(
+        name?: string,
+        roomCode?: string,
+        id?: number
+    ): Promise<RoomWithPlayers | null> {
         try {
             console.log(name);
 
-            const where: Prisma.RoomsWhereInput = name ? { room_name: name } : roomCode ? { room_code: roomCode } : { room_id: id! }
+            const where: Prisma.RoomsWhereInput = name
+                ? { room_name: name }
+                : roomCode
+                    ? { room_code: roomCode }
+                    : { room_id: id! };
+
             return await prisma.rooms.findFirst({
                 where,
                 include: {
@@ -40,35 +51,36 @@ export class RoomRepository implements IRoomRepository {
                         select: {
                             players: true,
                             ready: true,
-                        }
+                        },
                     },
                     roomQuestions: {
                         include: {
                             questions: {
                                 include: {
                                     alternatives: true,
-                                    category: true
-                                }
-                            }
-                        }
-                    }
-                }
-            })
+                                    category: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
         } catch (error) {
             console.log(error);
-            throw error
+            throw error;
         }
     }
+
     async findRooms(id: string): Promise<Rooms[] | null> {
         try {
             return await prisma.rooms.findMany({
                 where: {
-                    host_user_id: id
-                }
-            })
+                    host_user_id: id,
+                },
+            });
         } catch (error) {
             console.log(error);
-            throw error
+            throw error;
         }
     }
 
@@ -78,25 +90,26 @@ export class RoomRepository implements IRoomRepository {
                 data: {
                     player_id: userId,
                     room_id: roomId,
-                }
-            })
+                },
+            });
         } catch (error) {
             console.log(error);
-            throw error
+            throw error;
         }
     }
+
     async leaveRoom(id: string, roomId: number): Promise<void> {
         try {
             await prisma.roomPlayer.delete({
                 where: {
                     room_id_player_id: {
                         player_id: id,
-                        room_id: roomId
-                    }
-                }
-            })
+                        room_id: roomId,
+                    },
+                },
+            });
         } catch (error) {
-            throw error
+            throw error;
         }
     }
 
@@ -104,66 +117,79 @@ export class RoomRepository implements IRoomRepository {
         try {
             return prisma.roomQuestion.count({
                 where: {
-                    room_id: id
-                }
-            })
+                    room_id: id,
+                },
+            });
         } catch (error) {
             console.log(error);
-            throw error
+            throw error;
         }
     }
+
     async roomUpdate(id: number, status?: string): Promise<Rooms> {
         try {
             return await prisma.rooms.update({
                 where: {
-                    room_id: id
+                    room_id: id,
                 },
                 data: {
                     ...(status && {
-                        room_status: status as RoomStatus
+                        room_status: status as RoomStatus,
                     }),
                     position: {
-                        increment: 1
-                    }
-                }
+                        increment: 1,
+                    },
+                },
             });
         } catch (error) {
             throw error;
         }
     }
-    async findAlternative(questionId: number, alternativeId?: number): Promise<{ alternative_id: number; is_correct: boolean } | null> {
+
+    async findAlternative(
+        questionId: number,
+        alternativeId?: number
+    ): Promise<{ alternative_id: number; is_correct: boolean } | null> {
         return await prisma.alternatives.findFirst({
             where: {
                 question_id: questionId,
                 ...(alternativeId !== undefined
                     ? { alternative_id: alternativeId }
-                    : { is_correct: true })
+                    : { is_correct: true }),
             },
             select: {
                 alternative_id: true,
-                is_correct: true
-            }
+                is_correct: true,
+            },
         });
     }
-    async findAlternativeIncorret(questionId: number): Promise<{ alternative_id: number }[]> {
+
+    async findAlternativeIncorret(
+        questionId: number
+    ): Promise<{ alternative_id: number }[]> {
         try {
             const alternatives = await prisma.alternatives.findMany({
                 where: {
                     question_id: questionId,
-                    is_correct: false
+                    is_correct: false,
                 },
                 select: {
-                    alternative_id: true
-                }
-            })
+                    alternative_id: true,
+                },
+            });
+
             return alternatives
                 .sort(() => Math.random() - 0.5)
                 .slice(0, 2);
         } catch (error) {
-            throw error
+            throw error;
         }
     }
-    async getAnswerStatistics(roundId: number, questionId: number): Promise<{
+
+    async getAnswerStatistics(
+        roundId: number,
+        questionId: number
+    ): Promise<{
         alternativeId: number;
         isCorrect: boolean;
         count: number;
@@ -172,41 +198,42 @@ export class RoomRepository implements IRoomRepository {
             const [alternatives, answers] = await Promise.all([
                 prisma.alternatives.findMany({
                     where: {
-                        question_id: questionId
+                        question_id: questionId,
                     },
                     select: {
                         alternative_id: true,
-                        is_correct: true
-                    }
+                        is_correct: true,
+                    },
                 }),
 
                 prisma.answers.groupBy({
                     by: ["alternative_id"],
                     where: {
-                        round_id: roundId
+                        round_id: roundId,
                     },
                     _count: {
-                        alternative_id: true
-                    }
-                })
+                        alternative_id: true,
+                    },
+                }),
             ]);
 
             const answerMap = new Map(
                 answers.map(answer => [
                     answer.alternative_id,
-                    answer._count.alternative_id
+                    answer._count.alternative_id,
                 ])
             );
 
             return alternatives.map(alternative => ({
                 alternativeId: alternative.alternative_id,
                 isCorrect: alternative.is_correct,
-                count: answerMap.get(alternative.alternative_id) ?? 0
+                count: answerMap.get(alternative.alternative_id) ?? 0,
             }));
         } catch (error) {
-            throw error
+            throw error;
         }
     }
+
     async limparRoom(roomId: number): Promise<void> {
         try {
             await prisma.$transaction(async (tx) => {
@@ -277,24 +304,26 @@ export class RoomRepository implements IRoomRepository {
                 });
             });
         } catch (error) {
-            throw error
+            throw error;
         }
-
     }
+
     async deletarRoom(roomId: number, userId: string): Promise<void> {
         await prisma.$transaction(async (tx) => {
-
-
             const room = await tx.rooms.findFirst({
                 where: {
-                    room_id: roomId
-                }
-            })
+                    room_id: roomId,
+                },
+            });
 
-            if (room?.host_user_id !== userId) {
-                throw new AppError(400, 'voce nao é dono dessa sala')
+            if (!room) {
+                throw new AppError(404, "Sala não encontrada");
             }
-            
+
+            if (room.host_user_id !== userId) {
+                throw new AppError(403, "Você não é dono dessa sala");
+            }
+
             const players = await tx.players.findMany({
                 where: {
                     roomPlayers: {
@@ -366,7 +395,6 @@ export class RoomRepository implements IRoomRepository {
                 });
             }
 
-            // 9. Exclui a sala por último.
             await tx.rooms.delete({
                 where: {
                     room_id: roomId,

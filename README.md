@@ -1,173 +1,145 @@
-# QuizArena
+# Backend
 
-QuizArena é uma plataforma de quiz multiplayer inspirada em jogos como Kahoot, na qual os participantes podem entrar em salas, responder perguntas em tempo real e competir por pontuação e classificação.
-
-O projeto foi desenvolvido com TypeScript e utiliza uma arquitetura modular no backend, comunicação em tempo real com Socket.IO e persistência de dados com PostgreSQL.
+Backend da aplicação QuizArena, uma plataforma de quizzes multiplayer inspirada no Kahoot, desenvolvida com Node.js, TypeScript e Express.
 
 ## Tecnologias
 
-### Backend
-- Node.js
-- TypeScript
-- Express
-- Prisma ORM
+- Node.js e TypeScript
+- Express 5
 - PostgreSQL
+- Prisma ORM
 - Socket.IO
 - Zod
-- JWT
-- Pino
-- OpenTelemetry
+- JWT e Bcrypt
+- Resend
+- Swagger
+- Pino e OpenTelemetry
+- Vitest e Supertest
 
-### Frontend
-- React
-- TypeScript
-- Tailwind CSS
+## Arquitetura
 
-### Infraestrutura e ferramentas
-- Git e GitHub
-- Supabase
-- Vitest
-- Honeycomb
-- Docker Compose
-- GitHub Actions
+O projeto utiliza uma arquitetura em camadas, com responsabilidades separadas:
 
-> A disponibilidade e o estágio de configuração de cada ferramenta devem ser conferidos nos respectivos arquivos de configuração do projeto.
+- **Controller:** recebe as requisições e retorna as respostas HTTP.
+- **Service:** concentra as regras de negócio.
+- **Repository:** responsável pelo acesso e comunicação com o banco de dados.
+- **Container:** instancia as classes e realiza a injeção de dependências.
+
+## Estrutura de pastas
+
+```text
+backend/
+├── prisma/          # Schema e migrations do banco
+└── src/
+    ├── app/         # Inicialização da aplicação e rotas
+    ├── config/      # Configurações de serviços
+    ├── containers/  # Injeção de dependências
+    ├── db/          # Conexão com o banco
+    ├── docs/        # Documentação Swagger
+    ├── middlewares/ # Middlewares da aplicação
+    ├── modules/     # Módulos e regras da aplicação
+    ├── observability/ # Logs, métricas e tracing
+    ├── shared/      # Serviços e utilitários compartilhados
+    ├── tests/       # Testes unitários e de integração
+    └── types/       # Tipagens compartilhadas
+```
 
 ## Funcionalidades
 
-- Cadastro e autenticação de usuários.
-- Recuperação e redefinição de senha.
+- Autenticação e gerenciamento de usuários.
 - Criação e gerenciamento de salas.
-- Entrada de jogadores em salas.
-- Inicialização de partidas.
-- Perguntas com alternativas.
-- Registro e cálculo de pontuação.
-- Classificação dos jogadores.
-- Power-ups durante as partidas.
-- Comunicação em tempo real.
-- Diferentes modos de jogo.
+- Entrada e gerenciamento de jogadores.
+- Gerenciamento de perguntas, categorias e bibliotecas.
+- Controle de rodadas e respostas.
+- Sistema de pontuação com estratégias por modo de jogo.
+- Power-ups: Fifty Fifty, Double XP e Skip Turn.
+- Comunicação em tempo real com Socket.IO.
+- Controle de permissões por papéis (RBAC).
 
-## Estrutura do projeto
+## Rotas principais
 
-```text
-QuizArena/
-├── frontend/
-├── backend/
-├── docs/
-│   ├── architecture.md
-│   ├── api.md
-│   ├── testing.md
-│   ├── decisions.md
-│   └── performance.md
-├── docker-compose.yml
-└── README.md
-```
+Todas as rotas da API utilizam o prefixo `/api`.
 
-## Instalação
+| Módulo | Prefixo |
+|---|---|
+| Autenticação | `/api/auth` |
+| Salas | `/api/room` |
+| Jogadores | `/api/player` |
+| Rodadas | `/api/round` |
+| Respostas | `/api/answer` |
+| Perguntas | `/api/question` |
+| Bibliotecas | `/api/library` |
+| Categorias | `/api/category` |
 
-Clone o repositório:
+## Banco de dados
 
-```bash
-git clone <REPOSITORY_URL>
-cd QuizArena
-```
+O projeto utiliza PostgreSQL com Prisma ORM.
 
-Instale as dependências do backend:
+O schema contém os modelos de usuários, jogadores, salas, perguntas, alternativas, rodadas, respostas, bibliotecas, categorias, permissões e power-ups.
+
+## Executando o projeto
+
+### Instalação
 
 ```bash
 cd backend
 npm install
 ```
 
-Instale as dependências do frontend:
+### Variáveis de ambiente
 
-```bash
-cd ../frontend
-npm install
+Crie um arquivo `.env` na pasta `backend` e configure as variáveis necessárias, incluindo:
+
+```env
+PORT=
+DATABASE_URL=
+NODE_MODE=
+URL_FRONT_DEV=
+URL_FRONT_PROD=
 ```
 
-Configure as variáveis de ambiente necessárias em cada aplicação, utilizando os arquivos de exemplo disponibilizados no repositório, quando existentes.
+Configure também as credenciais utilizadas pelos serviços externos, como Resend, conforme necessário.
 
-Não versione arquivos `.env` com credenciais reais.
-
-## Execução
-
-### Backend
-
-Na pasta `backend`:
+### Desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-Para compilar:
+### Build
 
 ```bash
 npm run build
 ```
 
-Para executar a versão compilada:
+### Produção
 
 ```bash
 npm start
 ```
 
-### Frontend
-
-Na pasta `frontend`, utilize o script de desenvolvimento definido no `package.json`:
-
-```bash
-npm run dev
-```
-
 ## Testes
 
-Os testes automatizados do backend utilizam Vitest.
-
-Para executar os testes:
+O projeto utiliza Vitest e Supertest.
 
 ```bash
+# Executar testes
 npm test
-```
 
-Para executar uma vez, sem modo de observação:
-
-```bash
+# Executar todos os testes
 npm run test:run
+
+# Testes de integração
+npm run test:int
+
+# Testes unitários
+npm run test:unit
 ```
 
-A estratégia de testes e o estado de implementação estão documentados em [docs/testing.md](docs/testing.md).
+## Documentação da API
 
-## Documentação técnica
+Com o servidor em execução, a documentação Swagger estará disponível em:
 
-| Documento | Conteúdo |
-|---|---|
-| [architecture.md](docs/architecture.md) | Organização interna e arquitetura |
-| [api.md](docs/api.md) | Contratos e endpoints HTTP |
-| [testing.md](docs/testing.md) | Estratégia e execução dos testes |
-| [decisions.md](docs/decisions.md) | Justificativas das decisões técnicas |
-| [performance.md](docs/performance.md) | Observabilidade e otimizações |
-
-## Observabilidade
-
-O backend utiliza Pino para geração de logs estruturados e possui instrumentação com OpenTelemetry.
-
-O projeto também utiliza Honeycomb para análise de dados de observabilidade.
-
-Os detalhes da instrumentação, métricas e melhorias de desempenho estão descritos em [docs/performance.md](docs/performance.md).
-
-## Infraestrutura
-
-O repositório possui uma configuração de Docker Compose destinada à execução dos serviços em ambiente local.
-
-A configuração deve ser mantida alinhada às dependências reais do projeto e às variáveis de ambiente necessárias.
-
-## Contribuição
-
-Alterações devem preservar a separação de responsabilidades e os padrões utilizados na arquitetura do projeto.
-
-Novas funcionalidades devem incluir testes compatíveis com sua complexidade e atualizar a documentação quando houver mudanças nos contratos ou comportamentos existentes.
-
-## Licença
-
-A licença do projeto deve ser definida e registrada neste repositório.
+```text
+http://localhost:PORT/api-docs
+```
