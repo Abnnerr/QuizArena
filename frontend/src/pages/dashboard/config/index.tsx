@@ -18,24 +18,24 @@ const BoardConfigPage = () => {
     const { colors } = useTheme();
 
     const sections = [
-        {
-            title: "Minha conta",
-            description: "Gerencie suas informações pessoais e seu perfil.",
-            icon: <FiUser size={21} />,
-            path: "/dashboard/profile",
-        },
+        // {
+        //     title: "Minha conta",
+        //     description: "Gerencie suas informações pessoais e seu perfil.",
+        //     icon: <FiUser size={21} />,
+        //     path: "/dashboard/profile",
+        // },
         {
             title: "Segurança",
             description: "Gerencie sua senha e as opções de segurança.",
             icon: <FiShield size={21} />,
             path: "/dashboard/security",
         },
-        {
-            title: "Notificações",
-            description: "Configure como deseja receber notificações.",
-            icon: <FiBell size={21} />,
-            path: "/dashboard/notifications",
-        },
+        // {
+        //     title: "Notificações",
+        //     description: "Configure como deseja receber notificações.",
+        //     icon: <FiBell size={21} />,
+        //     path: "/dashboard/notifications",
+        // },
     ];
 
     return (
