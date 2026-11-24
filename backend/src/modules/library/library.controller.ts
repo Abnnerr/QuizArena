@@ -10,7 +10,9 @@ export class LibraryController {
         this.libraryCreate = this.libraryCreate.bind(this)
         this.librariesFind = this.librariesFind.bind(this)
         this.libraryFindId = this.libraryFindId.bind(this)
+        this.libraryDelete = this.libraryDelete.bind(this)
     }
+    
     async libraryCreate(req: Request<{}, {}, CreateLibraryDTO, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             await this.service.libraryCreate(req.body)
@@ -46,4 +48,17 @@ export class LibraryController {
             return HttpResponse.warning(res, 500, 'Erro ao criar Library')
         }
     }
+    async libraryDelete(req: Request<{ libraryId: string }, {}, {}, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
+        try {
+            const result = await this.service.libraryFindId(Number(req.params.libraryId))
+
+            return HttpResponse.success(res, 200, 'library encontrado', result)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return HttpResponse.warning(res, error.status, error.message)
+            }
+            return HttpResponse.warning(res, 500, 'Erro ao criar Library')
+        }
+    }
+
 }

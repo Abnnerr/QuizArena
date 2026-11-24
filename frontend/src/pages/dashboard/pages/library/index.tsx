@@ -155,11 +155,6 @@ const BoardLibraryPage = () => {
     const handleDeleteLibrary = async (library: Library) => {
         if (!isAdmin || deletingId !== null) return;
 
-        const confirmed = window.confirm(
-            `Tem certeza que deseja excluir a biblioteca "${library.title}"?\n\nEssa ação não poderá ser desfeita.`
-        );
-
-        if (!confirmed) return;
 
         try {
             setDeletingId(library.library_id);

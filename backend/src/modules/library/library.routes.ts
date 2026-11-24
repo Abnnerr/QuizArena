@@ -30,7 +30,7 @@ router.get('/findLibraries',
 router.delete('/:libraryId/delete',
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("LIBRARY_DELETE", 'admin'),
-    
+    libraryController.libraryDelete    
 )
 
 

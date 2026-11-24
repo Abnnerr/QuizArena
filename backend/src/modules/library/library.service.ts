@@ -41,4 +41,16 @@ export class LibraryService {
             throw new AppError(500, 'Erro ao criar Library')
         }
     }
+    async libraryDelete(libraryId: number) {
+        try {
+            return await this.repo.libraryFindId(libraryId)
+        } catch (error) {
+            console.log(error);
+
+            if (error instanceof AppError) {
+                throw error
+            }
+            throw new AppError(500, 'Erro ao criar Library')
+        }
+    }
 }
