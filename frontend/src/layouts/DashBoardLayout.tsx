@@ -9,8 +9,6 @@ import {
     FiHelpCircle,
     FiUsers,
     FiSettings,
-    FiSearch,
-    FiBell,
 
 } from "react-icons/fi";
 

@@ -7,7 +7,6 @@ import {
     FiSkipForward,
     FiTarget,
     FiX,
-    FiLoader,
     FiCheck,
     FiArrowRight,
     FiClock,
