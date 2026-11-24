@@ -56,6 +56,7 @@ export default function RoomLivePage() {
     const {
         handleAnswer,
         handleKeyDown,
+        handleGoToRanking,
         progress,
         isCriticalTime,
         timeLeft,
@@ -109,6 +110,9 @@ export default function RoomLivePage() {
 
     const answeredCount = totalAnswers ?? 0;
     const playerCount = totalPlayers ?? players.length + 1;
+
+    const allAnswered =
+        playerCount > 0 && answeredCount >= playerCount;
 
     const totalVotes = alternativeStatistics.reduce(
         (total, item) => total + item.count,
@@ -449,7 +453,6 @@ export default function RoomLivePage() {
                             )}
                         </button>
 
-                        {/* Contador compacto */}
                         <div
                             className="flex items-center gap-2 px-3 py-2 rounded-xl"
                             style={surface}
@@ -825,6 +828,39 @@ export default function RoomLivePage() {
                                 <FiCheck className="inline mr-2" />
                                 Rodada ignorada com sucesso
                             </div>
+                        </section>
+                    )}
+
+                    {/* Botão para avançar todos ao ranking */}
+                    {isHost && allAnswered && timeLeft > 0 && (
+                        <section
+                            className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+                            style={card}
+                        >
+                            <div className="text-center sm:text-left">
+                                <p
+                                    className="font-black"
+                                    style={{ color: colors.success }}
+                                >
+                                    <FiCheck className="inline mr-2" />
+                                    Todos responderam!
+                                </p>
+
+                                <p
+                                    className="text-sm mt-1"
+                                    style={{ color: colors.muted }}
+                                >
+                                    Todos os jogadores já enviaram suas respostas.
+                                </p>
+                            </div>
+
+                            <Button
+                                variant="primary"
+                                onClick={handleGoToRanking}
+                            >
+                                Ir para o ranking
+                                <FiArrowRight className="ml-2" />
+                            </Button>
                         </section>
                     )}
 

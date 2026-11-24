@@ -41,6 +41,10 @@ interface AlternativeStatistics {
     count: number;
 }
 
+interface RankingPayload {
+    roundId: number;
+}
+
 const useRoomLive = () => {
     const { roomCode } = useParams<{ roomCode: string }>();
     const navigate = useNavigate();
@@ -108,6 +112,23 @@ const useRoomLive = () => {
         }
 
         navigate(`/${roomCode}/${round}/ranking`);
+    };
+
+    const handleGoToRanking = () => {
+        if (
+            !isHost ||
+            !roomCode ||
+            round === null ||
+            totalPlayers === 0 ||
+            totalAnswers < totalPlayers
+        ) {
+            return;
+        }
+
+        socket.emit("round:go_ranking", {
+            roomCode,
+            roundId: round,
+        });
     };
 
     const atualizarPergunta = (data: any) => {
@@ -266,8 +287,15 @@ const useRoomLive = () => {
 
             setCorrectAlternative(correct?.alternativeId ?? null);
         };
-        const answeredUpdate = () => {
-            setTotalAnswers(previous => previous + 1);
+
+        const answeredUpdate = (data: { totalAnswers: number }) => {
+            setTotalAnswers(data.totalAnswers);
+        };
+
+        const goToRanking = (data: RankingPayload) => {
+            if (!data?.roundId || !roomCode) return;
+
+            navigate(`/${roomCode}/${data.roundId}/ranking`);
         };
 
         socket.on("connect", roomJoin);
@@ -277,6 +305,7 @@ const useRoomLive = () => {
         socket.on("room:skip", skiped);
         socket.on("room:expired", expired);
         socket.on("room:answered", answeredUpdate);
+        socket.on("room:ranking", goToRanking);
 
         if (!socket.connected) {
             socket.connect();
@@ -294,6 +323,7 @@ const useRoomLive = () => {
             socket.off("room:skip", skiped);
             socket.off("room:expired", expired);
             socket.off("room:answered", answeredUpdate);
+            socket.off("room:ranking", goToRanking);
         };
     }, [roomCode, player?.player_id]);
 
@@ -346,10 +376,7 @@ const useRoomLive = () => {
                 setError(data.message ?? "Não foi possível enviar a resposta.");
                 setAnswered(false);
                 setSelectedAnswer(null);
-                return;
             }
-
-            setTotalAnswers(previous => previous + 1);
         } catch (err: any) {
             console.error(
                 err?.response?.data?.message ?? "Erro ao enviar resposta"
@@ -416,6 +443,7 @@ const useRoomLive = () => {
         isCriticalTime,
         handleAnswer,
         handleKeyDown,
+        handleGoToRanking,
         onConfirmPowerUp,
         setSelectedPowerUp,
         selectedPowerUp,
