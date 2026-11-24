@@ -841,40 +841,6 @@ export default function RoomLivePage() {
                         </section>
                     )}
 
-                    {/* Resultado */}
-                    {finished && !skip && (
-                        <section
-                            className="p-4 flex items-center justify-between gap-3"
-                            style={card}
-                        >
-                            <div>
-                                <p
-                                    className="font-black"
-                                    style={{ color: colors.text }}
-                                >
-                                    Resultado da rodada
-                                </p>
-
-                                <p
-                                    className="text-sm mt-1"
-                                    style={{ color: colors.muted }}
-                                >
-                                    {totalVotes} resposta(s) recebida(s)
-                                </p>
-                            </div>
-
-                            <span
-                                className="px-3 py-2 rounded-xl font-black text-sm"
-                                style={{
-                                    backgroundColor: `${colors.success}18`,
-                                    color: colors.success,
-                                }}
-                            >
-                                Finalizada
-                            </span>
-                        </section>
-                    )}
-
                     {isHost && timeLeft <= 0 && (
                         <p
                             className="text-center text-sm font-semibold"
