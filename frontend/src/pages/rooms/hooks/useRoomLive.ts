@@ -80,7 +80,14 @@ const useRoomLive = () => {
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Controla a emissão para não enviar o evento duas vezes.
     const expiredRoundRef = useRef<number | null>(null);
+
+    // Guarda o evento caso o Socket.IO esteja desconectado.
+    const pendingExpiredRef = useRef<{
+        roomCode: string;
+        roundId: number;
+    } | null>(null);
 
     const getPlayerId = () => {
         if (player?.player_id) return player.player_id;
@@ -95,6 +102,7 @@ const useRoomLive = () => {
         }
     };
 
+    // Emissão centralizada do encerramento.
     const emitRoundExpired = useCallback(() => {
         if (
             !isHost ||
@@ -105,14 +113,24 @@ const useRoomLive = () => {
             return;
         }
 
+        // Marca a rodada para impedir emissões duplicadas.
         expiredRoundRef.current = round;
 
-        socket.emit("round:time_expired", {
+        const payload = {
             roomCode,
             roundId: round,
-        });
+        };
+
+        if (!socket.connected) {
+            pendingExpiredRef.current = payload;
+            socket.connect();
+            return;
+        }
+
+        socket.emit("round:time_expired", payload);
     }, [isHost, roomCode, round]);
 
+    // Encerramento manual pelo botão.
     const handleEndRound = () => {
         if (!isHost || timeLeft <= 0 || round === null) return;
 
@@ -140,6 +158,7 @@ const useRoomLive = () => {
 
     const atualizarPergunta = (data: any) => {
         const questionData = data.questions ?? data;
+        const newRound = data.round_id;
 
         setQuestion({
             id: questionData.question_id ?? questionData.id,
@@ -153,7 +172,12 @@ const useRoomLive = () => {
         });
 
         setSkip(data.skip ?? false);
-        setRound(data.round_id);
+        setRound(newRound);
+
+        // Só libera uma nova emissão quando for outra rodada.
+        if (expiredRoundRef.current !== newRound) {
+            pendingExpiredRef.current = null;
+        }
 
         setTotalPlayers(data.totalPlayers ?? 0);
         setTotalAnswers(data.totalAnswers ?? 0);
@@ -180,8 +204,6 @@ const useRoomLive = () => {
             setSelectedAnswer(null);
             setAnswered(false);
         }
-
-        expiredRoundRef.current = null;
 
         setAlternativeStatistics([]);
         setCorrectAlternative(null);
@@ -249,6 +271,14 @@ const useRoomLive = () => {
 
         const roomJoin = () => {
             socket.emit("room:join", roomCode);
+
+            // Envia o encerramento pendente após reconectar.
+            const pending = pendingExpiredRef.current;
+
+            if (pending) {
+                socket.emit("round:time_expired", pending);
+                pendingExpiredRef.current = null;
+            }
         };
 
         const findRound = () => {
@@ -332,6 +362,7 @@ const useRoomLive = () => {
         };
     }, [roomCode, player?.player_id]);
 
+    // Cronômetro.
     useEffect(() => {
         if (!question || loading || timeLeft <= 0) return;
 
