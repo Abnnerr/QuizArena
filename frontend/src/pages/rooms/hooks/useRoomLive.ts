@@ -85,7 +85,7 @@ const useRoomLive = () => {
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Evita emitir o encerramento mais de uma vez por rodada.
+    // Impede emitir o encerramento mais de uma vez por rodada.
     const expiredRoundRef = useRef<number | null>(null);
 
     // Guarda o evento caso o Socket.IO esteja desconectado.
@@ -95,6 +95,7 @@ const useRoomLive = () => {
         if (player?.player_id) return player.player_id;
 
         const storedPlayer = sessionStorage.getItem("player");
+
         if (!storedPlayer) return undefined;
 
         try {
@@ -104,6 +105,7 @@ const useRoomLive = () => {
         }
     };
 
+    // Emite o evento de encerramento da rodada.
     const emitRoundExpired = useCallback(() => {
         if (
             !isHost ||
@@ -114,12 +116,15 @@ const useRoomLive = () => {
             return;
         }
 
-        expiredRoundRef.current = round;
-
         const payload: ExpiredPayload = {
             roomCode,
             roundId: round,
         };
+
+        // Marca a rodada para evitar emissões duplicadas.
+        expiredRoundRef.current = round;
+
+        console.log("[ROUND] Emitindo encerramento:", payload);
 
         if (!socket.connected) {
             pendingExpiredRef.current = payload;
@@ -131,17 +136,20 @@ const useRoomLive = () => {
     }, [isHost, roomCode, round]);
 
     // Encerramento manual pelo host.
+    // O useEffect será responsável por emitir o evento.
     const handleEndRound = () => {
         if (
             !isHost ||
-            timeLeft <= 0 ||
             round === null ||
-            correctAlternative !== null
+            correctAlternative !== null ||
+            timeLeft <= 0
         ) {
             return;
         }
 
-        setTimeLeft(1.5);
+        console.log("[ROUND] Encerramento manual solicitado");
+
+        setTimeLeft(0);
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
@@ -180,7 +188,7 @@ const useRoomLive = () => {
         setSkip(data.skip ?? false);
         setRound(newRound);
 
-        // Libera uma nova emissão quando a rodada mudar.
+        // Permite emitir novamente quando a rodada mudar.
         if (expiredRoundRef.current !== newRound) {
             pendingExpiredRef.current = null;
         }
@@ -282,10 +290,11 @@ const useRoomLive = () => {
         const roomJoin = () => {
             socket.emit("room:join", roomCode);
 
-            // Envia o encerramento pendente após reconectar.
             const pending = pendingExpiredRef.current;
 
             if (pending) {
+                console.log("[ROUND] Enviando encerramento pendente:", pending);
+
                 socket.emit("round:time_expired", pending);
                 pendingExpiredRef.current = null;
             }
@@ -315,7 +324,10 @@ const useRoomLive = () => {
             setPlayerNameUsed(data.userName);
         };
 
+        // Recebe o resultado enviado pelo backend.
         const expired = (data: any) => {
+            console.log("[ROUND] Resultado recebido:", data);
+
             setTimeLeft(0);
 
             const alternatives: AlternativeStatistics[] =
@@ -383,14 +395,29 @@ const useRoomLive = () => {
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
 
-    // Encerramento automático quando o cronômetro chega a zero.
+    // Encerra a rodada automaticamente ou após o clique do host.
     useEffect(() => {
-        if (!question || !isHost || timeLeft !== 0 || round === null) {
+        if (
+            !question ||
+            loading ||
+            !isHost ||
+            timeLeft > 0 ||
+            round === null
+        ) {
             return;
         }
 
+        console.log("[ROUND] useEffect detectou tempo zerado");
+
         emitRoundExpired();
-    }, [timeLeft, isHost, question, round, emitRoundExpired]);
+    }, [
+        timeLeft,
+        isHost,
+        question,
+        round,
+        loading,
+        emitRoundExpired,
+    ]);
 
     const handleAnswer = async (answerId: number) => {
         if (
