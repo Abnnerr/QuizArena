@@ -21,12 +21,7 @@ export class AnswerService implements IAnswerService {
 
 
     // Cria resposta e atualiza a pontuação do player
-    async createAnswer(
-        roomCode: string,
-        roundId: number,
-        playerId: string,
-        alternativeId: number
-    ): Promise<{ scores: number; isCorrect: boolean }> {
+    async createAnswer(roomCode: string, roundId: number, playerId: string, alternativeId: number): Promise<{ scores: number; isCorrect: boolean }> {
         return measure("AnswerService.createAnswer", async () => {
             try {
                 Logger.info("AnswerService", "createAnswer.started", {
@@ -138,15 +133,10 @@ export class AnswerService implements IAnswerService {
                 }
 
                 await this.repo.createAnswer(
+                    room.room_id,
                     round.round_id,
                     playerId,
                     alternativeId,
-                    scores
-                );
-
-                await this.playerService.updatePlayerScore(
-                    room.room_id,
-                    playerId,
                     scores
                 );
 
@@ -164,7 +154,10 @@ export class AnswerService implements IAnswerService {
                     isCorrect: alternative.is_correct
                 };
 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error);
+                console.log(error?.message);
+
                 if (error instanceof AppError) {
                     throw error;
                 }

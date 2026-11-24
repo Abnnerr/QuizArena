@@ -155,45 +155,7 @@ export class PlayerService implements IPlayerService {
         });
     }
 
-    async updatePlayerScore(roomId: number, playerId: string, scores: number): Promise<void> {
-        return measure("PlayerService.updatePlayerScore", async () => {
-            try {
-                Logger.info("PlayerService", "updatePlayerScore.started", {
-                    roomId,
-                    playerId,
-                    points: scores
-                });
 
-                const playerScore = await this.repo.playerScore(roomId, playerId);
-
-                const totalScore = (playerScore?.score ?? 0) + scores;
-
-                if (totalScore < 0) {
-                    throw new AppError(400, "Score negativo");
-                }
-
-                await this.repo.updatePlayerScore(
-                    roomId,
-                    playerId,
-                    totalScore
-                );
-
-                Logger.info("PlayerService", "updatePlayerScore.completed", {
-                    roomId,
-                    playerId,
-                    totalScore
-                });
-
-            } catch (error) {
-                if (error instanceof AppError) throw error;
-                Logger.error("PlayerService", "updatePlayerScore.failed", error, {
-                    roomId,
-                    playerId
-                });
-                throw new AppError(500, "Erro ao atualizar pontuação do player");
-            }
-        });
-    }
 
     // Exclui jogador
     async deletePlayer(roomId: number, id: string): Promise<void> {

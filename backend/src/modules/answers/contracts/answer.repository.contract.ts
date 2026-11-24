@@ -1,9 +1,10 @@
 
 export type IAnswerRepository = {
     createAnswer(
+        roomId: number,
         roundId: number,
         playerId: string,
         alternativeId: number,
-        points: number
-    ): Promise<void>;
+        scores: number
+    ): Promise<void>
 }

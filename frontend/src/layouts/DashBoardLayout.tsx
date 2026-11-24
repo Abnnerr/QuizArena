@@ -182,40 +182,7 @@ const DashBoardLayout: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-3">
-                        {/* PESQUISA */}
-                        <div
-                            className="hidden sm:flex items-center gap-2 px-3 h-11 rounded-xl border-2"
-                            style={{
-                                backgroundColor: colors.surface,
-                                borderColor: colors.border,
-                            }}
-                        >
-                            <FiSearch
-                                size={18}
-                                style={{ color: colors.muted }}
-                            />
-                            <input
-                                placeholder="Pesquisar..."
-                                className="bg-transparent outline-none text-sm font-bold w-36 lg:w-52"
-                                style={{ color: colors.text }}
-                            />
-                        </div>
 
-                        {/* NOTIFICAÇÕES */}
-                        <button
-                            aria-label="Notificações"
-                            className="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-b-4 active:border-b-2 active:translate-y-0.5 transition-all relative"
-                            style={{
-                                backgroundColor: colors.surface,
-                                borderColor: colors.border,
-                                color: colors.text,
-                            }}
-                        >
-                            <FiBell size={19} />
-                            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border border-white" />
-                        </button>
-
-                        {/* PERFIL */}
                         <Link
                             to="/auth/user"
                             className="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-b-4 active:border-b-2 active:translate-y-0.5 transition-all font-black bg-[#1CB0F6] text-white"

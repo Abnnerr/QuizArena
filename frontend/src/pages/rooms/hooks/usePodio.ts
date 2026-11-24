@@ -1,27 +1,54 @@
-import { useEffect, useState } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+
 import { AXIOS } from "../../../service";
 import type { ResponseDTO } from "../../../contexts/types/authTypes";
 
 type PlayerData = {
     player_id: string | number;
     score: number;
+    player_name: string;
     players?: {
         player_name: string;
     };
-    player_name?: string;
 };
 
-interface PodiumApiResponse {
+type PodiumApiResponse = {
     type?: "Success" | "Warning";
     message?: string;
     data?: PlayerData[];
-}
+};
 
-const createWarning = (message: string): ResponseDTO => ({
-    type: "Warning",
-    message,
-});
+type OrderedPlayer = {
+    player: PlayerData;
+    originalIndex: number;
+    revealOrder: number;
+};
+
+function getErrorMessage(
+    error: unknown,
+    fallback: string
+): string {
+    if (typeof error !== "object" || error === null) {
+        return fallback;
+    }
+
+    const err = error as {
+        message?: string;
+        response?: {
+            data?: {
+                message?: string;
+            };
+        };
+    };
+
+    return (
+        err.response?.data?.message ||
+        err.message ||
+        fallback
+    );
+}
 
 const usePodio = () => {
     const navigate = useNavigate();
@@ -32,92 +59,97 @@ const usePodio = () => {
     }>();
 
     const [topThree, setTopThree] = useState<PlayerData[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<ResponseDTO | null>(null);
     const [visibleCount, setVisibleCount] = useState(0);
 
-    useEffect(() => {
-        const fetchPodiumTop3 = async () => {
-            try {
-                setLoading(true);
-                setError(null);
+    const [loading, setLoading] = useState(true);
+    const [clearing, setClearing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-                const { data: response } = await AXIOS.get<PodiumApiResponse | PlayerData[]>(
-                    `/player/${roomCode}/podium`
+    // Busca os resultados da partida.
+    const fetchPodium = useCallback(async () => {
+        if (!roomCode) {
+            setTopThree([]);
+            setError("Código da sala não encontrado.");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+            setVisibleCount(0);
+            setTopThree([]);
+
+            const { data: response } = await AXIOS.get<
+                PodiumApiResponse | PlayerData[]
+            >(`/player/${roomCode}/podium`);
+
+            if (
+                !Array.isArray(response) &&
+                response.type === "Warning"
+            ) {
+                throw new Error(
+                    response.message || "Não foi possível carregar o pódio."
                 );
-
-                // Verifica se o backend retornou um Warning.
-                if (
-                    !Array.isArray(response) &&
-                    response.type === "Warning"
-                ) {
-                    setError(
-                        createWarning(
-                            response.message ?? "Não foi possível carregar o pódio."
-                        )
-                    );
-                    return;
-                }
-
-                // Compatibilidade com resposta envelopada ou array direto.
-                const currentData: PlayerData[] = Array.isArray(response)
-                    ? response
-                    : response.data ?? [];
-
-                if (!Array.isArray(currentData)) {
-                    setError(
-                        createWarning("Formato de dados do pódio inválido.")
-                    );
-                    return;
-                }
-
-                const sorted = [...currentData].sort(
-                    (a, b) => b.score - a.score
-                );
-
-                setTopThree(sorted.slice(0, 3));
-            } catch (err: unknown) {
-                console.error("Erro ao carregar o pódio final:", err);
-
-                const message =
-                    typeof err === "object" &&
-                        err !== null &&
-                        "response" in err &&
-                        typeof err.response === "object" &&
-                        err.response !== null &&
-                        "data" in err.response &&
-                        typeof err.response.data === "object" &&
-                        err.response.data !== null &&
-                        "message" in err.response.data &&
-                        typeof err.response.data.message === "string"
-                        ? err.response.data.message
-                        : "Não foi possível carregar o pódio da partida.";
-
-                setError(createWarning(message));
-            } finally {
-                setLoading(false);
             }
-        };
 
-        if (roomCode) {
-            void fetchPodiumTop3();
-        } else {
-            setError(createWarning("Código da sala não encontrado."));
+            const players = Array.isArray(response)
+                ? response
+                : response.data;
+
+            if (!Array.isArray(players)) {
+                throw new Error("Formato de dados do pódio inválido.");
+            }
+
+            const sorted = [...players]
+                .map((player) => ({
+                    ...player,
+                    player_name:
+                        player.players?.player_name ??
+                        player.player_name ??
+                        "Jogador",
+                    score: Number(player.score ?? 0),
+                }))
+                .sort((a, b) => b.score - a.score);
+
+            setTopThree(sorted.slice(0, 3));
+        } catch (err: unknown) {
+            console.error("Erro ao carregar o pódio:", err);
+
+            setTopThree([]);
+            setError(
+                getErrorMessage(
+                    err,
+                    "Não foi possível carregar o pódio da partida."
+                )
+            );
+        } finally {
             setLoading(false);
         }
     }, [roomCode]);
 
-    // Revelação gradual dos jogadores.
+    // Carrega o pódio quando a sala muda.
     useEffect(() => {
-        if (topThree.length === 0 || loading) return;
+        void fetchPodium();
+    }, [fetchPodium]);
+
+    // Revela os jogadores gradualmente.
+    useEffect(() => {
+        if (loading || topThree.length === 0) {
+            setVisibleCount(0);
+            return;
+        }
+
+        setVisibleCount(0);
 
         let currentStep = 0;
 
         const interval = setInterval(() => {
             currentStep += 1;
+
             setVisibleCount(currentStep);
 
-            if (currentStep >= 3) {
+            if (currentStep >= topThree.length) {
                 clearInterval(interval);
             }
         }, 1200);
@@ -125,21 +157,40 @@ const usePodio = () => {
         return () => clearInterval(interval);
     }, [topThree, loading]);
 
-    // Organização visual: segundo, primeiro e terceiro lugar.
-    const orderedPodium = topThree.length === 3
+    // Organiza visualmente: segundo, primeiro e terceiro.
+    const orderedPodium: OrderedPlayer[] = topThree.length === 3
         ? [
-            { player: topThree[1], originalIndex: 1 },
-            { player: topThree[0], originalIndex: 0 },
-            { player: topThree[2], originalIndex: 2 },
+            {
+                player: topThree[1],
+                originalIndex: 1,
+                revealOrder: 2,
+            },
+            {
+                player: topThree[0],
+                originalIndex: 0,
+                revealOrder: 3,
+            },
+            {
+                player: topThree[2],
+                originalIndex: 2,
+                revealOrder: 1,
+            },
         ]
         : topThree.map((player, index) => ({
             player,
             originalIndex: index,
+            revealOrder: topThree.length - index,
         }));
 
-    // Encerramento e limpeza da sala.
-    async function clearRoom() {
+    // Encerra a partida e limpa a sala.
+    const clearRoom = useCallback(async () => {
+        if (!roomCode || !round || clearing) {
+            setError("Não foi possível identificar a partida atual.");
+            return;
+        }
+
         try {
+            setClearing(true);
             setError(null);
 
             const { data } = await AXIOS.delete<ResponseDTO>(
@@ -147,44 +198,36 @@ const usePodio = () => {
             );
 
             if (data.type === "Success") {
-                navigate("/");
+                navigate("/dashboard");
                 return;
             }
 
             setError(
-                createWarning(
-                    data.message || "Não foi possível encerrar a partida."
-                )
+                data.message || "Não foi possível encerrar a partida."
             );
         } catch (err: unknown) {
-            console.error("Erro ao limpar a sala:", err);
+            console.error("Erro ao encerrar a partida:", err);
 
-            const message =
-                typeof err === "object" &&
-                    err !== null &&
-                    "response" in err &&
-                    typeof err.response === "object" &&
-                    err.response !== null &&
-                    "data" in err.response &&
-                    typeof err.response.data === "object" &&
-                    err.response.data !== null &&
-                    "message" in err.response.data &&
-                    typeof err.response.data.message === "string"
-                    ? err.response.data.message
-                    : "Não foi possível encerrar a partida.";
-
-            setError(createWarning(message));
+            setError(
+                getErrorMessage(
+                    err,
+                    "Não foi possível encerrar a partida."
+                )
+            );
+        } finally {
+            setClearing(false);
         }
-    }
+    }, [roomCode, round, clearing, navigate]);
 
     return {
-        orderedPodium,
-        error,
-        visibleCount,
-        clearRoom,
-        navigate,
-        loading,
         topThree,
+        orderedPodium,
+        visibleCount,
+        loading,
+        clearing,
+        error,
+        clearRoom,
+        reloadPodium: fetchPodium,
     };
 };
 

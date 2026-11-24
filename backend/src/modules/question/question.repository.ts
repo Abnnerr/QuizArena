@@ -30,29 +30,32 @@ export class QuestionRepository implements IQuestionRepository {
                 },
             });
 
-            // Busca a última posição da sala
-            const lastQuestion = await tx.roomQuestion.findFirst({
-                where: {
-                    room_id: dados.room_id,
-                },
-                orderBy: {
-                    position: "desc",
-                },
-                select: {
-                    position: true,
-                },
-            });
+            if (dados.room_id) {
+                const lastQuestion = await tx.roomQuestion.findFirst({
+                    where: {
+                        room_id: dados.room_id,
+                    },
+                    orderBy: {
+                        position: "desc",
+                    },
+                    select: {
+                        position: true,
+                    },
+                });
 
-            const nextPosition = (lastQuestion?.position ?? 0) + 1;
+                const nextPosition = (lastQuestion?.position ?? 0) + 1;
 
-            // Associa a pergunta à sala
-            await tx.roomQuestion.create({
-                data: {
-                    room_id: dados.room_id,
-                    question_id: createdQuestion.question_id,
-                    position: nextPosition,
-                },
-            });
+                // Associa a pergunta à sala
+                await tx.roomQuestion.create({
+                    data: {
+                        room_id: dados.room_id,
+                        question_id: createdQuestion.question_id,
+                        position: nextPosition,
+                    },
+                });
+            }
+
+
 
             return createdQuestion.question_id;
         });

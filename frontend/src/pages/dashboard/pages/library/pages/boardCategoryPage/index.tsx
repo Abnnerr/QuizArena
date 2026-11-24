@@ -298,12 +298,8 @@ const BoardCategoryPage = () => {
     const handleSaveQuestion = async () => {
         if (!categoryId || saving) return;
 
-        if (!valid) {
-            toast.warning("Preencha todos os campos e selecione uma resposta correta.");
-            return;
-        }
-
         const payload = {
+            category_id: Number(categoryId),
             question_text: form.question_text.trim(),
             question_type: form.question_type,
             difficulty: form.difficulty,
@@ -326,7 +322,7 @@ const BoardCategoryPage = () => {
                     }
                 )
                 : await AXIOS.post<ResponseDTO<Question>>(
-                    `/question/${categoryId}/create`,
+                    `/question/create`,
                     payload
                 );
 
@@ -358,7 +354,6 @@ const BoardCategoryPage = () => {
     /* DELETE QUESTION */
 
     const handleDeleteQuestion = async (question: Question) => {
-        if (!window.confirm("Tem certeza que deseja excluir esta pergunta?")) return;
 
         try {
             setDeletingQuestionId(question.question_id);

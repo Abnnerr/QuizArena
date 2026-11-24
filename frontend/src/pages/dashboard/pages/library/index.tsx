@@ -9,6 +9,7 @@ import {
     FiArrowRight,
     FiFolder,
     FiX,
+    FiTrash2,
 } from "react-icons/fi";
 import { BiLibrary } from "react-icons/bi";
 
@@ -36,7 +37,6 @@ interface Library {
     };
 }
 
-
 const BoardLibraryPage = () => {
     const navigate = useNavigate();
     const { colors } = useTheme();
@@ -45,34 +45,29 @@ const BoardLibraryPage = () => {
 
     const isAdmin = user?.role_name === "admin";
 
-    // Listagem
     const [libraries, setLibraries] = useState<Library[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
-    // Drawer
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    // Formulário
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [creating, setCreating] = useState(false);
+
+    const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const findLibraries = async () => {
         try {
             setLoading(true);
 
-            const { data } = await AXIOS.get(
-                "/library/findLibraries"
-            );
-
-            console.log("Resposta das bibliotecas:", data);
+            const { data } = await AXIOS.get("/library/findLibraries");
 
             if (data.type === "Success") {
                 setLibraries(Array.isArray(data.data) ? data.data : []);
             } else {
                 setLibraries([]);
-                toast.error(data.message || "Erro ao carregar bibliotecas");
+                toast.error(data.message || "Erro ao carregar bibliotecas.");
             }
         } catch (error) {
             console.error("Erro ao buscar bibliotecas:", error);
@@ -132,12 +127,10 @@ const BoardLibraryPage = () => {
         try {
             setCreating(true);
 
-            const { data } = await AXIOS.post("/library/create",
-                {
-                    title: title.trim(),
-                    description: description.trim() || null,
-                }
-            );
+            const { data } = await AXIOS.post("/library/create", {
+                title: title.trim(),
+                description: description.trim() || null,
+            });
 
             if (data.type !== "Success") {
                 toast.error(data.message || "Erro ao criar biblioteca.");
@@ -152,10 +145,46 @@ const BoardLibraryPage = () => {
 
             await findLibraries();
         } catch (error) {
-            console.error(error);
+            console.error("Erro ao criar biblioteca:", error);
             toast.error("Não foi possível criar a biblioteca.");
         } finally {
             setCreating(false);
+        }
+    };
+
+    const handleDeleteLibrary = async (library: Library) => {
+        if (!isAdmin || deletingId !== null) return;
+
+        const confirmed = window.confirm(
+            `Tem certeza que deseja excluir a biblioteca "${library.title}"?\n\nEssa ação não poderá ser desfeita.`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            setDeletingId(library.library_id);
+
+            const { data } = await AXIOS.delete(
+                `/library/${library.library_id}/delete`
+            );
+
+            if (data.type !== "Success") {
+                toast.error(data.message || "Erro ao excluir biblioteca.");
+                return;
+            }
+
+            setLibraries((current) =>
+                current.filter(
+                    (item) => item.library_id !== library.library_id
+                )
+            );
+
+            toast.success("Biblioteca excluída com sucesso!");
+        } catch (error) {
+            console.error("Erro ao excluir biblioteca:", error);
+            toast.error("Não foi possível excluir a biblioteca.");
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -169,10 +198,8 @@ const BoardLibraryPage = () => {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="mb-2 flex items-center gap-2">
-                        <BiLibrary
-                            size={24}
-                            style={{ color: colors.primary }}
-                        />
+                        <BiLibrary size={24} style={{ color: colors.primary }} />
+
                         <span
                             className="text-sm font-bold uppercase tracking-wider"
                             style={{ color: colors.primary }}
@@ -188,12 +215,8 @@ const BoardLibraryPage = () => {
                         Explore as bibliotecas
                     </h1>
 
-                    <p
-                        className="mt-2 text-sm"
-                        style={{ color: colors.muted }}
-                    >
-                        Encontre perguntas e categorias para adicionar às suas
-                        salas.
+                    <p className="mt-2 text-sm" style={{ color: colors.muted }}>
+                        Encontre perguntas e categorias para adicionar às suas salas.
                     </p>
                 </div>
 
@@ -210,116 +233,66 @@ const BoardLibraryPage = () => {
 
             {/* Estatísticas */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div
-                    className="rounded-2xl border-2 p-5"
-                    style={{
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p
-                                className="text-sm font-semibold"
-                                style={{ color: colors.muted }}
+                {[
+                    {
+                        label: "Bibliotecas",
+                        value: libraries.length,
+                        icon: <FiBookOpen size={24} />,
+                        color: colors.primary,
+                    },
+                    {
+                        label: "Categorias",
+                        value: totalCategories,
+                        icon: <FiFolder size={24} />,
+                        color: colors.success,
+                    },
+                    {
+                        label: "Perguntas",
+                        value: totalQuestions,
+                        icon: <FiLayers size={24} />,
+                        color: colors.primary,
+                    },
+                ].map((item) => (
+                    <div
+                        key={item.label}
+                        className="rounded-2xl border-2 p-5"
+                        style={{
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                        }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p
+                                    className="text-sm font-semibold"
+                                    style={{ color: colors.muted }}
+                                >
+                                    {item.label}
+                                </p>
+
+                                <h2
+                                    className="mt-2 text-3xl font-black"
+                                    style={{ color: colors.text }}
+                                >
+                                    {item.value}
+                                </h2>
+                            </div>
+
+                            <div
+                                className="rounded-xl p-3"
+                                style={{
+                                    backgroundColor: `${item.color}20`,
+                                    color: item.color,
+                                }}
                             >
-                                Bibliotecas
-                            </p>
-
-                            <h2
-                                className="mt-2 text-3xl font-black"
-                                style={{ color: colors.text }}
-                            >
-                                {libraries.length}
-                            </h2>
-                        </div>
-
-                        <div
-                            className="rounded-xl p-3"
-                            style={{
-                                backgroundColor: `${colors.primary}20`,
-                                color: colors.primary,
-                            }}
-                        >
-                            <FiBookOpen size={24} />
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    className="rounded-2xl border-2 p-5"
-                    style={{
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p
-                                className="text-sm font-semibold"
-                                style={{ color: colors.muted }}
-                            >
-                                Categorias
-                            </p>
-
-                            <h2
-                                className="mt-2 text-3xl font-black"
-                                style={{ color: colors.text }}
-                            >
-                                {totalCategories}
-                            </h2>
-                        </div>
-
-                        <div
-                            className="rounded-xl p-3"
-                            style={{
-                                backgroundColor: `${colors.success}20`,
-                                color: colors.success,
-                            }}
-                        >
-                            <FiFolder size={24} />
+                                {item.icon}
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div
-                    className="rounded-2xl border-2 p-5"
-                    style={{
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p
-                                className="text-sm font-semibold"
-                                style={{ color: colors.muted }}
-                            >
-                                Perguntas
-                            </p>
-
-                            <h2
-                                className="mt-2 text-3xl font-black"
-                                style={{ color: colors.text }}
-                            >
-                                {totalQuestions}
-                            </h2>
-                        </div>
-
-                        <div
-                            className="rounded-xl p-3"
-                            style={{
-                                backgroundColor: `${colors.primary}20`,
-                                color: colors.primary,
-                            }}
-                        >
-                            <FiLayers size={24} />
-                        </div>
-                    </div>
-                </div>
+                ))}
             </div>
 
-            {/* Pesquisa */}
+            {/* Pesquisa e listagem */}
             <div className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -330,12 +303,8 @@ const BoardLibraryPage = () => {
                             Todas as bibliotecas
                         </h2>
 
-                        <p
-                            className="mt-1 text-sm"
-                            style={{ color: colors.muted }}
-                        >
-                            {filteredLibraries.length} biblioteca(s)
-                            encontrada(s)
+                        <p className="mt-1 text-sm" style={{ color: colors.muted }}>
+                            {filteredLibraries.length} biblioteca(s) encontrada(s)
                         </p>
                     </div>
 
@@ -360,7 +329,6 @@ const BoardLibraryPage = () => {
                     </div>
                 </div>
 
-                {/* Listagem */}
                 {loading ? (
                     <div
                         className="rounded-2xl border-2 p-10 text-center"
@@ -423,103 +391,136 @@ const BoardLibraryPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredLibraries.map((library) => (
-                            <div
-                                key={library.library_id}
-                                className="group flex cursor-pointer flex-col rounded-2xl border-2 p-5 transition hover:-translate-y-1"
-                                style={{
-                                    backgroundColor: colors.card,
-                                    borderColor: colors.border,
-                                }}
-                                onClick={() => openLibrary(library.library_id)}
-                            >
-                                <div className="mb-5 flex items-start justify-between">
+                        {filteredLibraries.map((library) => {
+                            const isDeleting =
+                                deletingId === library.library_id;
+
+                            return (
+                                <div
+                                    key={library.library_id}
+                                    className="group flex cursor-pointer flex-col rounded-2xl border-2 p-5 transition hover:-translate-y-1"
+                                    style={{
+                                        backgroundColor: colors.card,
+                                        borderColor: colors.border,
+                                        opacity: isDeleting ? 0.6 : 1,
+                                    }}
+                                    onClick={() => openLibrary(library.library_id)}
+                                >
+                                    <div className="mb-5 flex items-start justify-between">
+                                        <div
+                                            className="rounded-xl p-3"
+                                            style={{
+                                                backgroundColor: `${colors.primary}20`,
+                                                color: colors.primary,
+                                            }}
+                                        >
+                                            <FiBookOpen size={25} />
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <span
+                                                className="rounded-lg px-3 py-1 text-xs font-bold"
+                                                style={{
+                                                    backgroundColor: `${colors.success}20`,
+                                                    color: colors.success,
+                                                }}
+                                            >
+                                                Disponível
+                                            </span>
+
+                                            {isAdmin && (
+                                                <button
+                                                    type="button"
+                                                    disabled={deletingId !== null}
+                                                    title="Excluir biblioteca"
+                                                    aria-label={`Excluir biblioteca ${library.title}`}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleDeleteLibrary(library);
+                                                    }}
+                                                    className="flex h-9 w-9 items-center justify-center rounded-xl border-2 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    style={{
+                                                        borderColor: `${colors.danger}50`,
+                                                        color: colors.danger,
+                                                    }}
+                                                >
+                                                    {isDeleting ? (
+                                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                                    ) : (
+                                                        <FiTrash2 size={17} />
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <h3
+                                        className="text-lg font-black"
+                                        style={{ color: colors.text }}
+                                    >
+                                        {library.title}
+                                    </h3>
+
+                                    <p
+                                        className="mt-2 min-h-10 text-sm"
+                                        style={{ color: colors.muted }}
+                                    >
+                                        {library.description ||
+                                            "Explore as categorias e perguntas desta biblioteca."}
+                                    </p>
+
                                     <div
-                                        className="rounded-xl p-3"
-                                        style={{
-                                            backgroundColor: `${colors.primary}20`,
-                                            color: colors.primary,
-                                        }}
+                                        className="mt-5 flex flex-wrap items-center gap-4 border-t-2 pt-4"
+                                        style={{ borderColor: colors.border }}
                                     >
-                                        <FiBookOpen size={25} />
+                                        <div className="flex items-center gap-2">
+                                            <FiFolder
+                                                size={16}
+                                                style={{ color: colors.muted }}
+                                            />
+
+                                            <span
+                                                className="text-sm font-bold"
+                                                style={{ color: colors.text }}
+                                            >
+                                                {getCategoryCount(library)} categorias
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <FiLayers
+                                                size={16}
+                                                style={{ color: colors.muted }}
+                                            />
+
+                                            <span
+                                                className="text-sm font-bold"
+                                                style={{ color: colors.text }}
+                                            >
+                                                {getQuestionCount(library)} perguntas
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <span
-                                        className="rounded-lg px-3 py-1 text-xs font-bold"
-                                        style={{
-                                            backgroundColor: `${colors.success}20`,
-                                            color: colors.success,
-                                        }}
+                                    <div
+                                        className="mt-5 flex items-center justify-between text-sm font-bold"
+                                        style={{ color: colors.primary }}
                                     >
-                                        Disponível
-                                    </span>
-                                </div>
+                                        <span>Explorar biblioteca</span>
 
-                                <h3
-                                    className="text-lg font-black"
-                                    style={{ color: colors.text }}
-                                >
-                                    {library.title}
-                                </h3>
-
-                                <p
-                                    className="mt-2 min-h-10 text-sm"
-                                    style={{ color: colors.muted }}
-                                >
-                                    {library.description ||
-                                        "Explore as categorias e perguntas desta biblioteca."}
-                                </p>
-
-                                <div
-                                    className="mt-5 flex items-center gap-4 border-t-2 pt-4"
-                                    style={{ borderColor: colors.border }}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <FiFolder
-                                            size={16}
-                                            style={{ color: colors.muted }}
+                                        <FiArrowRight
+                                            className="transition-transform group-hover:translate-x-1"
+                                            size={18}
                                         />
-                                        <span
-                                            className="text-sm font-bold"
-                                            style={{ color: colors.text }}
-                                        >
-                                            {getCategoryCount(library)}{" "}
-                                            categorias
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <FiLayers
-                                            size={16}
-                                            style={{ color: colors.muted }}
-                                        />
-                                        <span
-                                            className="text-sm font-bold"
-                                            style={{ color: colors.text }}
-                                        >
-                                            {getQuestionCount(library)}{" "}
-                                            perguntas
-                                        </span>
                                     </div>
                                 </div>
-
-                                <div
-                                    className="mt-5 flex items-center justify-between text-sm font-bold"
-                                    style={{ color: colors.primary }}
-                                >
-                                    <span>Explorar biblioteca</span>
-                                    <FiArrowRight
-                                        className="transition-transform group-hover:translate-x-1"
-                                        size={18}
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            {/* Drawer de criação - somente administrador */}
+            {/* Drawer de criação */}
             {isCreateOpen && isAdmin && (
                 <div className="fixed inset-0 z-50 flex justify-end">
                     <div
@@ -533,7 +534,6 @@ const BoardLibraryPage = () => {
                         className="relative flex h-full w-full max-w-md flex-col shadow-2xl"
                         style={{ backgroundColor: colors.background }}
                     >
-                        {/* Cabeçalho do drawer */}
                         <div
                             className="flex items-center justify-between border-b-2 p-5"
                             style={{ borderColor: colors.border }}
@@ -564,7 +564,6 @@ const BoardLibraryPage = () => {
                             />
                         </div>
 
-                        {/* Formulário */}
                         <div className="flex-1 space-y-5 overflow-y-auto p-5">
                             <div>
                                 <label
@@ -630,7 +629,6 @@ const BoardLibraryPage = () => {
                             </div>
                         </div>
 
-                        {/* Rodapé */}
                         <div
                             className="flex gap-3 border-t-2 p-5"
                             style={{ borderColor: colors.border }}

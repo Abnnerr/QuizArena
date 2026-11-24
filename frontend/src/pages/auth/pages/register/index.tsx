@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useRegister } from "../../hooks/useRegister";
 import { BiMailSend, BiUser } from "react-icons/bi";
 import { BsArrowRight } from "react-icons/bs";
-import { FiUserPlus } from "react-icons/fi";
+import { FiUserPlus, FiUsers, FiZap } from "react-icons/fi";
 
 import { PasswordRequirements } from "../../components/PasswordRequeriments";
 import { Input } from "../../../../shared/ui/Input";
@@ -66,8 +66,7 @@ const RegisterPage: React.FC = () => {
 
         try {
             await handleSubmit(event);
-
-            toast.success(feedback?.message ?? 'Registrado com sucesso')
+            toast.success(feedback?.message ?? "Conta criada com sucesso!");
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||
@@ -76,10 +75,30 @@ const RegisterPage: React.FC = () => {
         }
     };
 
+    const cardStyle = {
+        backgroundColor: colors.card,
+        borderColor: colors.border,
+    };
+
+    const infoItems = [
+        {
+            icon: <FiUsers size={18} />,
+            title: "Crie suas próprias salas",
+            description:
+                "Organize partidas e convide amigos para participar dos desafios.",
+        },
+        {
+            icon: <FiZap size={18} />,
+            title: "Seja o host da partida",
+            description:
+                "Tenha controle sobre suas salas e conduza cada rodada do jogo.",
+        },
+    ];
+
     return (
         <>
             <Helmet>
-                <title>QuizArena | Criar conta</title>
+                <title>QuizArena | Criar conta de host</title>
             </Helmet>
 
             <main
@@ -94,30 +113,20 @@ const RegisterPage: React.FC = () => {
 
                 {/* CABEÇALHO */}
                 <section
-                    className="
-                        relative overflow-hidden
-                        rounded-2xl border-2 p-5 sm:p-6
-                    "
-                    style={{
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                    }}
+                    className="relative overflow-hidden rounded-2xl border-2 p-5 sm:p-6"
+                    style={cardStyle}
                 >
                     <div
-                        className="
-                            absolute -right-10 -top-16
-                            h-40 w-40 rounded-full
-                            opacity-10 blur-3xl
-                        "
+                        className="absolute -right-10 -top-16 h-40 w-40 rounded-full opacity-10 blur-3xl"
                         style={{ backgroundColor: colors.primary }}
                     />
 
                     <div className="relative flex flex-col items-center gap-4 sm:flex-row">
                         <div
                             className="
-                                flex h-16 w-16 shrink-0
-                                items-center justify-center
-                                rounded-2xl border-2 border-b-4 p-2
+                                flex h-16 w-16 shrink-0 items-center
+                                justify-center rounded-2xl border-2
+                                border-b-4 p-2
                             "
                             style={{
                                 backgroundColor: colors.surface,
@@ -143,14 +152,14 @@ const RegisterPage: React.FC = () => {
                                 className="mt-1 text-2xl font-black sm:text-3xl"
                                 style={{ color: colors.text }}
                             >
-                                Crie sua conta!
+                                Torne-se um host!
                             </h1>
 
                             <p
                                 className="mt-1 text-sm"
                                 style={{ color: colors.muted }}
                             >
-                                Faça parte da arena e comece a desafiar seus conhecimentos.
+                                Crie sua conta, organize salas e desafie seus amigos.
                             </p>
                         </div>
                     </div>
@@ -165,10 +174,7 @@ const RegisterPage: React.FC = () => {
                             rounded-2xl border-2 border-b-4
                             p-5 sm:p-6 lg:col-span-2
                         "
-                        style={{
-                            backgroundColor: colors.card,
-                            borderColor: colors.border,
-                        }}
+                        style={cardStyle}
                     >
                         <div className="mb-5 flex items-center gap-3">
                             <div
@@ -186,14 +192,14 @@ const RegisterPage: React.FC = () => {
                                     className="text-lg font-black"
                                     style={{ color: colors.text }}
                                 >
-                                    Criar minha conta
+                                    Criar conta de host
                                 </h2>
 
                                 <p
                                     className="text-xs"
                                     style={{ color: colors.muted }}
                                 >
-                                    Preencha seus dados para começar.
+                                    Informe seus dados para começar a criar salas.
                                 </p>
                             </div>
                         </div>
@@ -203,7 +209,6 @@ const RegisterPage: React.FC = () => {
                             className="space-y-4"
                             data-cy="register-form"
                         >
-                            {/* NOME */}
                             <div data-cy="register-username">
                                 <Input
                                     label="Nome de usuário"
@@ -220,7 +225,6 @@ const RegisterPage: React.FC = () => {
                                 />
                             </div>
 
-                            {/* EMAIL */}
                             <div data-cy="register-email">
                                 <Input
                                     label="E-mail"
@@ -237,7 +241,6 @@ const RegisterPage: React.FC = () => {
                                 />
                             </div>
 
-                            {/* SENHA */}
                             <div data-cy="register-password">
                                 <PasswordField
                                     password={password}
@@ -247,10 +250,7 @@ const RegisterPage: React.FC = () => {
                                     colors={colors}
                                 >
                                     <div
-                                        className="
-                                            mt-3 rounded-xl border
-                                            p-3
-                                        "
+                                        className="mt-3 rounded-xl border p-3"
                                         style={{
                                             backgroundColor: colors.surface,
                                             borderColor: colors.border,
@@ -264,7 +264,6 @@ const RegisterPage: React.FC = () => {
                                 </PasswordField>
                             </div>
 
-                            {/* BOTÃO */}
                             <div
                                 className="pt-1"
                                 data-cy="register-submit-container"
@@ -284,7 +283,7 @@ const RegisterPage: React.FC = () => {
                                     className="h-13 rounded-xl"
                                     data-cy="register-submit"
                                 >
-                                    {loading ? "Criando conta..." : "Criar minha conta"}
+                                    {loading ? "Criando conta..." : "Criar conta de host"}
                                 </Button>
                             </div>
                         </form>
@@ -294,84 +293,59 @@ const RegisterPage: React.FC = () => {
                     <div className="flex flex-col gap-5">
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
-                            style={{
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                            }}
+                            style={cardStyle}
                         >
                             <h3
                                 className="text-base font-black"
                                 style={{ color: colors.text }}
                             >
-                                Sua jornada começa aqui
+                                O que você pode fazer?
                             </h3>
 
                             <div className="mt-5 space-y-5">
-                                <div className="flex items-start gap-3">
+                                {infoItems.map((item) => (
                                     <div
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                                        style={{
-                                            backgroundColor: `${colors.primary}20`,
-                                            color: colors.primary,
-                                        }}
+                                        key={item.title}
+                                        className="flex items-start gap-3"
                                     >
-                                        <FiUserPlus size={18} />
-                                    </div>
-
-                                    <div>
-                                        <p
-                                            className="text-sm font-bold"
-                                            style={{ color: colors.text }}
+                                        <div
+                                            className="
+                                                flex h-9 w-9 shrink-0
+                                                items-center justify-center
+                                                rounded-xl
+                                            "
+                                            style={{
+                                                backgroundColor: `${colors.primary}20`,
+                                                color: colors.primary,
+                                            }}
                                         >
-                                            Cadastro simples
-                                        </p>
+                                            {item.icon}
+                                        </div>
 
-                                        <p
-                                            className="mt-1 text-xs leading-relaxed"
-                                            style={{ color: colors.muted }}
-                                        >
-                                            Crie seu perfil e prepare-se para participar.
-                                        </p>
+                                        <div>
+                                            <p
+                                                className="text-sm font-bold"
+                                                style={{ color: colors.text }}
+                                            >
+                                                {item.title}
+                                            </p>
+
+                                            <p
+                                                className="mt-1 text-xs leading-relaxed"
+                                                style={{ color: colors.muted }}
+                                            >
+                                                {item.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div className="flex items-start gap-3">
-                                    <div
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                                        style={{
-                                            backgroundColor: `${colors.primary}20`,
-                                            color: colors.primary,
-                                        }}
-                                    >
-                                        <FiUserPlus size={18} />
-                                    </div>
-
-                                    <div>
-                                        <p
-                                            className="text-sm font-bold"
-                                            style={{ color: colors.text }}
-                                        >
-                                            Entre na arena
-                                        </p>
-
-                                        <p
-                                            className="mt-1 text-xs leading-relaxed"
-                                            style={{ color: colors.muted }}
-                                        >
-                                            Participe de partidas e dispute posições no ranking.
-                                        </p>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
 
                         {/* LOGIN */}
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
-                            style={{
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                            }}
+                            style={cardStyle}
                             data-cy="register-login-prompt"
                         >
                             <LoginPrompt colors={colors} />

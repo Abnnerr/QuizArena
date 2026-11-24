@@ -34,7 +34,7 @@ const BoardHomePage = () => {
             title: "Minhas perguntas",
             description: "Visualize e gerencie as perguntas que você cadastrou.",
             icon: <FiHelpCircle size={24} />,
-            path: "/dashboard/my-questions",
+            path: "/dashboard/categories",
         },
     ];
 

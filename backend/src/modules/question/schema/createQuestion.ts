@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createQuestionSchema = z.object({
-    room_id: z.number().int().positive(),
+    room_id: z.number().int().positive().optional(),
     category_id: z.number().int().positive(),
     question_text: z.string().trim().min(1, "O enunciado é obrigatório"),
     question_type: z.enum(["MULTIPLE_CHOICE", "TRUE_FALSE",]),

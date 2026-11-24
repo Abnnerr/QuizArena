@@ -22,6 +22,7 @@ import useRoomLive from "../../hooks/useRoomLive";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { useToast } from "../../../../contexts/ToastContext";
 import Button from "../../../../shared/ui/Button";
+import Loading from "../../../../shared/pages/Loading";
 
 const SKIP_COLOR = "#1CB0F6";
 
@@ -348,23 +349,7 @@ export default function RoomLivePage() {
     };
 
     if (loading) {
-        return (
-            <div
-                className="min-h-screen flex items-center justify-center"
-                style={{ backgroundColor: colors.background }}
-            >
-                <div className="flex flex-col items-center gap-3">
-                    <FiLoader
-                        className="animate-spin text-3xl"
-                        style={{ color: colors.primary }}
-                    />
-
-                    <span style={{ color: colors.muted }}>
-                        Carregando partida...
-                    </span>
-                </div>
-            </div>
-        );
+        return <Loading message="Carregando Partida"/>
     }
 
     if (!question) {
@@ -413,9 +398,8 @@ export default function RoomLivePage() {
             <main
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
-                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${
-                    effect ? effectBorder[effect] : ""
-                }`}
+                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${effect ? effectBorder[effect] : ""
+                    }`}
                 style={{ backgroundColor: colors.background }}
             >
                 {/* Barra de progresso */}
@@ -480,11 +464,10 @@ export default function RoomLivePage() {
                                 backgroundColor: isCriticalTime
                                     ? `${colors.danger}18`
                                     : colors.surface,
-                                border: `2px solid ${
-                                    isCriticalTime
+                                border: `2px solid ${isCriticalTime
                                         ? colors.danger
                                         : colors.border
-                                }`,
+                                    }`,
                                 color: isCriticalTime
                                     ? colors.danger
                                     : colors.text,
@@ -546,16 +529,14 @@ export default function RoomLivePage() {
                                         className="p-3 flex items-center gap-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                                         style={{
                                             backgroundColor: colors.surface,
-                                            border: `2px solid ${
-                                                item.used
+                                            border: `2px solid ${item.used
                                                     ? colors.border
                                                     : powerColor
-                                            }`,
-                                            borderBottom: `4px solid ${
-                                                item.used
+                                                }`,
+                                            borderBottom: `4px solid ${item.used
                                                     ? colors.border
                                                     : powerColor
-                                            }`,
+                                                }`,
                                             borderRadius: "15px",
                                         }}
                                     >
@@ -705,11 +686,10 @@ export default function RoomLivePage() {
                                             onClick={() =>
                                                 handleAnswer(alternative.id)
                                             }
-                                            className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${
-                                                hidden
+                                            className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${hidden
                                                     ? "opacity-35 scale-[0.98] cursor-not-allowed"
                                                     : "hover:-translate-y-0.5"
-                                            } disabled:cursor-not-allowed`}
+                                                } disabled:cursor-not-allowed`}
                                             style={{
                                                 backgroundColor,
                                                 border: `2px solid ${borderColor}`,
@@ -728,9 +708,8 @@ export default function RoomLivePage() {
                                             </span>
 
                                             <span
-                                                className={`flex-1 font-bold text-sm sm:text-base ${
-                                                    hidden ? "line-through" : ""
-                                                }`}
+                                                className={`flex-1 font-bold text-sm sm:text-base ${hidden ? "line-through" : ""
+                                                    }`}
                                                 style={{ color: colors.text }}
                                             >
                                                 {alternative.text}
@@ -888,25 +867,25 @@ export default function RoomLivePage() {
                 {effect && (
                     <div
                         className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${notificationConfig[effect].background} ${notificationConfig[effect].border}`}
-    >
-        <div
-            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${notificationConfig[effect].color} bg-white/10`}
-        >
-            {notificationConfig[effect].icon}
-        </div>
+                    >
+                        <div
+                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${notificationConfig[effect].color} bg-white/10`}
+                        >
+                            {notificationConfig[effect].icon}
+                        </div>
 
-        <div className="min-w-0">
-            <p className={`font-black text-sm ${notificationConfig[effect].color}`}>
-                {notificationConfig[effect].title}
-            </p>
+                        <div className="min-w-0">
+                            <p className={`font-black text-sm ${notificationConfig[effect].color}`}>
+                                {notificationConfig[effect].title}
+                            </p>
 
-            <p className="text-xs mt-1 text-white/75">
-                {notificationConfig[effect].description}
-            </p>
-        </div>
-    </div>
+                            <p className="text-xs mt-1 text-white/75">
+                                {notificationConfig[effect].description}
+                            </p>
+                        </div>
+                    </div>
                 )
-}
+                }
 
                 {/* Modal Skip Turn */}
                 {showPowerUp && selectedPowerUp && (
@@ -977,11 +956,10 @@ export default function RoomLivePage() {
                                             onClick={() =>
                                                 setTarget(player.player_id)
                                             }
-                                            className={`w-full flex items-center gap-3 p-3 text-left rounded-xl border-2 transition-all duration-200 ${
-                                                selected
+                                            className={`w-full flex items-center gap-3 p-3 text-left rounded-xl border-2 transition-all duration-200 ${selected
                                                     ? "bg-sky-500/10 border-sky-500"
                                                     : "border-transparent hover:border-sky-500/40"
-                                            }`}
+                                                }`}
                                             style={{
                                                 backgroundColor: selected
                                                     ? `${SKIP_COLOR}18`

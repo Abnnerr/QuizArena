@@ -18,11 +18,6 @@ export type IPlayerService = {
         ready: boolean
     ): Promise<void>;
 
-    updatePlayerScore(
-        roomId: number,
-        playerId: string,
-        scores: number
-    ): Promise<void>;
 
     deletePlayer(roomId: number, id: string): Promise<void>
 

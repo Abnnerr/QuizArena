@@ -27,5 +27,11 @@ router.get('/findLibraries',
     libraryController.librariesFind
 )
 
+router.delete('/:libraryId/delete',
+    AuthMiddleware.validate,
+    PolicyMiddleware.ensureRolePermission("LIBRARY_DELETE", 'admin'),
+    
+)
+
 
 export default router

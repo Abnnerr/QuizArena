@@ -17,14 +17,6 @@ const PublicLayout = () => {
                 color: colors.text,
             }}
         >
-            <div
-                className="absolute inset-0 pointer-events-none z-0"
-                style={{
-                    opacity: 0.15,
-                    backgroundImage: `radial-gradient(${colors.pattern} 1px, transparent 3px)`,
-                    backgroundSize: "30px 30px",
-                }}
-            />
 
             <Outlet />
         </main>

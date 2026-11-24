@@ -351,8 +351,8 @@ const useRoomLive = () => {
                 setAnswered(false);
                 setSelectedAnswer(null);
             }
-        } catch (err) {
-            console.error("Erro ao enviar resposta:", err);
+        } catch (err: any) {
+            console.error( err?.response?.data?.message ?? "Erro ao enviar resposta");
             setError("Não foi possível enviar sua resposta.");
             setAnswered(false);
             setSelectedAnswer(null);

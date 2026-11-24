@@ -7,7 +7,6 @@ import ResetPage from "../pages/auth/pages/reset/ResetPage";
 import HomeLayout from "../layouts/HomeLayout";
 import RoomLobbyPage from "../pages/rooms/pages/lobby";
 import NotFoundPage from "../shared/pages/NotFound";
-import PlayerNamePage from "../pages/rooms/pages/playerName";
 import RoomLivePage from "../pages/rooms/pages/live"
 import AuthLayout from "../layouts/AuthLayout";
 import RoomCreatePage from "../pages/rooms/pages/RoomCreatePage";
@@ -27,6 +26,8 @@ import BoardCategoryPage from "../pages/dashboard/pages/library/pages/boardCateg
 import BoardCategoriesPage from "../pages/dashboard/pages/library/pages/boardCategoriesPage";
 import BoardHomePage from "../pages/dashboard/home";
 import BoardConfigPage from "../pages/dashboard/config";
+import Security from "../pages/dashboard/pages/auth/security";
+import ChangePassword from "../pages/dashboard/pages/auth/changePassword";
 
 
 export const preloadRoomLivePage = () => {
@@ -53,16 +54,16 @@ const Paths = () => {
                         <Route path="create" element={<RoomCreatePage />} />
                         <Route path=":roomCode/live" element={<RoomLivePage />} />
                         <Route element={<RoomLayout />}>
-                            <Route path="player/username/:roomName" element={<PlayerNamePage />} />
                             <Route path=":roomCode/lobby" element={<RoomLobbyPage />} />
                         </Route>
                     </Route>
                 </Route>
                 <Route element={<BoardGate />}>
                     <Route path="/dashboard" element={<DashBoardLayout />}>
-
                         <Route index element={<BoardHomePage />} />
                         <Route path="config" element={<BoardConfigPage />} />
+                        <Route path="security" element={<Security />} />
+                        <Route path="changePassword" element={<ChangePassword />} />
                         <Route path="library" element={<BoardLibraryPage />} />
                         <Route path="library/:libraryId" element={<BoardLibraryDetailsPage />} />
                         <Route path="library/:libraryId/category/:categoryId" element={<BoardCategoryPage />} />

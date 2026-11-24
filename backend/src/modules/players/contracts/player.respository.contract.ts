@@ -21,13 +21,5 @@ export type IPlayerRepository = {
         ready: boolean
     ): Promise<RoomPlayer>;
 
-    playerScore: (roomId: number, player_id: string) => Promise<{ score: number } | null>
-
-    updatePlayerScore(
-        roomId: number,
-        playerId: string,
-        score: number
-    ): Promise<void>;
-
     deletePlayer(roomId: number, id: string): Promise<void>
 }

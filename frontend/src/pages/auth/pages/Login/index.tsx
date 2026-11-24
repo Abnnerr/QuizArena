@@ -1,12 +1,9 @@
 
 import { Helmet } from "react-helmet-async";
-import { BiUser } from "react-icons/bi";
-import {
-    FiArrowRight,
-    FiLock,
-    FiLogIn,
-    FiShield,
-} from "react-icons/fi";
+import { BiLock, BiUser } from "react-icons/bi";
+import { BsEye, BsEyeSlash } from "react-icons/bs";
+import { FiArrowRight, FiLogIn, FiUsers, FiZap } from "react-icons/fi";
+import { Link } from "react-router";
 
 import { useLogin } from "../../hooks/useLogin";
 import { useTheme } from "../../../../contexts/ThemeContext";
@@ -14,9 +11,7 @@ import { useToast } from "../../../../contexts/ToastContext";
 
 import { Input } from "../../../../shared/ui/Input";
 import Button from "../../../../shared/ui/Button";
-
 import RegisterPrompt from "./components/RegisterPrompt";
-import PasswordField from "./components/PasswordField";
 
 const LoginPage = () => {
     const {
@@ -28,7 +23,7 @@ const LoginPage = () => {
         setShowPassword,
         handleSubmit,
         loading,
-        feedback
+        feedback,
     } = useLogin();
 
     const { colors } = useTheme();
@@ -43,8 +38,7 @@ const LoginPage = () => {
 
         try {
             await handleSubmit(event);
-
-            toast.success(feedback?.message ?? "Usuario logado")
+            toast.success(feedback?.message ?? "Login realizado com sucesso!");
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||
@@ -53,10 +47,28 @@ const LoginPage = () => {
         }
     };
 
+    const cardStyle = {
+        backgroundColor: colors.card,
+        borderColor: colors.border,
+    };
+
+    const infoItems = [
+        {
+            icon: <FiUsers size={18} />,
+            title: "Gerencie suas salas",
+            description: "Organize partidas e acompanhe seus jogadores.",
+        },
+        {
+            icon: <FiZap size={18} />,
+            title: "Crie novos desafios",
+            description: "Prepare perguntas e proporcione experiências divertidas.",
+        },
+    ];
+
     return (
         <>
             <Helmet>
-                <title>QuizArena | Login</title>
+                <title>QuizArena | Entrar</title>
             </Helmet>
 
             <main
@@ -70,10 +82,7 @@ const LoginPage = () => {
                 {/* CABEÇALHO */}
                 <section
                     className="relative overflow-hidden rounded-2xl border-2 p-5 sm:p-6"
-                    style={{
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                    }}
+                    style={cardStyle}
                 >
                     <div
                         className="absolute -right-10 -top-16 h-40 w-40 rounded-full opacity-10 blur-3xl"
@@ -118,7 +127,7 @@ const LoginPage = () => {
                                 className="mt-1 text-sm"
                                 style={{ color: colors.muted }}
                             >
-                                Entre na sua conta e continue sua jornada.
+                                Acesse sua conta e continue sua jornada como host.
                             </p>
                         </div>
                     </div>
@@ -127,16 +136,13 @@ const LoginPage = () => {
                 {/* CONTEÚDO */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
-                    {/* LOGIN */}
+                    {/* FORMULÁRIO */}
                     <div
                         className="
                             rounded-2xl border-2 border-b-4
                             p-5 sm:p-6 lg:col-span-2
                         "
-                        style={{
-                            backgroundColor: colors.card,
-                            borderColor: colors.border,
-                        }}
+                        style={cardStyle}
                     >
                         <div className="mb-5 flex items-center gap-3">
                             <div
@@ -161,7 +167,7 @@ const LoginPage = () => {
                                     className="text-xs"
                                     style={{ color: colors.muted }}
                                 >
-                                    Informe seus dados para continuar.
+                                    Entre com suas credenciais para continuar.
                                 </p>
                             </div>
                         </div>
@@ -171,6 +177,7 @@ const LoginPage = () => {
                             className="space-y-4"
                             data-cy="login-form"
                         >
+                            {/* USUÁRIO */}
                             <div>
                                 <label
                                     className="mb-2 block text-sm font-bold"
@@ -194,23 +201,65 @@ const LoginPage = () => {
                                 />
                             </div>
 
+                            {/* SENHA */}
                             <div>
-                                <label
-                                    className="mb-2 block text-sm font-bold"
-                                    style={{ color: colors.text }}
-                                >
-                                    Senha
-                                </label>
+                                <div className="mb-2 flex items-center justify-between">
+                                    <label
+                                        className="text-sm font-bold"
+                                        style={{ color: colors.text }}
+                                    >
+                                        Senha
+                                    </label>
 
-                                <PasswordField
-                                    password={password}
-                                    setPassword={setPassword}
-                                    showPassword={showPassword}
-                                    setShowPassword={setShowPassword}
-                                    colors={colors}
-                                />
+                                    <Link
+                                        to="/auth/forgot-password"
+                                        className="text-xs font-bold transition-opacity hover:opacity-75"
+                                        style={{ color: colors.primary }}
+                                    >
+                                        Esqueceu a senha?
+                                    </Link>
+                                </div>
+
+                                <div data-cy="password-field">
+                                    <Input
+                                        icon={<BiLock className="h-5 w-5" />}
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        value={password}
+                                        onChange={(event) =>
+                                            setPassword(event.target.value)
+                                        }
+                                        placeholder="Digite sua senha"
+                                        color={colors.surface}
+                                        border={colors.border}
+                                        className="h-13"
+                                        rightElement={
+                                            <button
+                                                type="button"
+                                                data-cy="password-toggle"
+                                                onClick={() =>
+                                                    setShowPassword((prev) => !prev)
+                                                }
+                                                className="cursor-pointer transition-colors"
+                                                style={{ color: colors.muted }}
+                                                aria-label={
+                                                    showPassword
+                                                        ? "Ocultar senha"
+                                                        : "Mostrar senha"
+                                                }
+                                            >
+                                                {showPassword ? (
+                                                    <BsEyeSlash className="h-5 w-5" />
+                                                ) : (
+                                                    <BsEye className="h-5 w-5" />
+                                                )}
+                                            </button>
+                                        }
+                                    />
+                                </div>
                             </div>
 
+                            {/* BOTÃO */}
                             <Button
                                 type="submit"
                                 variant="primary"
@@ -218,12 +267,11 @@ const LoginPage = () => {
                                 size="lg"
                                 disabled={!isFormValid || loading}
                                 isLoading={loading}
-                                leftIcon={<FiLogIn />}
-                                rightIcon={<FiArrowRight />}
+                                rightIcon={!loading ? <FiArrowRight /> : undefined}
                                 className="h-13 rounded-xl"
                                 data-cy="login-submit"
                             >
-                                Entrar na conta
+                                {loading ? "Entrando..." : "Entrar na conta"}
                             </Button>
                         </form>
                     </div>
@@ -232,84 +280,59 @@ const LoginPage = () => {
                     <div className="flex flex-col gap-5">
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
-                            style={{
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                            }}
+                            style={cardStyle}
                         >
                             <h3
                                 className="text-base font-black"
                                 style={{ color: colors.text }}
                             >
-                                Por que entrar?
+                                Sua experiência no QuizArena
                             </h3>
 
                             <div className="mt-5 space-y-5">
-                                <div className="flex items-start gap-3">
+                                {infoItems.map((item) => (
                                     <div
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                                        style={{
-                                            backgroundColor: `${colors.primary}20`,
-                                            color: colors.primary,
-                                        }}
+                                        key={item.title}
+                                        className="flex items-start gap-3"
                                     >
-                                        <FiShield size={18} />
-                                    </div>
-
-                                    <div>
-                                        <p
-                                            className="text-sm font-bold"
-                                            style={{ color: colors.text }}
+                                        <div
+                                            className="
+                                                flex h-9 w-9 shrink-0
+                                                items-center justify-center
+                                                rounded-xl
+                                            "
+                                            style={{
+                                                backgroundColor: `${colors.primary}20`,
+                                                color: colors.primary,
+                                            }}
                                         >
-                                            Sua conta
-                                        </p>
+                                            {item.icon}
+                                        </div>
 
-                                        <p
-                                            className="mt-1 text-xs leading-relaxed"
-                                            style={{ color: colors.muted }}
-                                        >
-                                            Acesse sua experiência e seus recursos no QuizArena.
-                                        </p>
+                                        <div>
+                                            <p
+                                                className="text-sm font-bold"
+                                                style={{ color: colors.text }}
+                                            >
+                                                {item.title}
+                                            </p>
+
+                                            <p
+                                                className="mt-1 text-xs leading-relaxed"
+                                                style={{ color: colors.muted }}
+                                            >
+                                                {item.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div className="flex items-start gap-3">
-                                    <div
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                                        style={{
-                                            backgroundColor: `${colors.primary}20`,
-                                            color: colors.primary,
-                                        }}
-                                    >
-                                        <FiLock size={18} />
-                                    </div>
-
-                                    <div>
-                                        <p
-                                            className="text-sm font-bold"
-                                            style={{ color: colors.text }}
-                                        >
-                                            Acesso seguro
-                                        </p>
-
-                                        <p
-                                            className="mt-1 text-xs leading-relaxed"
-                                            style={{ color: colors.muted }}
-                                        >
-                                            Entre com suas credenciais para continuar.
-                                        </p>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
 
                         {/* CADASTRO */}
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
-                            style={{
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                            }}
+                            style={cardStyle}
                         >
                             <RegisterPrompt colors={colors} />
                         </div>

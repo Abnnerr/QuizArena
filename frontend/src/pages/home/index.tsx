@@ -1,71 +1,37 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router";
 import { Helmet } from "react-helmet-async";
 import {
+    FiArrowLeft,
     FiArrowRight,
     FiBookOpen,
     FiCheckCircle,
     FiHash,
+    FiUser,
     FiUsers,
 } from "react-icons/fi";
 import { FaGamepad } from "react-icons/fa";
 
-import { useAuth } from "../../contexts/hooks/useAuth";
 import { useTheme } from "../../contexts/ThemeContext";
-
-import { AXIOS } from "../../service";
-
+import { useHome } from "./hooks/useHome";
 import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
-import { useToast } from "../../contexts/ToastContext";
 
 const HomePage = () => {
-    const { user } = useAuth();
     const { colors } = useTheme();
-    const { toast } = useToast();
-    const navigate = useNavigate();
 
-    const [roomCode, setRoomCode] = useState("");
-    const [loading, setLoading] = useState(false);
+    const {
+        step,
+        roomCode,
+        setRoomCode,
+        playerName,
+        setPlayerName,
+        loading,
+        handleJoinRoom,
+        handlePlayerSubmit,
+        handleBack,
+    } = useHome();
 
-    const handleJoinRoom = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        const code = roomCode.trim();
-
-        if (!code || loading) return;
-
-        try {
-            setLoading(true);
-
-            const { data } = await AXIOS.get(`/room/${code}`);
-
-            if (data.type !== "Success") {
-                toast.warning(
-                    data.message || "Não foi possível encontrar a sala."
-                );
-                return;
-            }
-
-            toast.success("Sala encontrada! Entrando...");
-
-            setTimeout(() => {
-                if (user?.role_name === "host") {
-                    navigate(`/room/${code}/lobby`);
-                } else {
-                    navigate(`/room/player/username/${code}`);
-                }
-            }, 1000);
-        } catch (error: any) {
-            toast.error(
-                error.response?.data?.message ||
-                "Erro ao encontrar a sala ou ela não existe."
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+    const isRoomStep = step === "room";
 
     const steps = [
         {
@@ -85,6 +51,16 @@ const HomePage = () => {
         },
     ];
 
+    const cardStyle = {
+        backgroundColor: colors.card,
+        borderColor: colors.border,
+    };
+
+    const iconStyle = {
+        backgroundColor: `${colors.primary}20`,
+        color: colors.primary,
+    };
+
     return (
         <>
             <Helmet>
@@ -93,13 +69,10 @@ const HomePage = () => {
 
             <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center gap-5 px-4 py-6 sm:px-6 lg:px-8">
 
-                {/* CABEÇALHO */}
+                {/* HEADER */}
                 <section
                     className="relative overflow-hidden rounded-2xl border-2 p-5 sm:p-6"
-                    style={{
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                    }}
+                    style={cardStyle}
                 >
                     <div
                         className="absolute -right-10 -top-16 h-40 w-40 rounded-full opacity-10 blur-3xl"
@@ -146,86 +119,138 @@ const HomePage = () => {
                     </div>
                 </section>
 
-                {/* CONTEÚDO */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
-                    {/* ENTRAR NA SALA */}
                     <div
-                        className="rounded-2xl border-2 border-b-4 p-5 sm:p-6 lg:col-span-2"
-                        style={{
-                            backgroundColor: colors.card,
-                            borderColor: colors.border,
-                        }}
+                        className="rounded-2xl h-112 border-2 border-b-4 p-5 sm:p-6 lg:col-span-2"
+                        style={cardStyle}
                     >
-                        <div className="mb-5 flex items-center gap-3">
+                        <div className="mb-6 flex items-center gap-3">
                             <div
                                 className="flex h-11 w-11 items-center justify-center rounded-xl"
-                                style={{
-                                    backgroundColor: `${colors.primary}20`,
-                                    color: colors.primary,
-                                }}
+                                style={iconStyle}
                             >
-                                <FaGamepad size={22} />
+                                {isRoomStep ? (
+                                    <FaGamepad size={22} />
+                                ) : (
+                                    <FiUser size={22} />
+                                )}
                             </div>
 
                             <div>
                                 <h2
-                                    className="text-lg font-black"
+                                    className="font-black"
                                     style={{ color: colors.text }}
                                 >
-                                    Entrar em uma sala
+                                    {isRoomStep
+                                        ? "Entrar em uma sala"
+                                        : "Identificação do jogador"}
                                 </h2>
 
                                 <p
                                     className="text-xs"
                                     style={{ color: colors.muted }}
                                 >
-                                    Digite o código para participar de uma partida.
+                                    {isRoomStep
+                                        ? "Digite o código para participar de uma partida."
+                                        : "Escolha seu nome para aparecer na partida."}
                                 </p>
                             </div>
                         </div>
 
-                        <form onSubmit={handleJoinRoom} className="space-y-4">
+                        {/* PROGRESS */}
+                        <div className="mb-6 grid grid-cols-2 gap-3">
+                            {["Código da sala", "Jogador"].map((label, index) => {
+                                const active = index === 0 ? isRoomStep : !isRoomStep;
+
+                                return (
+                                    <div key={label} className="space-y-1">
+                                        <div
+                                            className="h-1.5 rounded-full"
+                                            style={{
+                                                backgroundColor: active
+                                                    ? colors.primary
+                                                    : colors.border,
+                                            }}
+                                        />
+                                        <span
+                                            className="text-[10px] font-bold uppercase"
+                                            style={{
+                                                color: active
+                                                    ? colors.primary
+                                                    : colors.muted,
+                                            }}
+                                        >
+                                            {label}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <form
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                isRoomStep
+                                    ? handleJoinRoom()
+                                    : handlePlayerSubmit();
+                            }}
+                            className="space-y-4"
+                        >
                             <div>
                                 <label
                                     className="mb-2 block text-sm font-bold"
                                     style={{ color: colors.text }}
                                 >
-                                    Código da sala
+                                    {isRoomStep ? "Código da sala" : "Nome do jogador"}
                                 </label>
 
                                 <Input
                                     type="text"
                                     required
-                                    value={roomCode}
-                                    onChange={(event: any) =>
-                                        setRoomCode(event.target.value.toUpperCase())
+                                    value={isRoomStep ? roomCode : playerName}
+                                    onChange={(event) =>
+                                        isRoomStep
+                                            ? setRoomCode(event.target.value.toUpperCase())
+                                            : setPlayerName(event.target.value)
                                     }
-                                    placeholder="Ex: ARENA123"
-                                    maxLength={12}
+                                    placeholder={
+                                        isRoomStep
+                                            ? "Ex: ARENA123"
+                                            : "Como deseja ser chamado?"
+                                    }
+                                    maxLength={isRoomStep ? 12 : 20}
                                     color={colors.surface}
                                     border={colors.border}
-                                    icon={<FiHash className="h-5 w-5" />}
-                                    className="h-14 text-center text-xl font-black tracking-[0.2em] uppercase"
+                                    icon={
+                                        isRoomStep
+                                            ? <FiHash className="h-5 w-5" />
+                                            : <FiUser className="h-5 w-5" />
+                                    }
+                                    className={`h-14 ${
+                                        isRoomStep
+                                            ? "text-center text-xl font-black tracking-[0.2em] uppercase"
+                                            : "text-base font-bold"
+                                    }`}
                                 />
 
                                 <div className="mt-2 flex justify-between">
                                     <span
-                                        className="text-xs font-medium"
+                                        className="text-xs"
                                         style={{ color: colors.muted }}
                                     >
-                                        Máximo de 12 caracteres
+                                        {isRoomStep
+                                            ? "Máximo de 12 caracteres"
+                                            : "Escolha um nome para a partida"}
                                     </span>
 
                                     <span
                                         className="text-xs font-bold"
-                                        style={{
-                                            color: roomCode.length === 12
-                                                ? colors.primary
-                                                : colors.muted,
-                                        }}
+                                        style={{ color: colors.muted }}
                                     >
-                                        {roomCode.length}/12
+                                        {isRoomStep
+                                            ? `${roomCode.length}/12`
+                                            : `${playerName.length}/20`}
                                     </span>
                                 </div>
                             </div>
@@ -235,47 +260,62 @@ const HomePage = () => {
                                 variant="primary"
                                 fullWidth
                                 size="lg"
-                                disabled={!roomCode.trim() || loading}
+                                disabled={
+                                    loading ||
+                                    (isRoomStep
+                                        ? !roomCode.trim()
+                                        : playerName.trim().length < 2)
+                                }
                                 isLoading={loading}
-                                leftIcon={<FaGamepad />}
+                                leftIcon={
+                                    isRoomStep
+                                        ? <FaGamepad />
+                                        : <FiUsers />
+                                }
                                 rightIcon={<FiArrowRight />}
                                 className="h-13 rounded-xl"
                             >
-                                Entrar na sala
+                                {isRoomStep ? "Encontrar sala" : "Entrar na partida"}
                             </Button>
+
+                            {!isRoomStep && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    fullWidth
+                                    size="lg"
+                                    disabled={loading}
+                                    leftIcon={<FiArrowLeft />}
+                                    onClick={handleBack}
+                                    className="h-12 rounded-xl"
+                                >
+                                    Voltar
+                                </Button>
+                            )}
                         </form>
                     </div>
 
-                    {/* COMO PARTICIPAR */}
-                    <div className="flex flex-col gap-5">
+                    {/* SIDE CONTENT */}
+                    <aside className="flex flex-col gap-5">
                         <div
                             className="rounded-2xl border-2 border-b-4 p-5"
-                            style={{
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                            }}
+                            style={cardStyle}
                         >
                             <h3
-                                className="text-base font-black"
+                                className="font-black"
                                 style={{ color: colors.text }}
                             >
                                 Como participar?
                             </h3>
 
                             <div className="mt-5 space-y-5">
-                                {steps.map((step, index) => (
-                                    <div
-                                        key={step.title}
-                                        className="flex items-start gap-3"
-                                    >
+                                {steps.map((item, index) => (
+                                    <div key={item.title} className="flex gap-3">
                                         <div
                                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                                            style={{
-                                                backgroundColor: `${colors.primary}20`,
-                                                color: colors.primary,
-                                            }}
+                                            style={iconStyle}
                                         >
-                                            {step.icon}
+                                            {item.icon}
                                         </div>
 
                                         <div>
@@ -283,14 +323,14 @@ const HomePage = () => {
                                                 className="text-sm font-bold"
                                                 style={{ color: colors.text }}
                                             >
-                                                {index + 1}. {step.title}
+                                                {index + 1}. {item.title}
                                             </p>
 
                                             <p
                                                 className="mt-1 text-xs leading-relaxed"
                                                 style={{ color: colors.muted }}
                                             >
-                                                {step.description}
+                                                {item.description}
                                             </p>
                                         </div>
                                     </div>
@@ -298,21 +338,14 @@ const HomePage = () => {
                             </div>
                         </div>
 
-                        {/* DICA */}
                         <div
                             className="rounded-2xl border-2 p-4"
-                            style={{
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                            }}
+                            style={cardStyle}
                         >
                             <div className="flex items-center gap-3">
                                 <div
                                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                                    style={{
-                                        backgroundColor: `${colors.primary}20`,
-                                        color: colors.primary,
-                                    }}
+                                    style={iconStyle}
                                 >
                                     <FiBookOpen size={20} />
                                 </div>
@@ -334,7 +367,7 @@ const HomePage = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </aside>
                 </section>
             </main>
         </>
