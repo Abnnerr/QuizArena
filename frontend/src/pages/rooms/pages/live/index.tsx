@@ -114,11 +114,6 @@ export default function RoomLivePage() {
     const allAnswered =
         playerCount > 0 && answeredCount >= playerCount;
 
-    const totalVotes = alternativeStatistics.reduce(
-        (total, item) => total + item.count,
-        0
-    );
-
     const getPowerName = (powerType: string) =>
         POWER_NAMES[powerType.toUpperCase()] ?? powerType;
 
