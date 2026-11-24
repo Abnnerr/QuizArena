@@ -64,4 +64,8 @@ export class SocketService {
             alternative,
         });
     }
+
+    updateAnswered(roomCode: string) {
+        this.server.to(`room:${roomCode}`).emit("room:answered")
+    }
 }

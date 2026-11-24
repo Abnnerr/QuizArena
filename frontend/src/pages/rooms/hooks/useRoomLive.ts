@@ -1,10 +1,11 @@
 
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
 import { useAuth } from "../../../contexts/hooks/useAuth";
-import { useEffect, useState } from "react";
 import { AXIOS } from "../../../service";
 import { socket } from "../../../service/socket";
-import { useNavigate, useParams } from "react-router";
 
 const QUESTION_TIME = 20;
 
@@ -67,7 +68,6 @@ const useRoomLive = () => {
     const [totalQuestion, setTotalQuestion] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [answered, setAnswered] = useState(false);
-    const [everyoneAnswered, setEveryoneAnswered] = useState(false);
 
     const [totalPlayers, setTotalPlayers] = useState(0);
     const [totalAnswers, setTotalAnswers] = useState(0);
@@ -129,10 +129,6 @@ const useRoomLive = () => {
 
         setTotalPlayers(data.totalPlayers ?? 0);
         setTotalAnswers(data.totalAnswers ?? 0);
-        setEveryoneAnswered(data.everyoneAnswered ?? false);
-
-        setCorrectAlternative(null);
-        setAlternativeStatistics([]);
 
         const duration = Number(data.time_limit ?? QUESTION_TIME);
         const start = new Date(data.round_opened).getTime();
@@ -255,8 +251,6 @@ const useRoomLive = () => {
         };
 
         const expired = (data: any) => {
-            console.log("Rodada expirada:", data);
-
             const alternatives: AlternativeStatistics[] =
                 data?.alternative ?? [];
 
@@ -272,6 +266,9 @@ const useRoomLive = () => {
 
             setCorrectAlternative(correct?.alternativeId ?? null);
         };
+        const answeredUpdate = () => {
+            setTotalAnswers(previous => previous + 1);
+        };
 
         socket.on("connect", roomJoin);
         socket.on("question:started", findRound);
@@ -279,6 +276,7 @@ const useRoomLive = () => {
         socket.on("room:powerfifty", handlePowerFifty);
         socket.on("room:skip", skiped);
         socket.on("room:expired", expired);
+        socket.on("room:answered", answeredUpdate);
 
         if (!socket.connected) {
             socket.connect();
@@ -295,6 +293,7 @@ const useRoomLive = () => {
             socket.off("room:powerfifty", handlePowerFifty);
             socket.off("room:skip", skiped);
             socket.off("room:expired", expired);
+            socket.off("room:answered", answeredUpdate);
         };
     }, [roomCode, player?.player_id]);
 
@@ -317,7 +316,7 @@ const useRoomLive = () => {
             roomCode,
             roundId: round,
         });
-    }, [timeLeft, isHost, roomCode, question]);
+    }, [timeLeft, isHost, roomCode, question, round]);
 
     const handleAnswer = async (answerId: number) => {
         if (
@@ -350,16 +349,7 @@ const useRoomLive = () => {
                 return;
             }
 
-            // Atualização otimista da contagem para o próprio jogador.
-            setTotalAnswers(previous => {
-                const updated = previous + 1;
-
-                if (updated >= totalPlayers && totalPlayers > 0) {
-                    setEveryoneAnswered(true);
-                }
-
-                return updated;
-            });
+            setTotalAnswers(previous => previous + 1);
         } catch (err: any) {
             console.error(
                 err?.response?.data?.message ?? "Erro ao enviar resposta"
@@ -426,19 +416,16 @@ const useRoomLive = () => {
         isCriticalTime,
         handleAnswer,
         handleKeyDown,
-        handleUsePowerUp,
         onConfirmPowerUp,
         setSelectedPowerUp,
         selectedPowerUp,
 
-        user,
         timeLeft,
         loading,
         error,
         question,
         selectedAnswer,
         answered,
-        everyoneAnswered,
 
         totalPlayers,
         totalAnswers,
