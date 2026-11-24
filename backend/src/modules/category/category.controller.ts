@@ -16,6 +16,7 @@ export class CategoryController {
     async categoryCreate(req: Request<{ categoryId: string }, {}, CreateCategoryDTO, {}, {}>, res: Response<ResponseDTO>): Promise<Response> {
         try {
             await this.service.categoryCreate(req.body.name, Number(req.params.categoryId))
+            
             return HttpResponse.success(res, 201, "categoria criado")
         } catch (error) {
             if (error instanceof AppError) {

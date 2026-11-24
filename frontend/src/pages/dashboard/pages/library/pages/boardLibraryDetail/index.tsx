@@ -119,7 +119,7 @@ const BoardLibraryDetailsPage = () => {
 
             const { data } = await AXIOS.post<ResponseDTO<Category>>(
                 `/category/${libraryId}/create`,
-                { title }
+                { name: title }
             );
 
             if (data.type !== "Success") {

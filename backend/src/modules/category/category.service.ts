@@ -9,6 +9,9 @@ export class CategoryService {
 
     async categoryCreate(name: string, libraryId: number): Promise<void> {
         try {
+
+            console.log(name, libraryId);
+            
             const category = await this.repo.categoryFind(name, libraryId)
             if (category) {
                 throw new AppError(400, 'essa categoria ja existe nessa library')
