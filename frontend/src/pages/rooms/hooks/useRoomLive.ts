@@ -288,8 +288,8 @@ const useRoomLive = () => {
             setCorrectAlternative(correct?.alternativeId ?? null);
         };
 
-        const answeredUpdate = (data: { totalAnswers: number }) => {
-            setTotalAnswers(data.totalAnswers);
+        const answeredUpdate = () => {
+            setTotalAnswers(prev => prev + 1);
         };
 
         const goToRanking = (data: RankingPayload) => {
