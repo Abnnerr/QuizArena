@@ -44,7 +44,7 @@ const POWER_DESCRIPTIONS: Record<string, string> = {
 const playSound = (src: string, volume = 0.4) => {
     const audio = new Audio(src);
     audio.volume = volume;
-    void audio.play().catch(() => { });
+    void audio.play().catch(() => {});
 };
 
 export default function RoomLivePage() {
@@ -64,7 +64,6 @@ export default function RoomLivePage() {
         error,
         question,
         selectedAnswer,
-        answered,
         powerUp,
         selectedPowerUp,
         setSelectedPowerUp,
@@ -148,7 +147,7 @@ export default function RoomLivePage() {
         audio.volume = 0.15;
 
         if (!muted) {
-            void audio.play().catch(() => { });
+            void audio.play().catch(() => {});
         } else {
             audio.pause();
         }
@@ -252,7 +251,7 @@ export default function RoomLivePage() {
         if (
             item.used ||
             timeLeft <= 0 ||
-            answered ||
+            selectedAnswer !== null ||
             skip ||
             loading ||
             usingPowerUp
@@ -389,8 +388,9 @@ export default function RoomLivePage() {
             <main
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
-                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${effect ? effectBorder[effect] : ""
-                    }`}
+                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${
+                    effect ? effectBorder[effect] : ""
+                }`}
                 style={{ backgroundColor: colors.background }}
             >
                 <div
@@ -470,7 +470,7 @@ export default function RoomLivePage() {
                             </span>
                         </div>
 
-                        {/* Botão de ranking exclusivo do host */}
+                        {/* Ranking exclusivo do host */}
                         {isHost && (
                             <Button
                                 variant="primary"
@@ -491,10 +491,11 @@ export default function RoomLivePage() {
                                 backgroundColor: isCriticalTime
                                     ? `${colors.danger}18`
                                     : colors.surface,
-                                border: `2px solid ${isCriticalTime
+                                border: `2px solid ${
+                                    isCriticalTime
                                         ? colors.danger
                                         : colors.border
-                                    }`,
+                                }`,
                                 color: isCriticalTime
                                     ? colors.danger
                                     : colors.text,
@@ -544,7 +545,7 @@ export default function RoomLivePage() {
                                 const disabled =
                                     item.used ||
                                     timeLeft <= 0 ||
-                                    answered ||
+                                    selectedAnswer !== null ||
                                     skip ||
                                     usingPowerUp;
 
@@ -557,14 +558,16 @@ export default function RoomLivePage() {
                                         className="p-3 flex items-center gap-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                                         style={{
                                             backgroundColor: colors.surface,
-                                            border: `2px solid ${item.used
+                                            border: `2px solid ${
+                                                item.used
                                                     ? colors.border
                                                     : powerColor
-                                                }`,
-                                            borderBottom: `4px solid ${item.used
+                                            }`,
+                                            borderBottom: `4px solid ${
+                                                item.used
                                                     ? colors.border
                                                     : powerColor
-                                                }`,
+                                            }`,
                                             borderRadius: "15px",
                                         }}
                                     >
@@ -670,8 +673,8 @@ export default function RoomLivePage() {
                                 const selected =
                                     selectedAnswer === alternative.id;
 
-                                const stats = getAlternativeStats(
-                                    alternative.id
+                                const stats = alternativeStatistics.find(
+                                    item => item.alternativeId === alternative.id
                                 );
 
                                 const isCorrect =
@@ -701,14 +704,16 @@ export default function RoomLivePage() {
                                         type="button"
                                         disabled={
                                             hidden ||
-                                            answered ||
-                                            timeLeft <= 0
+                                            selectedAnswer !== null ||
+                                            timeLeft <= 0 ||
+                                            skip
                                         }
                                         onClick={() => handleAnswer(alternative.id)}
-                                        className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${hidden
+                                        className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${
+                                            hidden
                                                 ? "opacity-35 scale-[0.98] cursor-not-allowed"
                                                 : "hover:-translate-y-0.5"
-                                            } disabled:cursor-not-allowed`}
+                                        } disabled:cursor-not-allowed`}
                                         style={{
                                             backgroundColor,
                                             border: `2px solid ${borderColor}`,
@@ -727,8 +732,9 @@ export default function RoomLivePage() {
                                         </span>
 
                                         <span
-                                            className={`flex-1 font-bold text-sm sm:text-base ${hidden ? "line-through" : ""
-                                                }`}
+                                            className={`flex-1 font-bold text-sm sm:text-base ${
+                                                hidden ? "line-through" : ""
+                                            }`}
                                             style={{ color: colors.text }}
                                         >
                                             {alternative.text}
@@ -755,7 +761,7 @@ export default function RoomLivePage() {
                                             />
                                         )}
 
-                                        {selected && !finished && (
+                                        {selected && (
                                             <FiCheck
                                                 className="text-xl"
                                                 style={{ color: colors.primary }}
@@ -835,26 +841,19 @@ export default function RoomLivePage() {
                             </div>
                         </section>
                     )}
-
-                    {isHost && timeLeft <= 0 && (
-                        <p
-                            className="text-center text-sm font-semibold"
-                            style={{ color: colors.muted }}
-                        >
-                            Pressione Enter para continuar para o ranking.
-                        </p>
-                    )}
                 </div>
 
                 {/* Notificação de power-up */}
                 {effect && (
                     <div
-                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${notificationConfig[effect].background
-                            } ${notificationConfig[effect].border}`}
+                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${
+                            notificationConfig[effect].background
+                        } ${notificationConfig[effect].border}`}
                     >
                         <div
-                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${notificationConfig[effect].color
-                                } bg-white/10`}
+                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${
+                                notificationConfig[effect].color
+                            } bg-white/10`}
                         >
                             {notificationConfig[effect].icon}
                         </div>
