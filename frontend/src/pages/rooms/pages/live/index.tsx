@@ -832,7 +832,7 @@ export default function RoomLivePage() {
                     )}
 
                     {/* Botão para avançar todos ao ranking */}
-                    {isHost && allAnswered && timeLeft > 0 && (
+                    {isHost && (
                         <section
                             className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
                             style={card}
@@ -840,23 +840,30 @@ export default function RoomLivePage() {
                             <div className="text-center sm:text-left">
                                 <p
                                     className="font-black"
-                                    style={{ color: colors.success }}
+                                    style={{
+                                        color: allAnswered
+                                            ? colors.success
+                                            : colors.text,
+                                    }}
                                 >
                                     <FiCheck className="inline mr-2" />
-                                    Todos responderam!
+                                    {allAnswered
+                                        ? "Todos responderam!"
+                                        : "Aguardando respostas"}
                                 </p>
 
                                 <p
                                     className="text-sm mt-1"
                                     style={{ color: colors.muted }}
                                 >
-                                    Todos os jogadores já enviaram suas respostas.
+                                    {answeredCount}/{playerCount} jogadores responderam.
                                 </p>
                             </div>
 
                             <Button
                                 variant="primary"
                                 onClick={handleGoToRanking}
+                                disabled={!allAnswered}
                             >
                                 Ir para o ranking
                                 <FiArrowRight className="ml-2" />
