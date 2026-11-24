@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
@@ -79,13 +80,12 @@ const useRoomLive = () => {
     const [usingPowerUp, setUsingPowerUp] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const expiredRoundRef = useRef<number | null>(null);
+
     const getPlayerId = () => {
-        if (player?.player_id) {
-            return player.player_id;
-        }
+        if (player?.player_id) return player.player_id;
 
         const storedPlayer = sessionStorage.getItem("player");
-
         if (!storedPlayer) return undefined;
 
         try {
@@ -93,6 +93,31 @@ const useRoomLive = () => {
         } catch {
             return undefined;
         }
+    };
+
+    const emitRoundExpired = useCallback(() => {
+        if (
+            !isHost ||
+            !roomCode ||
+            round === null ||
+            expiredRoundRef.current === round
+        ) {
+            return;
+        }
+
+        expiredRoundRef.current = round;
+
+        socket.emit("round:time_expired", {
+            roomCode,
+            roundId: round,
+        });
+    }, [isHost, roomCode, round]);
+
+    const handleEndRound = () => {
+        if (!isHost || timeLeft <= 0 || round === null) return;
+
+        setTimeLeft(0);
+        emitRoundExpired();
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
@@ -111,20 +136,6 @@ const useRoomLive = () => {
         }
 
         navigate(`/${roomCode}/${round}/ranking`);
-    };
-
-
-    const handleEndRound = () => {
-        if (
-            !isHost ||
-            !roomCode ||
-            round === null ||
-            timeLeft <= 0
-        ) {
-            return;
-        }
-
-        setTimeLeft(0);
     };
 
     const atualizarPergunta = (data: any) => {
@@ -164,12 +175,13 @@ const useRoomLive = () => {
                 playerAnswer.alternative_id ??
                 playerAnswer.alternativeId
             );
-
             setAnswered(true);
         } else {
             setSelectedAnswer(null);
             setAnswered(false);
         }
+
+        expiredRoundRef.current = null;
 
         setAlternativeStatistics([]);
         setCorrectAlternative(null);
@@ -249,24 +261,18 @@ const useRoomLive = () => {
         };
 
         const handlePowerFifty = (data: PowerFiftyPayload) => {
-            const currentPlayerId = getPlayerId();
+            if (data.playerId !== getPlayerId()) return;
 
-            if (data.playerId !== currentPlayerId) {
-                return;
-            }
-
-            const ids = data.alternatives.map(
-                alternative => alternative.alternative_id
+            setHiddenAlternativeIds(
+                data.alternatives.map(item => item.alternative_id)
             );
-
-            setHiddenAlternativeIds(ids);
         };
 
         const skiped = (data: any) => {
-            if (data.target === player?.player_id) {
-                setSkip(data.skiped);
-                setPlayerNameUsed(data.userName);
-            }
+            if (data.target !== player?.player_id) return;
+
+            setSkip(data.skiped);
+            setPlayerNameUsed(data.userName);
         };
 
         const expired = (data: any) => {
@@ -288,7 +294,7 @@ const useRoomLive = () => {
         };
 
         const answeredUpdate = () => {
-            setTotalAnswers(prev => prev + 1);
+            setTotalAnswers(previous => previous + 1);
         };
 
         const goToRanking = (data: RankingPayload) => {
@@ -326,11 +332,8 @@ const useRoomLive = () => {
         };
     }, [roomCode, player?.player_id]);
 
-
     useEffect(() => {
-        if (!question || loading || timeLeft <= 0) {
-            return;
-        }
+        if (!question || loading || timeLeft <= 0) return;
 
         const timer = window.setTimeout(() => {
             setTimeLeft(previous => Math.max(0, previous - 1));
@@ -339,17 +342,14 @@ const useRoomLive = () => {
         return () => window.clearTimeout(timer);
     }, [question, timeLeft, loading]);
 
-    
+    // Encerramento automático quando o cronômetro chega a zero.
     useEffect(() => {
         if (!question || !isHost || timeLeft !== 0 || round === null) {
             return;
         }
 
-        socket.emit("round:time_expired", {
-            roomCode,
-            roundId: round,
-        });
-    }, [timeLeft, isHost, roomCode, question, round]);
+        emitRoundExpired();
+    }, [timeLeft, isHost, question, round, emitRoundExpired]);
 
     const handleAnswer = async (answerId: number) => {
         if (
@@ -435,7 +435,7 @@ const useRoomLive = () => {
         powerupId: number,
         playerId?: string
     ): Promise<boolean> => {
-        return await handleUsePowerUp(powerupId, playerId);
+        return handleUsePowerUp(powerupId, playerId);
     };
 
     const progress = (timeLeft / questionTime) * 100;
