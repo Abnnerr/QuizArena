@@ -127,7 +127,6 @@ export default function RoomLivePage() {
         usingPowerUp,
         totalPlayers,
         totalAnswers,
-        round,
         handleGoToRanking
     } = useRoomLive();
 
