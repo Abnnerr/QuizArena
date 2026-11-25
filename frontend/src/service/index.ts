@@ -7,20 +7,20 @@ export const AXIOS: AxiosInstance = axios.create({
     withCredentials: true
 })
 
-AXIOS.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        const status = error.response?.status;
-        const skipAuthRedirect = error.config?.skipAuthRedirect;
+// AXIOS.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         const status = error.response?.status;
+//         const skipAuthRedirect = error.config?.skipAuthRedirect;
 
-        if (
-            status === 401 &&
-            !skipAuthRedirect &&
-            window.location.pathname !== "/auth/login"
-        ) {
-            window.location.replace("/auth/login");
-        }
+//         if (
+//             status === 401 &&
+//             !skipAuthRedirect &&
+//             window.location.pathname !== "/auth/login"
+//         ) {
+//             window.location.replace("/auth/login");
+//         }
 
-        return Promise.reject(error);
-    }
-);
+//         return Promise.reject(error);
+//     }
+// );
