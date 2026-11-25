@@ -11,22 +11,11 @@ AXIOS.interceptors.response.use(
     (response) => response,
     (error) => {
         const status = error.response?.status;
-        const url = error.config?.url ?? "";
-
-        const publicRoutes = [
-            "/auth/login",
-            "/auth/register",
-            "/auth/forgot",
-            "/auth/reset",
-        ];
-
-        const isPublicRoute = publicRoutes.some((route) =>
-            url.includes(route)
-        );
+        const skipAuthRedirect = error.config?.skipAuthRedirect;
 
         if (
             status === 401 &&
-            !isPublicRoute &&
+            !skipAuthRedirect &&
             window.location.pathname !== "/auth/login"
         ) {
             window.location.replace("/auth/login");
