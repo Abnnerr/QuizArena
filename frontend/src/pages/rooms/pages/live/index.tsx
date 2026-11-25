@@ -13,7 +13,7 @@ import {
     FiVolume2,
     FiUsers,
 } from "react-icons/fi";
-import {  useParams } from "react-router";
+import { useParams } from "react-router";
 
 import useRoomLive from "../../hooks/useRoomLive";
 import { useTheme } from "../../../../contexts/ThemeContext";
@@ -72,7 +72,7 @@ const EFFECT_CONFIG = {
 const playSound = (src: string, volume = 0.4) => {
     const audio = new Audio(src);
     audio.volume = volume;
-    void audio.play().catch(() => {});
+    void audio.play().catch(() => { });
 };
 
 const getPowerName = (type: string) =>
@@ -159,7 +159,7 @@ export default function RoomLivePage() {
         borderRadius: "14px",
     };
 
-  
+
 
     // Música ambiente
     useEffect(() => {
@@ -187,7 +187,7 @@ export default function RoomLivePage() {
         if (muted) {
             audio.pause();
         } else {
-            void audio.play().catch(() => {});
+            void audio.play().catch(() => { });
         }
     }, [muted]);
 
@@ -361,9 +361,8 @@ export default function RoomLivePage() {
             <main
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
-                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${
-                    effect ? EFFECT_CONFIG[effect].shadow : ""
-                }`}
+                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${effect ? EFFECT_CONFIG[effect].shadow : ""
+                    }`}
                 style={{ backgroundColor: colors.background }}
             >
                 {/* Progresso */}
@@ -449,7 +448,9 @@ export default function RoomLivePage() {
                                 <Button
                                     variant="secondary"
                                     onClick={handleGoToRanking}
-                                    disabled={round === null || round === undefined}
+                                    disabled={
+                                        timeLeft > 0
+                                    }
                                 >
                                     <FiUsers />
                                     <span className="hidden sm:inline">
@@ -476,11 +477,10 @@ export default function RoomLivePage() {
                                 backgroundColor: isCriticalTime
                                     ? `${colors.danger}18`
                                     : colors.surface,
-                                border: `2px solid ${
-                                    isCriticalTime
-                                        ? colors.danger
-                                        : colors.border
-                                }`,
+                                border: `2px solid ${isCriticalTime
+                                    ? colors.danger
+                                    : colors.border
+                                    }`,
                                 color: isCriticalTime
                                     ? colors.danger
                                     : colors.text,
@@ -537,12 +537,10 @@ export default function RoomLivePage() {
                                         className="p-3 flex items-center gap-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                                         style={{
                                             backgroundColor: colors.surface,
-                                            border: `2px solid ${
-                                                item.used ? colors.border : color
-                                            }`,
-                                            borderBottom: `4px solid ${
-                                                item.used ? colors.border : color
-                                            }`,
+                                            border: `2px solid ${item.used ? colors.border : color
+                                                }`,
+                                            borderBottom: `4px solid ${item.used ? colors.border : color
+                                                }`,
                                             borderRadius: "15px",
                                         }}
                                     >
@@ -612,8 +610,8 @@ export default function RoomLivePage() {
                                 {finished
                                     ? "Resultado da rodada"
                                     : timeLeft > 0
-                                      ? "Responda antes do tempo acabar"
-                                      : "Aguardando resultado..."}
+                                        ? "Responda antes do tempo acabar"
+                                        : "Aguardando resultado..."}
                             </span>
                         </div>
 
@@ -654,18 +652,18 @@ export default function RoomLivePage() {
                                 const borderColor = isCorrect
                                     ? colors.success
                                     : isWrong
-                                      ? colors.danger
-                                      : selected
-                                        ? colors.primary
-                                        : colors.border;
+                                        ? colors.danger
+                                        : selected
+                                            ? colors.primary
+                                            : colors.border;
 
                                 const backgroundColor = isCorrect
                                     ? `${colors.success}18`
                                     : isWrong
-                                      ? `${colors.danger}15`
-                                      : selected
-                                        ? `${colors.primary}15`
-                                        : colors.card;
+                                        ? `${colors.danger}15`
+                                        : selected
+                                            ? `${colors.primary}15`
+                                            : colors.card;
 
                                 return (
                                     <button
@@ -678,11 +676,10 @@ export default function RoomLivePage() {
                                             finished
                                         }
                                         onClick={() => handleAnswer(alternative.id)}
-                                        className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${
-                                            hidden
-                                                ? "opacity-35 scale-[0.98] cursor-not-allowed"
-                                                : "hover:-translate-y-0.5"
-                                        } disabled:cursor-not-allowed`}
+                                        className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${hidden
+                                            ? "opacity-35 scale-[0.98] cursor-not-allowed"
+                                            : "hover:-translate-y-0.5"
+                                            } disabled:cursor-not-allowed`}
                                         style={{
                                             backgroundColor,
                                             border: `2px solid ${borderColor}`,
@@ -701,9 +698,8 @@ export default function RoomLivePage() {
                                         </span>
 
                                         <span
-                                            className={`flex-1 font-bold text-sm sm:text-base ${
-                                                hidden ? "line-through" : ""
-                                            }`}
+                                            className={`flex-1 font-bold text-sm sm:text-base ${hidden ? "line-through" : ""
+                                                }`}
                                             style={{ color: colors.text }}
                                         >
                                             {alternative.text}

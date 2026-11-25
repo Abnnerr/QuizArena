@@ -538,7 +538,7 @@ const useRoomLive = () => {
 
 
     const handleGoToRanking = () => {
-        if (!roomCode || round === null || round === undefined) return;
+        if (!roomCode || timeLeft > 0 || round === null || !isHost) return;
 
 
         if (position >= totalQuestion) {
