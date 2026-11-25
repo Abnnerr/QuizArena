@@ -215,7 +215,7 @@ npm run cy:run
 
 Para utilizar o QuizArena, siga as etapas abaixo:
 
-1. **Acessar o sistema:** faça login com uma conta de administrador.
+1. **Acessar o sistema:** faça login com uma conta de admin ou host.
 2. **Criar uma biblioteca:** somente usuários administradores podem realizar essa ação.
 3. **Criar categorias:** cadastre as categorias que serão utilizadas para organizar as perguntas. Essa funcionalidade também é restrita ao administrador.
 4. **Cadastrar perguntas:** adicione perguntas e alternativas às categorias, indicando a alternativa correta.
