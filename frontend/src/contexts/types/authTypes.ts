@@ -7,6 +7,7 @@ export type AuthContextType = {
     forgot: (email: string) => Promise<ResponseDTO>
     reset: (email: string, token: string) => Promise<ResponseDTO>
     profile: () => Promise<ResponseDTO>
+    logOut: () => Promise<ResponseDTO>
     loading: boolean
 }
 

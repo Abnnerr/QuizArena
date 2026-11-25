@@ -190,6 +190,32 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             };
         }
     }
+    async function logOut(): Promise<ResponseDTO> {
+        try {
+            const { data } = await AXIOS.get<ResponseDTO>("/auth/logout");
+
+
+            if (data.type === "Warning") {
+                return {
+                    type: "Warning",
+                    message: data.message ||
+                        "Não foi possível carregar seu perfil.",
+                };
+            }
+
+            return {
+                type: "Success",
+                message: "Perfil carregado com sucesso.",
+                data: data.data,
+            };
+        } catch (error: any) {
+            return {
+                type: "Warning",
+                message: error.response?.data?.message ||
+                    "Erro ao carregar o perfil.",
+            };
+        }
+    }
 
     return (
         <AuthContext.Provider
@@ -201,6 +227,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 forgot,
                 reset,
                 profile,
+                logOut,
                 loading
             }}
         >

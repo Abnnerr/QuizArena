@@ -28,7 +28,7 @@ export function useLogin() {
             }
 
             toast.success(response.message || "Usuário logado com sucesso!");
-            navigate("/");
+            navigate("/dashboard");
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||

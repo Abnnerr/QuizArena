@@ -12,6 +12,7 @@ model Users {
   user_username String      @unique
   user_password String
   role_id       Int
+  created_at     DateTime    @default(now())
   questions     Questions[]
   hostedRooms   Rooms[]
   Role          Role        @relation(fields: [role_id], references: [role_id])

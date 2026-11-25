@@ -26,6 +26,7 @@ import BoardHomePage from "../pages/dashboard/home";
 import BoardConfigPage from "../pages/dashboard/config";
 import Security from "../pages/dashboard/pages/auth/security";
 import ChangePassword from "../pages/dashboard/pages/auth/changePassword";
+import BoardUserPage from "../pages/dashboard/pages/auth/user";
 
 
 export const preloadRoomLivePage = () => {
@@ -58,6 +59,7 @@ const Paths = () => {
                         <Route index element={<BoardHomePage />} />
                         <Route path="config" element={<BoardConfigPage />} />
                         <Route path="security" element={<Security />} />
+                        <Route path="user" element={<BoardUserPage />} />
                         <Route path="changePassword" element={<ChangePassword />} />
                         <Route path="library" element={<BoardLibraryPage />} />
                         <Route path="library/:libraryId" element={<BoardLibraryDetailsPage />} />

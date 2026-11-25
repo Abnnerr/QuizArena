@@ -172,7 +172,7 @@ const DashBoardLayout: React.FC = () => {
                     <div className="flex items-center gap-2 sm:gap-3">
 
                         <Link
-                            to="/auth/user"
+                            to="/dashboard/user"
                             className="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-b-4 active:border-b-2 active:translate-y-0.5 transition-all font-black bg-[#1CB0F6] text-white"
                             style={{ borderColor: "#0092D6" }}
                         >

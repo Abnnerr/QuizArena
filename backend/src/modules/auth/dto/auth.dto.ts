@@ -55,14 +55,10 @@ export type ProfilePayload = Prisma.UsersGetPayload<{
     select: {
         user_email: true,
         user_username: true,
-        hostedRooms: {
+        user_id: true,
+        Role: {
             select: {
-                max_players: true,
-                room_code: true,
-                room_mode: true,
-                room_name: true,
-                room_id: true,
-                room_status: true
+                role_name: true
             }
         }
     }
