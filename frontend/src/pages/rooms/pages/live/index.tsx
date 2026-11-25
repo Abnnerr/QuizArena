@@ -72,7 +72,7 @@ const EFFECT_CONFIG = {
 const playSound = (src: string, volume = 0.4) => {
     const audio = new Audio(src);
     audio.volume = volume;
-    void audio.play().catch(() => { });
+    void audio.play().catch(() => {});
 };
 
 const getPowerName = (type: string) =>
@@ -127,7 +127,7 @@ export default function RoomLivePage() {
         usingPowerUp,
         totalPlayers,
         totalAnswers,
-        handleGoToRanking
+        handleGoToRanking,
     } = useRoomLive();
 
     const [muted, setMuted] = useState(
@@ -158,9 +158,6 @@ export default function RoomLivePage() {
         borderRadius: "14px",
     };
 
-
-
-    // Música ambiente
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
@@ -186,7 +183,7 @@ export default function RoomLivePage() {
         if (muted) {
             audio.pause();
         } else {
-            void audio.play().catch(() => { });
+            void audio.play().catch(() => {});
         }
     }, [muted]);
 
@@ -197,7 +194,6 @@ export default function RoomLivePage() {
         });
     };
 
-    // Sons e efeitos dos power-ups
     useEffect(() => {
         if (
             selectedAnswer !== null &&
@@ -239,7 +235,6 @@ export default function RoomLivePage() {
         return () => window.clearTimeout(timeout);
     }, [effect]);
 
-    // Ativação de power-ups
     const activatePowerUp = async (
         powerupId: number,
         powerType: string,
@@ -320,23 +315,23 @@ export default function RoomLivePage() {
     if (!question) {
         return (
             <div
-                className="min-h-screen flex items-center justify-center p-5"
+                className="flex min-h-screen items-center justify-center p-4 sm:p-5"
                 style={{ backgroundColor: colors.background }}
             >
-                <div className="w-full max-w-md p-7 text-center" style={card}>
+                <div className="w-full max-w-md p-5 text-center sm:p-7" style={card}>
                     <FiX
                         className="mx-auto mb-4 text-4xl"
                         style={{ color: colors.danger }}
                     />
 
                     <h2
-                        className="text-xl font-black mb-2"
+                        className="mb-2 text-lg font-black sm:text-xl"
                         style={{ color: colors.text }}
                     >
                         Não foi possível carregar a pergunta
                     </h2>
 
-                    <p style={{ color: colors.muted }}>
+                    <p className="text-sm sm:text-base" style={{ color: colors.muted }}>
                         {error ?? "Aguarde a próxima rodada."}
                     </p>
                 </div>
@@ -360,13 +355,13 @@ export default function RoomLivePage() {
             <main
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
-                className={`min-h-[100dvh] outline-none flex flex-col transition-shadow duration-500 ${effect ? EFFECT_CONFIG[effect].shadow : ""
-                    }`}
+                className={`flex min-h-[100dvh] flex-col outline-none transition-shadow duration-500 ${
+                    effect ? EFFECT_CONFIG[effect].shadow : ""
+                }`}
                 style={{ backgroundColor: colors.background }}
             >
-                {/* Progresso */}
                 <div
-                    className="h-2 w-full"
+                    className="h-2 w-full shrink-0"
                     style={{ backgroundColor: colors.border }}
                 >
                     <div
@@ -380,106 +375,150 @@ export default function RoomLivePage() {
                     />
                 </div>
 
-                {/* Cabeçalho */}
-                <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <img
-                            src="/favicon-quiz.png"
-                            alt="Quiz Arena"
-                            className="w-10 h-10 object-contain"
-                        />
+                <header className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-3 py-3 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex min-w-0 items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <img
+                                src="/favicon-quiz.png"
+                                alt="Quiz Arena"
+                                className="h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10"
+                            />
 
-                        <div className="min-w-0">
-                            <p
-                                className="font-black text-sm sm:text-base"
-                                style={{ color: colors.text }}
-                            >
-                                QUIZ ARENA
-                            </p>
+                            <div className="min-w-0">
+                                <p
+                                    className="text-sm font-black sm:text-base"
+                                    style={{ color: colors.text }}
+                                >
+                                    QUIZ ARENA
+                                </p>
 
-                            <p
-                                className="text-xs truncate"
-                                style={{ color: colors.muted }}
+                                <p
+                                    className="truncate text-xs"
+                                    style={{ color: colors.muted }}
+                                >
+                                    Sala {roomCode}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2 lg:hidden">
+                            <button
+                                type="button"
+                                onClick={toggleMusic}
+                                className="flex h-10 w-10 items-center justify-center rounded-xl transition hover:opacity-75"
+                                style={surface}
+                                title={muted ? "Ativar música" : "Desativar música"}
                             >
-                                Sala {roomCode}
-                            </p>
+                                {muted ? (
+                                    <FiVolumeX style={{ color: colors.muted }} />
+                                ) : (
+                                    <FiVolume2 style={{ color: colors.primary }} />
+                                )}
+                            </button>
+
+                            <div
+                                className="flex items-center gap-2 rounded-xl px-2.5 py-2"
+                                style={surface}
+                            >
+                                <FiClock
+                                    style={{
+                                        color: isCriticalTime
+                                            ? colors.danger
+                                            : colors.text,
+                                    }}
+                                />
+                                <span
+                                    className="text-sm font-black tabular-nums"
+                                    style={{
+                                        color: isCriticalTime
+                                            ? colors.danger
+                                            : colors.text,
+                                    }}
+                                >
+                                    {timeLeft}s
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <button
-                            type="button"
-                            onClick={toggleMusic}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:opacity-75"
-                            style={surface}
-                            title={muted ? "Ativar música" : "Desativar música"}
-                        >
-                            {muted ? (
-                                <FiVolumeX style={{ color: colors.muted }} />
-                            ) : (
-                                <FiVolume2 style={{ color: colors.primary }} />
-                            )}
-                        </button>
-
-                        <div
-                            className="flex items-center gap-2 px-3 py-2 rounded-xl"
-                            style={surface}
-                        >
-                            <FiUsers style={{ color: colors.primary }} />
-
-                            <span
-                                className="text-sm font-black tabular-nums"
-                                style={{ color: colors.text }}
+                    <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 lg:justify-end">
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={toggleMusic}
+                                className="hidden h-10 w-10 items-center justify-center rounded-xl transition hover:opacity-75 lg:flex"
+                                style={surface}
+                                title={muted ? "Ativar música" : "Desativar música"}
                             >
-                                {answeredCount}/{playerCount}
-                            </span>
+                                {muted ? (
+                                    <FiVolumeX style={{ color: colors.muted }} />
+                                ) : (
+                                    <FiVolume2 style={{ color: colors.primary }} />
+                                )}
+                            </button>
 
-                            <span
-                                className="text-xs hidden sm:inline"
-                                style={{ color: colors.muted }}
+                            <div
+                                className="flex items-center gap-2 rounded-xl px-3 py-2"
+                                style={surface}
                             >
-                                responderam
-                            </span>
+                                <FiUsers
+                                    className="shrink-0"
+                                    style={{ color: colors.primary }}
+                                />
+
+                                <span
+                                    className="text-sm font-black tabular-nums"
+                                    style={{ color: colors.text }}
+                                >
+                                    {answeredCount}/{playerCount}
+                                </span>
+
+                                <span
+                                    className="hidden text-xs sm:inline"
+                                    style={{ color: colors.muted }}
+                                >
+                                    responderam
+                                </span>
+                            </div>
                         </div>
 
                         {isHost && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-1 items-center justify-end gap-2 sm:flex-none">
                                 <Button
                                     variant="secondary"
                                     onClick={handleGoToRanking}
-                                    disabled={
-                                        timeLeft > 0
-                                    }
+                                    disabled={timeLeft > 0}
                                 >
                                     <FiUsers />
-                                    <span className="hidden sm:inline">
-                                        Ranking
-                                    </span>
+                                    <span>Ranking</span>
                                 </Button>
 
                                 <Button
                                     variant="primary"
                                     onClick={handleEndRound}
-                                    disabled={timeLeft <= 0 || finished || totalAnswers < totalPlayers}
+                                    disabled={
+                                        timeLeft <= 0 ||
+                                        finished ||
+                                        totalAnswers < totalPlayers
+                                    }
                                 >
-                                    <span className="hidden sm:inline">
-                                        Encerrar
-                                    </span>
+                                    <span>Encerrar</span>
                                     <FiArrowRight />
                                 </Button>
                             </div>
                         )}
 
                         <div
-                            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-black"
+                            className="hidden items-center gap-2 rounded-xl px-3 py-2 font-black lg:flex lg:px-4"
                             style={{
                                 backgroundColor: isCriticalTime
                                     ? `${colors.danger}18`
                                     : colors.surface,
-                                border: `2px solid ${isCriticalTime
-                                    ? colors.danger
-                                    : colors.border
-                                    }`,
+                                border: `2px solid ${
+                                    isCriticalTime
+                                        ? colors.danger
+                                        : colors.border
+                                }`,
                                 color: isCriticalTime
                                     ? colors.danger
                                     : colors.text,
@@ -491,20 +530,19 @@ export default function RoomLivePage() {
                     </div>
                 </header>
 
-                <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-8 flex-1 flex flex-col gap-5">
-                    {/* Power-ups */}
+                <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-3 pb-6 sm:gap-5 sm:px-6 sm:pb-8">
                     <section className="p-4 sm:p-5" style={card}>
-                        <div className="flex items-center justify-between gap-3 mb-4">
-                            <div>
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                            <div className="min-w-0">
                                 <h2
-                                    className="font-black text-base"
+                                    className="text-sm font-black sm:text-base"
                                     style={{ color: colors.text }}
                                 >
                                     Seus power-ups
                                 </h2>
 
                                 <p
-                                    className="text-xs mt-1"
+                                    className="mt-1 text-xs"
                                     style={{ color: colors.muted }}
                                 >
                                     Use suas vantagens durante a rodada
@@ -512,12 +550,12 @@ export default function RoomLivePage() {
                             </div>
 
                             <FiZap
-                                className="text-xl"
+                                className="shrink-0 text-xl"
                                 style={{ color: colors.primary }}
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {powerUp.map(item => {
                                 const color = getPowerColor(item.powerup_type);
                                 const disabled =
@@ -533,18 +571,20 @@ export default function RoomLivePage() {
                                         type="button"
                                         disabled={disabled}
                                         onClick={() => openPowerUp(item)}
-                                        className="p-3 flex items-center gap-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                                        className="flex min-w-0 items-center gap-3 p-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0"
                                         style={{
                                             backgroundColor: colors.surface,
-                                            border: `2px solid ${item.used ? colors.border : color
-                                                }`,
-                                            borderBottom: `4px solid ${item.used ? colors.border : color
-                                                }`,
+                                            border: `2px solid ${
+                                                item.used ? colors.border : color
+                                            }`,
+                                            borderBottom: `4px solid ${
+                                                item.used ? colors.border : color
+                                            }`,
                                             borderRadius: "15px",
                                         }}
                                     >
                                         <span
-                                            className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
+                                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl sm:h-11 sm:w-11"
                                             style={{
                                                 backgroundColor: `${color}20`,
                                                 color,
@@ -553,16 +593,16 @@ export default function RoomLivePage() {
                                             {getPowerIcon(item.powerup_type)}
                                         </span>
 
-                                        <span className="flex-1 min-w-0">
+                                        <span className="min-w-0 flex-1">
                                             <span
-                                                className="block font-black text-sm"
+                                                className="block truncate text-sm font-black"
                                                 style={{ color: colors.text }}
                                             >
                                                 {getPowerName(item.powerup_type)}
                                             </span>
 
                                             <span
-                                                className="block text-xs mt-1"
+                                                className="mt-1 block text-xs"
                                                 style={{ color: colors.muted }}
                                             >
                                                 {item.used ? "Já utilizado" : "Disponível"}
@@ -570,9 +610,15 @@ export default function RoomLivePage() {
                                         </span>
 
                                         {item.used ? (
-                                            <FiCheck style={{ color: colors.muted }} />
+                                            <FiCheck
+                                                className="shrink-0"
+                                                style={{ color: colors.muted }}
+                                            />
                                         ) : (
-                                            <FiArrowRight style={{ color }} />
+                                            <FiArrowRight
+                                                className="shrink-0"
+                                                style={{ color }}
+                                            />
                                         )}
                                     </button>
                                 );
@@ -580,7 +626,7 @@ export default function RoomLivePage() {
 
                             {powerUp.length === 0 && (
                                 <p
-                                    className="text-sm col-span-full py-3 text-center"
+                                    className="col-span-full py-3 text-center text-sm"
                                     style={{ color: colors.muted }}
                                 >
                                     Você não possui power-ups disponíveis.
@@ -589,11 +635,10 @@ export default function RoomLivePage() {
                         </div>
                     </section>
 
-                    {/* Pergunta */}
-                    <section className="p-5 sm:p-8" style={card}>
-                        <div className="flex items-center justify-between gap-3 mb-4">
+                    <section className="p-4 sm:p-6 lg:p-8" style={card}>
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-4">
                             <span
-                                className="text-xs font-black uppercase tracking-wider px-3 py-2 rounded-lg"
+                                className="rounded-lg px-3 py-2 text-[10px] font-black uppercase tracking-wider sm:text-xs"
                                 style={{
                                     backgroundColor: `${colors.primary}18`,
                                     color: colors.primary,
@@ -603,19 +648,19 @@ export default function RoomLivePage() {
                             </span>
 
                             <span
-                                className="text-xs font-bold"
+                                className="text-right text-[10px] font-bold sm:text-xs"
                                 style={{ color: colors.muted }}
                             >
                                 {finished
                                     ? "Resultado da rodada"
                                     : timeLeft > 0
-                                        ? "Responda antes do tempo acabar"
-                                        : "Aguardando resultado..."}
+                                      ? "Responda antes do tempo acabar"
+                                      : "Aguardando resultado..."}
                             </span>
                         </div>
 
                         <h1
-                            className="text-xl sm:text-3xl font-black leading-snug text-center py-5"
+                            className="break-words py-4 text-center text-lg font-black leading-snug sm:py-5 sm:text-2xl lg:text-3xl"
                             style={{ color: colors.text }}
                         >
                             {question.text}
@@ -623,7 +668,7 @@ export default function RoomLivePage() {
 
                         {error && (
                             <div
-                                className="mt-3 p-3 rounded-xl text-sm"
+                                className="mt-3 rounded-xl p-3 text-sm"
                                 style={{
                                     backgroundColor: `${colors.danger}15`,
                                     color: colors.danger,
@@ -634,35 +679,40 @@ export default function RoomLivePage() {
                         )}
                     </section>
 
-                    {/* Alternativas */}
                     {!skip && (
-                        <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             {question.alternatives.map((alternative, index) => {
-                                const hidden = hiddenAlternativeIds.includes(alternative.id);
-                                const selected = selectedAnswer === alternative.id;
+                                const hidden = hiddenAlternativeIds.includes(
+                                    alternative.id
+                                );
+                                const selected =
+                                    selectedAnswer === alternative.id;
                                 const stats = alternativeStatistics.find(
-                                    item => item.alternativeId === alternative.id
+                                    item =>
+                                        item.alternativeId === alternative.id
                                 );
 
                                 const isCorrect =
-                                    finished && alternative.id === correctAlternative;
-                                const isWrong = finished && selected && !isCorrect;
+                                    finished &&
+                                    alternative.id === correctAlternative;
+                                const isWrong =
+                                    finished && selected && !isCorrect;
 
                                 const borderColor = isCorrect
                                     ? colors.success
                                     : isWrong
-                                        ? colors.danger
-                                        : selected
-                                            ? colors.primary
-                                            : colors.border;
+                                      ? colors.danger
+                                      : selected
+                                        ? colors.primary
+                                        : colors.border;
 
                                 const backgroundColor = isCorrect
                                     ? `${colors.success}18`
                                     : isWrong
-                                        ? `${colors.danger}15`
-                                        : selected
-                                            ? `${colors.primary}15`
-                                            : colors.card;
+                                      ? `${colors.danger}15`
+                                      : selected
+                                        ? `${colors.primary}15`
+                                        : colors.card;
 
                                 return (
                                     <Button
@@ -678,14 +728,17 @@ export default function RoomLivePage() {
                                         variant="secondary"
                                         borderColor={borderColor}
                                         color={backgroundColor}
-                                        onClick={() => handleAnswer(alternative.id)}
-                                        className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${hidden
-                                            ? "opacity-35 scale-[0.98] cursor-not-allowed"
-                                            : "hover:-translate-y-0.5"
-                                            } disabled:cursor-not-allowed`}
+                                        onClick={() =>
+                                            handleAnswer(alternative.id)
+                                        }
+                                        className={`relative flex min-h-20 w-full items-center gap-3 p-3 text-left transition-all duration-200 sm:min-h-24 sm:gap-4 sm:p-5 ${
+                                            hidden
+                                                ? "scale-[0.98] cursor-not-allowed opacity-35"
+                                                : "hover:-translate-y-0.5"
+                                        } disabled:cursor-not-allowed`}
                                     >
                                         <span
-                                            className="w-10 h-10 rounded-xl flex items-center justify-center font-black shrink-0"
+                                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-black sm:h-10 sm:w-10"
                                             style={{
                                                 backgroundColor: `${colors.primary}18`,
                                                 color: colors.primary,
@@ -695,8 +748,9 @@ export default function RoomLivePage() {
                                         </span>
 
                                         <span
-                                            className={`flex-1 font-bold text-sm sm:text-base ${hidden ? "line-through" : ""
-                                                }`}
+                                            className={`min-w-0 flex-1 break-words text-left text-sm font-bold sm:text-base ${
+                                                hidden ? "line-through" : ""
+                                            }`}
                                             style={{ color: colors.text }}
                                         >
                                             {alternative.text}
@@ -704,28 +758,28 @@ export default function RoomLivePage() {
 
                                         {hidden && (
                                             <FiX
-                                                className="text-xl"
+                                                className="shrink-0 text-xl"
                                                 style={{ color: colors.muted }}
                                             />
                                         )}
 
                                         {isCorrect && (
                                             <FiCheck
-                                                className="text-xl"
+                                                className="shrink-0 text-xl"
                                                 style={{ color: colors.success }}
                                             />
                                         )}
 
                                         {isWrong && (
                                             <FiX
-                                                className="text-xl"
+                                                className="shrink-0 text-xl"
                                                 style={{ color: colors.danger }}
                                             />
                                         )}
 
                                         {finished && stats && (
                                             <span
-                                                className="text-xs font-black tabular-nums"
+                                                className="shrink-0 text-[10px] font-black tabular-nums sm:text-xs"
                                                 style={{ color: colors.muted }}
                                             >
                                                 {stats.count} voto(s)
@@ -737,10 +791,9 @@ export default function RoomLivePage() {
                         </section>
                     )}
 
-                    {/* Skip Turn */}
                     {skip && (
                         <section
-                            className="p-8 sm:p-12 text-center flex flex-col items-center gap-5 shadow-lg animate-pulse"
+                            className="flex flex-col items-center gap-4 p-5 text-center shadow-lg sm:gap-5 sm:p-8 lg:p-12"
                             style={{
                                 ...card,
                                 background: `linear-gradient(145deg, ${colors.card}, ${SKIP_COLOR}12)`,
@@ -748,7 +801,7 @@ export default function RoomLivePage() {
                             }}
                         >
                             <div
-                                className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl shadow-inner"
+                                className="flex h-16 w-16 items-center justify-center rounded-3xl text-3xl shadow-inner sm:h-20 sm:w-20 sm:text-4xl"
                                 style={{
                                     color: SKIP_COLOR,
                                     backgroundColor: `${SKIP_COLOR}18`,
@@ -767,14 +820,14 @@ export default function RoomLivePage() {
                                 </span>
 
                                 <h2
-                                    className="text-2xl sm:text-3xl font-black mt-2"
+                                    className="mt-2 text-xl font-black sm:text-2xl lg:text-3xl"
                                     style={{ color: colors.text }}
                                 >
                                     Você pulou esta rodada!
                                 </h2>
 
                                 <p
-                                    className="text-sm mt-3 max-w-sm mx-auto leading-relaxed"
+                                    className="mx-auto mt-3 max-w-sm text-sm leading-relaxed"
                                     style={{ color: colors.muted }}
                                 >
                                     {playerNameUsed
@@ -784,58 +837,64 @@ export default function RoomLivePage() {
                             </div>
 
                             <div
-                                className="px-5 py-3 rounded-xl text-sm font-bold border"
+                                className="rounded-xl border px-4 py-3 text-xs font-bold sm:px-5 sm:text-sm"
                                 style={{
                                     backgroundColor: `${SKIP_COLOR}12`,
                                     borderColor: `${SKIP_COLOR}40`,
                                     color: SKIP_COLOR,
                                 }}
                             >
-                                <FiCheck className="inline mr-2" />
+                                <FiCheck className="mr-2 inline" />
                                 Rodada ignorada com sucesso
                             </div>
                         </section>
                     )}
                 </div>
 
-                {/* Notificação de power-up */}
                 {effect && (
                     <div
-                        className={`fixed top-20 right-4 sm:right-6 z-30 w-[calc(100%-2rem)] sm:w-[340px] flex items-center gap-3 p-3 rounded-2xl border-l-4 shadow-xl backdrop-blur-md pointer-events-none transition-all duration-300 ${EFFECT_CONFIG[effect].background} ${EFFECT_CONFIG[effect].border}`}
+                        className={`fixed right-3 top-16 z-30 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-2xl border-l-4 p-3 shadow-xl backdrop-blur-md transition-all duration-300 sm:right-6 sm:top-20 sm:w-[340px] ${
+                            EFFECT_CONFIG[effect].background
+                        } ${EFFECT_CONFIG[effect].border}`}
                     >
                         <div
-                            className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-xl ${EFFECT_CONFIG[effect].color} bg-white/10`}
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-xl sm:h-11 sm:w-11 ${
+                                EFFECT_CONFIG[effect].color
+                            }`}
                         >
                             {EFFECT_CONFIG[effect].icon}
                         </div>
 
                         <div className="min-w-0">
-                            <p className={`font-black text-sm ${EFFECT_CONFIG[effect].color}`}>
+                            <p
+                                className={`text-sm font-black ${
+                                    EFFECT_CONFIG[effect].color
+                                }`}
+                            >
                                 {EFFECT_CONFIG[effect].title}
                             </p>
 
-                            <p className="text-xs mt-1 text-white/75">
+                            <p className="mt-1 text-xs text-white/75">
                                 {EFFECT_CONFIG[effect].description}
                             </p>
                         </div>
                     </div>
                 )}
 
-                {/* Modal Skip Turn */}
                 {showPowerUp && selectedPowerUp && (
                     <div
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-sm sm:p-4"
                         onClick={closePowerUp}
                     >
                         <div
-                            className="w-full max-w-md p-5 sm:p-6 rounded-3xl shadow-2xl"
+                            className="my-auto max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl p-4 shadow-2xl sm:p-6"
                             style={card}
                             onClick={event => event.stopPropagation()}
                         >
-                            <div className="flex items-start justify-between gap-3 mb-5">
-                                <div className="flex items-center gap-3">
+                            <div className="mb-5 flex items-start justify-between gap-3">
+                                <div className="flex min-w-0 items-center gap-3">
                                     <div
-                                        className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
+                                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl sm:h-12 sm:w-12"
                                         style={{
                                             backgroundColor: `${SKIP_COLOR}20`,
                                             color: SKIP_COLOR,
@@ -844,16 +903,16 @@ export default function RoomLivePage() {
                                         <FiSkipForward />
                                     </div>
 
-                                    <div>
+                                    <div className="min-w-0">
                                         <h2
-                                            className="font-black text-lg"
+                                            className="text-base font-black sm:text-lg"
                                             style={{ color: colors.text }}
                                         >
                                             Skip Turn
                                         </h2>
 
                                         <p
-                                            className="text-xs mt-1"
+                                            className="mt-1 text-xs"
                                             style={{ color: colors.muted }}
                                         >
                                             Escolha quem receberá o efeito
@@ -865,7 +924,7 @@ export default function RoomLivePage() {
                                     type="button"
                                     onClick={closePowerUp}
                                     disabled={usingPowerUp}
-                                    className="p-2 rounded-lg hover:bg-black/5 transition disabled:opacity-40"
+                                    className="shrink-0 rounded-lg p-2 transition hover:bg-black/5 disabled:opacity-40"
                                     style={{ color: colors.muted }}
                                 >
                                     <FiX />
@@ -873,22 +932,25 @@ export default function RoomLivePage() {
                             </div>
 
                             <p
-                                className="text-sm mb-4"
+                                className="mb-4 text-sm"
                                 style={{ color: colors.muted }}
                             >
                                 Escolha um jogador para pular esta rodada.
                             </p>
 
-                            <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                            <div className="max-h-56 space-y-2 overflow-y-auto pr-1 sm:max-h-64">
                                 {players.map(player => {
-                                    const selected = target === player.player_id;
+                                    const selected =
+                                        target === player.player_id;
 
                                     return (
                                         <button
                                             key={player.player_id}
                                             type="button"
-                                            onClick={() => setTarget(player.player_id)}
-                                            className="w-full flex items-center gap-3 p-3 text-left rounded-xl border-2 transition-all duration-200"
+                                            onClick={() =>
+                                                setTarget(player.player_id)
+                                            }
+                                            className="flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition-all duration-200"
                                             style={{
                                                 backgroundColor: selected
                                                     ? `${SKIP_COLOR}18`
@@ -899,7 +961,7 @@ export default function RoomLivePage() {
                                             }}
                                         >
                                             <span
-                                                className="w-9 h-9 rounded-full flex items-center justify-center"
+                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                                                 style={{
                                                     backgroundColor: `${SKIP_COLOR}20`,
                                                     color: SKIP_COLOR,
@@ -909,14 +971,19 @@ export default function RoomLivePage() {
                                             </span>
 
                                             <span
-                                                className="flex-1 font-bold text-sm"
+                                                className="min-w-0 flex-1 break-words text-sm font-bold"
                                                 style={{ color: colors.text }}
                                             >
                                                 {player.player_name}
                                             </span>
 
                                             {selected && (
-                                                <FiCheck style={{ color: SKIP_COLOR }} />
+                                                <FiCheck
+                                                    className="shrink-0"
+                                                    style={{
+                                                        color: SKIP_COLOR,
+                                                    }}
+                                                />
                                             )}
                                         </button>
                                     );
@@ -924,7 +991,7 @@ export default function RoomLivePage() {
 
                                 {players.length === 0 && (
                                     <p
-                                        className="text-center text-sm py-5"
+                                        className="py-5 text-center text-sm"
                                         style={{ color: colors.muted }}
                                     >
                                         Nenhum jogador disponível.
@@ -932,7 +999,7 @@ export default function RoomLivePage() {
                                 )}
                             </div>
 
-                            <div className="flex gap-3 mt-6">
+                            <div className="mt-5 flex flex-col gap-2 sm:mt-6 sm:flex-row sm:gap-3">
                                 <Button
                                     variant="secondary"
                                     fullWidth
