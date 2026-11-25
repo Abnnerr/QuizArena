@@ -29,19 +29,19 @@ O projeto utiliza uma arquitetura em camadas, com responsabilidades separadas:
 
 ```text
 backend/
-├── prisma/          # Schema e migrations do banco
+├── prisma/           # Schema e migrations do banco
 └── src/
-    ├── app/         # Inicialização da aplicação e rotas
-    ├── config/      # Configurações de serviços
-    ├── containers/  # Injeção de dependências
-    ├── db/          # Conexão com o banco
-    ├── docs/        # Documentação Swagger
-    ├── middlewares/ # Middlewares da aplicação
-    ├── modules/     # Módulos e regras da aplicação
-    ├── observability/ # Logs, métricas e tracing
-    ├── shared/      # Serviços e utilitários compartilhados
-    ├── tests/       # Testes unitários e de integração
-    └── types/       # Tipagens compartilhadas
+    ├── app/          # Inicialização da aplicação e rotas
+    ├── config/       # Configurações de serviços
+    ├── containers/   # Injeção de dependências
+    ├── db/           # Conexão com o banco
+    ├── docs/         # Documentação Swagger
+    ├── middlewares/  # Middlewares da aplicação
+    ├── modules/      # Módulos e regras da aplicação
+    ├── observability/# Logs, métricas e tracing
+    ├── shared/       # Serviços e utilitários compartilhados
+    ├── tests/        # Testes unitários e de integração
+    └── types/        # Tipagens compartilhadas
 ```
 
 ## Funcionalidades
@@ -50,6 +50,7 @@ backend/
 - Criação e gerenciamento de salas.
 - Entrada e gerenciamento de jogadores.
 - Gerenciamento de perguntas, categorias e bibliotecas.
+- Criação de bibliotecas e categorias restrita a usuários administradores.
 - Controle de rodadas e respostas.
 - Sistema de pontuação com estratégias por modo de jogo.
 - Power-ups: Fifty Fifty, Double XP e Skip Turn.
@@ -144,10 +145,11 @@ Com o servidor em execução, a documentação Swagger estará disponível em:
 http://localhost:PORT/api-docs
 ```
 
+---
 
-## Frontend
+# Frontend
 
-### Tecnologias
+## Tecnologias
 
 - **React 19** — construção da interface.
 - **TypeScript** — tipagem estática.
@@ -159,7 +161,7 @@ http://localhost:PORT/api-docs
 - **Framer Motion** — animações.
 - **Cypress** — testes E2E.
 
-### Arquitetura
+## Arquitetura
 
 O frontend é organizado por funcionalidades, separando páginas, componentes, hooks, contextos e serviços.
 
@@ -171,16 +173,18 @@ O frontend é organizado por funcionalidades, separando páginas, componentes, h
 - **Services:** comunicação com a API e gerenciamento da conexão Socket.IO.
 - **Shared:** componentes, constantes, temas e tipos compartilhados.
 
-### Funcionalidades
+## Funcionalidades
 
 - Autenticação e gerenciamento de conta.
 - Dashboard e gerenciamento de bibliotecas de perguntas.
+- Gerenciamento de bibliotecas e categorias por usuários administradores.
+- Gerenciamento de perguntas e alternativas.
 - Criação e gerenciamento de salas.
 - Lobby e partidas em tempo real.
 - Ranking e pódio dos jogadores.
 - Temas e notificações.
 
-### Execução
+## Execução
 
 ```bash
 # Instalar dependências
@@ -202,5 +206,24 @@ npm run lint
 npm run cy:open
 
 # Executar testes E2E
-npm run test:e2e
+npm run cy:run
 ```
+
+---
+
+# Fluxo a seguir
+
+Para utilizar o QuizArena, siga as etapas abaixo:
+
+1. **Acessar o sistema:** faça login com uma conta de administrador.
+2. **Criar uma biblioteca:** somente usuários administradores podem realizar essa ação.
+3. **Criar categorias:** cadastre as categorias que serão utilizadas para organizar as perguntas. Essa funcionalidade também é restrita ao administrador.
+4. **Cadastrar perguntas:** adicione perguntas e alternativas às categorias, indicando a alternativa correta.
+5. **Criar uma sala:** configure o nome, o limite de jogadores, o tempo por pergunta e o modo de jogo.
+6. **Adicionar perguntas:** selecione as perguntas que farão parte da partida.
+7. **Entrar na sala:** acesse o lobby utilizando o código gerado. Para testar o modo multiplayer, abra outra sessão do navegador e entre como jogador.
+8. **Iniciar a partida:** o anfitrião inicia a partida e os jogadores respondem às perguntas.
+9. **Acompanhar a partida:** confira o cronômetro, a atualização em tempo real, o progresso das respostas e os power-ups disponíveis.
+10. **Visualizar o resultado:** ao final da partida, confira o ranking e o pódio dos jogadores.
+
+**Observação:** atualmente, a criação de bibliotecas e categorias é restrita a usuários com perfil de administrador. Futuramente, essa funcionalidade será ampliada para permitir que cada usuário crie suas próprias categorias e adicione perguntas a bibliotecas pessoais ou públicas.
