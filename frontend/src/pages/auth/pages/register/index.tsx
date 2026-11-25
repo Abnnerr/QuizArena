@@ -8,13 +8,14 @@ import { FiUserPlus, FiUsers, FiZap } from "react-icons/fi";
 
 import { PasswordRequirements } from "../../components/PasswordRequeriments";
 import { Input } from "../../../../shared/ui/Input";
-import { useTheme } from "../../../../contexts/ThemeContext";
-import { useToast } from "../../../../contexts/ToastContext";
+
 
 import LoginPrompt from "./components/LoginPrompt";
 import Button from "../../../../shared/ui/Button";
 import PasswordField from "./components/PasswordField";
 import RegisterTopbar from "./components/RegisterTopBar";
+import { useToast } from "../../../../contexts/hooks/useToast";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
 
 const RegisterPage: React.FC = () => {
     const {

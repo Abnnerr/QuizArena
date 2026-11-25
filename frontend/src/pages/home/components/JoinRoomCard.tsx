@@ -3,9 +3,10 @@ import React from "react";
 import { FaGamepad } from "react-icons/fa";
 import { BsArrowRight } from "react-icons/bs";
 
-import { useTheme } from "../../../contexts/ThemeContext";
+
 import RoomCodeField from "./RoomCodeField";
 import Button from "../../../shared/ui/Button";
+import { useTheme } from "../../../contexts/hooks/useTheme";
 
 interface JoinRoomCardProps {
     roomCode: string;

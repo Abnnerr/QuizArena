@@ -8,8 +8,9 @@ import {
     FiAlertCircle,
     FiChevronRight,
 } from "react-icons/fi";
-import { useTheme } from "../../../../../contexts/ThemeContext";
+
 import { useNavigate } from "react-router";
+import { useTheme } from "../../../../../contexts/hooks/useTheme";
 
 
 const Security = () => {

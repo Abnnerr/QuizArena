@@ -3,7 +3,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router';
 import { BsArrowLeft, BsExclamationTriangle } from 'react-icons/bs';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/hooks/useTheme';
 
 const NotFoundPage: React.FC = () => {
     const navigate = useNavigate();

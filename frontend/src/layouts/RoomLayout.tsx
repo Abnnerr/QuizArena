@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "../contexts/hooks/useTheme";
+
 
 const RoomLayout = () => {
     const { colors } = useTheme();

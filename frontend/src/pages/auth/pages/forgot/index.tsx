@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet-async";
 import { BiMailSend } from "react-icons/bi";
 import { BsArrowRight, BsShieldLock } from "react-icons/bs";
 
-import { useTheme } from "../../../../contexts/ThemeContext";
 import { useForgot } from "../../hooks/useForgot";
 
 import ForgotPasswordHeader from "./components/ForgotPasswordHeader";
@@ -12,6 +11,7 @@ import LoginPrompt from "./components/LoginPrompt";
 
 import Button from "../../../../shared/ui/Button";
 import Input from "../../../../shared/ui/Input";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
 
 const ForgotPage: React.FC = () => {
     const {

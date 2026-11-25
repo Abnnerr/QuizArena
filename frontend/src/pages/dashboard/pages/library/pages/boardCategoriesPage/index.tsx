@@ -9,10 +9,10 @@ import {
     FiChevronRight,
 } from "react-icons/fi";
 
-import { useTheme } from "../../../../../../contexts/ThemeContext";
-import { useToast } from "../../../../../../contexts/ToastContext";
 import { AXIOS } from "../../../../../../service";
 import Button from "../../../../../../shared/ui/Button";
+import { useTheme } from "../../../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../../../contexts/hooks/useToast";
 
 interface Category {
     category_id: number;

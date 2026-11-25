@@ -9,12 +9,9 @@ import {
     FiInfo,
     FiX,
 } from "react-icons/fi";
+import type { ToastData, ToastType } from "../../contexts/types/toastTypes";
+import { useToast } from "../../contexts/hooks/useToast";
 
-import {
-    useToast,
-    type ToastData,
-    type ToastType,
-} from "../../contexts/ToastContext";
 
 type ToastPosition =
     | "top-right"

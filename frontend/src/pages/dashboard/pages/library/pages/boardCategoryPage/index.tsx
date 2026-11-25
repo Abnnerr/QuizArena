@@ -16,11 +16,11 @@ import {
     FiX,
 } from "react-icons/fi";
 
-import { useTheme } from "../../../../../../contexts/ThemeContext";
-import { useToast } from "../../../../../../contexts/ToastContext";
 import { useAuth } from "../../../../../../contexts/hooks/useAuth";
 import { AXIOS } from "../../../../../../service";
 import Button from "../../../../../../shared/ui/Button";
+import { useToast } from "../../../../../../contexts/hooks/useToast";
+import { useTheme } from "../../../../../../contexts/hooks/useTheme";
 
 
 

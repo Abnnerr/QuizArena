@@ -1,11 +1,10 @@
-import { createContext, useEffect, useState } from "react";
-import { AXIOS } from "../service";
-import type { AuthContextType, ResponseDTO } from "./types/authTypes";
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { useEffect, useState } from "react";
+import { AXIOS } from "../../service";
+import type { AuthUser, ResponseDTO } from "../types/authTypes";
+import { AuthContext } from "../AuthContext";
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<any | null>(null);
+    const [user, setUser] = useState<AuthUser | null>(null);
     const [logado, setLogado] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -22,7 +21,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                     setLogado(true);
 
                 }
-                
+
             } catch (error) {
                 if (!mounted) return;
 

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { BiHash } from "react-icons/bi";
-import { useTheme } from "../../../contexts/ThemeContext";
+import { useTheme } from "../../../contexts/hooks/useTheme";
 import Input from "../../../shared/ui/Input";
 
 interface RoomCodeFieldProps {

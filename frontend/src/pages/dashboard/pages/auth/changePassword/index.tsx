@@ -12,11 +12,12 @@ import {
     FiShield,
 } from "react-icons/fi";
 
-import { useToast } from "../../../../../contexts/ToastContext";
-import { useTheme } from "../../../../../contexts/ThemeContext";
+
 import Input from "../../../../../shared/ui/Input";
 import Button from "../../../../../shared/ui/Button";
 import { AXIOS } from "../../../../../service";
+import { useTheme } from "../../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../../contexts/hooks/useToast";
 
 const ChangePassword = () => {
     const navigate = useNavigate();

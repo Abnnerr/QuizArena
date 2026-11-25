@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useAuth } from "../../../contexts/hooks/useAuth";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../contexts/hooks/useToast";
 
 export const useForgot = () => {
     const { forgot } = useAuth();

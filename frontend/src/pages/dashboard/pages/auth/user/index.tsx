@@ -11,18 +11,15 @@ import {
 } from "react-icons/fi";
 
 import { useAuth } from "../../../../../contexts/hooks/useAuth";
-import { useTheme } from "../../../../../contexts/ThemeContext";
-import { useToast } from "../../../../../contexts/ToastContext";
+import { useTheme } from "../../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../../contexts/hooks/useToast";
+
 
 type UserData = {
     user_id?: string;
-    id?: string;
     user_username?: string;
-    username?: string;
     user_email?: string;
-    email?: string;
     role_name?: string;
-    role?: string;
     Role?: {
         role_name?: string;
     };

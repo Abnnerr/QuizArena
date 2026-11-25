@@ -11,8 +11,8 @@ import {
 } from "react-icons/fi";
 
 import { useAuth } from "../contexts/hooks/useAuth";
-import { useTheme } from "../contexts/ThemeContext";
 import Button from "../shared/ui/Button";
+import { useTheme } from "../contexts/hooks/useTheme";
 
 const HomeLayout: React.FC = () => {
     const { user } = useAuth();

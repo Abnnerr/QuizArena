@@ -3,7 +3,6 @@ import React from "react";
 import { Helmet } from "react-helmet-async";
 import { BsShieldLock } from "react-icons/bs";
 
-import { useTheme } from "../../../../contexts/ThemeContext";
 import { useReset } from "../../hooks/useReset";
 
 import { PasswordRequirements } from "../../components/PasswordRequeriments";
@@ -12,6 +11,7 @@ import ResetPasswordTopbar from "./components/ResetPasswordTopbar";
 import ResetPasswordHeader from "./components/ResetPasswordHeader";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 import LoginPrompt from "./components/LoginPrompt";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
 
 const ResetPage: React.FC = () => {
     const {

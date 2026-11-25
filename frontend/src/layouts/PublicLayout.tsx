@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "../contexts/hooks/useTheme";
 
 const PublicLayout = () => {
     const { colors } = useTheme();

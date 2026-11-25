@@ -8,8 +8,8 @@ import {
     FiPlus,
     FiLayers,
 } from "react-icons/fi";
-import { useTheme } from "../../../contexts/ThemeContext";
 import Button from "../../../shared/ui/Button";
+import { useTheme } from "../../../contexts/hooks/useTheme";
 
 
 

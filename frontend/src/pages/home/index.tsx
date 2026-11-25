@@ -13,10 +13,10 @@ import {
 
 import { FaGamepad } from "react-icons/fa";
 
-import { useTheme } from "../../contexts/ThemeContext";
 import { useHome } from "./hooks/useHome";
 import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
+import { useTheme } from "../../contexts/hooks/useTheme";
 
 const HomePage = () => {
     const { colors } = useTheme();

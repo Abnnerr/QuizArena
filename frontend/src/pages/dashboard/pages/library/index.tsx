@@ -12,12 +12,11 @@ import {
     FiTrash2,
 } from "react-icons/fi";
 import { BiLibrary } from "react-icons/bi";
-
-import { useToast } from "../../../../contexts/ToastContext";
-import { useTheme } from "../../../../contexts/ThemeContext";
 import { useAuth } from "../../../../contexts/hooks/useAuth";
 import { AXIOS } from "../../../../service";
 import Button from "../../../../shared/ui/Button";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../contexts/hooks/useToast";
 
 interface Library {
     library_id: number;

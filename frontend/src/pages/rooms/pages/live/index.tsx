@@ -16,10 +16,10 @@ import {
 import { useParams } from "react-router";
 
 import useRoomLive from "../../hooks/useRoomLive";
-import { useTheme } from "../../../../contexts/ThemeContext";
-import { useToast } from "../../../../contexts/ToastContext";
 import Button from "../../../../shared/ui/Button";
 import Loading from "../../../../shared/pages/Loading";
+import { useToast } from "../../../../contexts/hooks/useToast";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
 
 const SKIP_COLOR = "#1CB0F6";
 

@@ -9,8 +9,8 @@ import {
 } from "react-icons/fi";
 
 import usePodio from "../../hooks/usePodio";
-import { useTheme } from "../../../../contexts/ThemeContext";
 import { AiFillTrophy } from "react-icons/ai";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
 
 const PODIUM_SOUNDS: Record<number, string> = {
     1: "/podium.mp3",

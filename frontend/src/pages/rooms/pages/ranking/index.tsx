@@ -10,10 +10,10 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 
-import { useTheme } from "../../../../contexts/ThemeContext";
 import Button from "../../../../shared/ui/Button";
 import { useRanking } from "../../hooks/useRanking";
 import { AiFillTrophy } from "react-icons/ai";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
 
 const RankingPage = () => {
     const navigate = useNavigate();

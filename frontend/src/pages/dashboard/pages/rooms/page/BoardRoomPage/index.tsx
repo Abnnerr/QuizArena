@@ -21,14 +21,14 @@ import {
 } from "react-icons/fi";
 import { QRCodeSVG } from "qrcode.react";
 
-import { useTheme } from "../../../../../../contexts/ThemeContext";
-import { useToast } from "../../../../../../contexts/ToastContext";
 import { useAuth } from "../../../../../../contexts/hooks/useAuth";
 import { AXIOS } from "../../../../../../service";
 import { socket } from "../../../../../../service/socket";
 import Button from "../../../../../../shared/ui/Button";
+import { useToast } from "../../../../../../contexts/hooks/useToast";
+import { useTheme } from "../../../../../../contexts/hooks/useTheme";
 
-/* TYPES */
+
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 type QuestionType = "MULTIPLE_CHOICE" | "TRUE_FALSE";
@@ -696,7 +696,7 @@ export default function BoardRoomPage() {
                                             </div>
 
                                             <div className="flex shrink-0 gap-2">
-                                                {/* Só mostra editar para o dono da pergunta. */}
+                        
                                                 {canEditQuestion(question) && (
                                                     <Button
                                                         variant="secondary"

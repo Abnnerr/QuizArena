@@ -1,7 +1,6 @@
 
 import { Link, NavLink, Outlet } from "react-router";
 import { useAuth } from "../contexts/hooks/useAuth";
-import { useTheme } from "../contexts/ThemeContext";
 
 import {
     FiGrid,
@@ -11,6 +10,7 @@ import {
     FiSettings,
 
 } from "react-icons/fi";
+import { useTheme } from "../contexts/hooks/useTheme";
 
 const DashBoardLayout: React.FC = () => {
     const { user } = useAuth();

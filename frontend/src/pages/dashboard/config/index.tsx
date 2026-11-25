@@ -8,7 +8,8 @@ import {
     FiChevronRight,
     FiInfo,
 } from "react-icons/fi";
-import { useTheme } from "../../../contexts/ThemeContext";
+import { useTheme } from "../../../contexts/hooks/useTheme";
+
 
 
 const BoardConfigPage = () => {

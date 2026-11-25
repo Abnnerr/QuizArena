@@ -6,12 +6,13 @@ import { FiArrowRight, FiLogIn, FiUsers, FiZap } from "react-icons/fi";
 import { Link } from "react-router";
 
 import { useLogin } from "../../hooks/useLogin";
-import { useTheme } from "../../../../contexts/ThemeContext";
-import { useToast } from "../../../../contexts/ToastContext";
+
 
 import { Input } from "../../../../shared/ui/Input";
 import Button from "../../../../shared/ui/Button";
 import RegisterPrompt from "./components/RegisterPrompt";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../contexts/hooks/useToast";
 
 const LoginPage = () => {
     const {

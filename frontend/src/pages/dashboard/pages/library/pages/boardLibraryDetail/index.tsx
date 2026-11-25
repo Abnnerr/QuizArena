@@ -13,8 +13,8 @@ import {
 } from "react-icons/fi";
 
 import { useAuth } from "../../../../../../contexts/hooks/useAuth";
-import { useToast } from "../../../../../../contexts/ToastContext";
-import { useTheme } from "../../../../../../contexts/ThemeContext";
+import { useToast } from "../../../../../../contexts/hooks/useToast";
+import { useTheme } from "../../../../../../contexts/hooks/useTheme";
 import { AXIOS } from "../../../../../../service";
 import Button from "../../../../../../shared/ui/Button";
 

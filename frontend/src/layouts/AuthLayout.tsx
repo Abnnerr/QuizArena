@@ -1,7 +1,7 @@
 
 import type React from "react";
 import { Link, Outlet } from "react-router";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "../contexts/hooks/useTheme";
 
 const AuthLayout: React.FC = () => {
     const { colors } = useTheme();

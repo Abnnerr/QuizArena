@@ -1,7 +1,8 @@
 
 import React from "react";
 import { BiCheck } from "react-icons/bi";
-import { useTheme } from "../../../contexts/ThemeContext";
+import { useTheme } from "../../../contexts/hooks/useTheme";
+
 
 interface Requirement {
     label: string;

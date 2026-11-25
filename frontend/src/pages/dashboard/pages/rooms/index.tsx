@@ -16,10 +16,10 @@ import {
     FiLoader,
     FiTrash2,
 } from "react-icons/fi";
-import { useTheme } from "../../../../contexts/ThemeContext";
 import { AXIOS } from "../../../../service";
-import { useToast } from "../../../../contexts/ToastContext";
 import Button from "../../../../shared/ui/Button";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../contexts/hooks/useToast";
 
 type RoomStatus = "LOBBY" | "LIVE";
 type RoomMode = "NORMAL" | "HARDCORE";

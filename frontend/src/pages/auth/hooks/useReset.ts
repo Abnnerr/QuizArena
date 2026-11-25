@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { useAuth } from "../../../contexts/hooks/useAuth";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../contexts/hooks/useToast";
 
 export const useReset = () => {
     const navigate = useNavigate();

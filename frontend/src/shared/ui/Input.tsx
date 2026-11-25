@@ -1,6 +1,7 @@
 
 import React from "react";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme } from "../../contexts/hooks/useTheme";
+
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;

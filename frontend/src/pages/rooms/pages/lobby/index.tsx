@@ -12,8 +12,7 @@ import {
     FiZap,
 } from "react-icons/fi";
 
-import { useTheme } from "../../../../contexts/ThemeContext";
-import { useToast } from "../../../../contexts/ToastContext";
+
 import { usePlayer } from "../../../../contexts/hooks/usePlayer";
 
 import { useLobby } from "../../hooks/useLobby";
@@ -23,6 +22,8 @@ import { LobbyPlayers } from "./components/LobbyPlayers";
 
 import Button from "../../../../shared/ui/Button";
 import { TbHeadphonesOff } from "react-icons/tb";
+import { useTheme } from "../../../../contexts/hooks/useTheme";
+import { useToast } from "../../../../contexts/hooks/useToast";
 
 const RoomLobbyPage = () => {
     const { colors } = useTheme();
