@@ -22,7 +22,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
                 }
 
-            } catch (error) {
+            } catch {
                 if (!mounted) return;
 
                 setUser(null);
@@ -62,10 +62,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 type: "Success",
                 message: "Conta criada com sucesso! Bem-vindo à arena.",
             };
-        } catch (error: any) {
+        } catch {
             return {
                 type: "Warning",
-                message: error.response?.data?.message ||
+                message:
                     "Erro ao registrar usuário. Tente novamente mais tarde.",
             };
         }
@@ -95,10 +95,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 type: "Warning",
                 message: data.message || "Usuário ou senha incorretos.",
             };
-        } catch (error: any) {
+        } catch {
             return {
                 type: "Warning",
-                message: error.response?.data?.message ||
+                message: 
                     "Erro ao conectar. Verifique suas credenciais.",
             };
         }
@@ -123,10 +123,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 type: "Success",
                 message: "Instruções de recuperação enviadas! Verifique sua caixa de entrada.",
             };
-        } catch (error: any) {
+        } catch {
             return {
                 type: "Warning",
-                message: error.response?.data?.message ||
+                message: 
                     "Erro ao solicitar recuperação de conta. Tente novamente.",
             };
         }
@@ -157,7 +157,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         } catch (error: any) {
             return {
                 type: "Warning",
-                message: error.response?.data?.message ||
+                message: 
                     "Erro ao redefinir a senha. O link pode ter expirado.",
             };
         }
@@ -185,7 +185,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         } catch (error: any) {
             return {
                 type: "Warning",
-                message: error.response?.data?.message ||
+                message: 
                     "Erro ao carregar o perfil.",
             };
         }
@@ -211,7 +211,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         } catch (error: any) {
             return {
                 type: "Warning",
-                message: error.response?.data?.message ||
+                message: 
                     "Erro ao carregar o perfil.",
             };
         }
