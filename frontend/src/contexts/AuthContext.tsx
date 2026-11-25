@@ -22,6 +22,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                     setLogado(true);
 
                 }
+                
             } catch (error) {
                 if (!mounted) return;
 

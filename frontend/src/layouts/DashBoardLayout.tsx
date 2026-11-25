@@ -137,7 +137,7 @@ const DashBoardLayout: React.FC = () => {
 
                         <div className="min-w-0">
                             <p className="font-black text-sm truncate">
-                                {user?.user_name || "Minha conta"}
+                                {user?.user_username || "Minha conta"}
                             </p>
                             <p
                                 className="text-xs font-bold"
