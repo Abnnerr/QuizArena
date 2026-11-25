@@ -13,7 +13,7 @@ import {
     FiVolume2,
     FiUsers,
 } from "react-icons/fi";
-import { useNavigate, useParams } from "react-router";
+import {  useParams } from "react-router";
 
 import useRoomLive from "../../hooks/useRoomLive";
 import { useTheme } from "../../../../contexts/ThemeContext";
@@ -98,7 +98,6 @@ const getPowerIcon = (type: string) => {
 
 export default function RoomLivePage() {
     const { roomCode } = useParams<{ roomCode: string }>();
-    const navigate = useNavigate();
 
     const { colors } = useTheme();
     const { toast } = useToast();
@@ -129,6 +128,7 @@ export default function RoomLivePage() {
         totalPlayers,
         totalAnswers,
         round,
+        handleGoToRanking
     } = useRoomLive();
 
     const [muted, setMuted] = useState(
@@ -159,11 +159,7 @@ export default function RoomLivePage() {
         borderRadius: "14px",
     };
 
-    const handleGoToRanking = () => {
-        if (!roomCode || round === null || round === undefined) return;
-
-        navigate(`/${roomCode}/${round}/ranking`);
-    };
+  
 
     // Música ambiente
     useEffect(() => {

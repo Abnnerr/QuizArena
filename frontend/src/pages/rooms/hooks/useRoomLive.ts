@@ -129,15 +129,13 @@ const useRoomLive = () => {
         expiredRoundRef.current = round;
 
         if (!socket.connected) {
-            console.log("[ROUND] Socket desconectado. Guardando evento.");
+
 
             pendingExpiredRef.current = payload;
             socket.connect();
 
             return;
         }
-
-        console.log("[ROUND] Emitindo round:time_expired:", payload);
 
         socket.emit("round:time_expired", payload);
     }, [isHost, roomCode, round]);
@@ -158,7 +156,7 @@ const useRoomLive = () => {
         ) {
             return;
         }
-
+        emitRoundExpired()
         setTimeLeft(0);
     };
 
@@ -538,6 +536,17 @@ const useRoomLive = () => {
         }
     };
 
+
+    const handleGoToRanking = () => {
+        if (!roomCode || round === null || round === undefined) return;
+
+
+        if (position >= totalQuestion) {
+            navigate(`/${roomCode}/${round}/podio`);
+            return;
+        }
+        navigate(`/${roomCode}/${round}/ranking`);
+    };
     const onConfirmPowerUp = async (
         powerupId: number,
         playerId?: string
@@ -578,6 +587,8 @@ const useRoomLive = () => {
         alternativeStatistics,
         playerNameUsed,
         round,
+
+        handleGoToRanking
     };
 };
 
