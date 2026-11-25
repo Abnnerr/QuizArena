@@ -1,12 +1,10 @@
 import { createContext, useEffect, useState } from "react";
 import { AXIOS } from "../service";
 import type { AuthContextType, ResponseDTO } from "./types/authTypes";
-import { useNavigate } from "react-router";
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const navigate = useNavigate()
     const [user, setUser] = useState<any | null>(null);
     const [logado, setLogado] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
