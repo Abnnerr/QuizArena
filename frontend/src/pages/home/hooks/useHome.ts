@@ -5,8 +5,8 @@ import { AxiosError } from "axios";
 
 import { useAuth } from "../../../contexts/hooks/useAuth";
 import { usePlayer } from "../../../contexts/hooks/usePlayer";
-import { useToast } from "../../../contexts/ToastContext";
 import { AXIOS } from "../../../service";
+import { useToast } from "../../../contexts/hooks/useToast";
 
 type HomeStep = "room" | "name";
 
