@@ -100,8 +100,7 @@ const API = {
     categories: "/category/categories",
     create: "/question/create",
     update: (id: number) => `/question/${id}/update`,
-    remove: (roomId: number, questionId: number) =>
-        `/question/${roomId}/${questionId}/delete`,
+    remove: (roomId: number, questionId: number) => `/question/${roomId}/${questionId}/delete`,
 };
 
 const difficultyInfo: Record<Difficulty, { label: string; color: string }> = {
@@ -208,8 +207,8 @@ export default function BoardRoomPage() {
             }
 
             setRoom(data.data);
-        } catch {
-            toast.error("Não foi possível carregar a sala.");
+        } catch (error: any) {
+            toast.error(error.response.data.message ?? "Não foi possível carregar a sala.");
             navigate("/board/rooms");
         } finally {
             setLoading(false);
@@ -228,8 +227,8 @@ export default function BoardRoomPage() {
             }
 
             setCategories(data.data ?? []);
-        } catch {
-            toast.error("Não foi possível carregar as categorias.");
+        } catch(error: any){
+            toast.error(error.response.data.message ?? "Não foi possível carregar as categorias.");
         } finally {
             setLoadingCategories(false);
         }

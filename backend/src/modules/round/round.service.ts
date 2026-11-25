@@ -276,18 +276,18 @@ export class RoundService implements IRoundService {
                     throw new AppError(400, "Data de abertura inválida");
                 }
 
-                const elapsedSeconds =
-                    (Date.now() - openedAt) / 1000;
+                // const elapsedSeconds =
+                //     (Date.now() - openedAt) / 1000;
 
-                if (elapsedSeconds < room.time_limit) {
-                    Logger.debug(context, "roundExpired.not_expired", {
-                        roomCode: code,
-                        roundId,
-                        elapsedSeconds,
-                        timeLimit: room.time_limit
-                    });
-                    return;
-                }
+                // if (elapsedSeconds < room.time_limit) {
+                //     Logger.debug(context, "roundExpired.not_expired", {
+                //         roomCode: code,
+                //         roundId,
+                //         elapsedSeconds,
+                //         timeLimit: room.time_limit
+                //     });
+                //     return;
+                // }
 
                 const alternativesStatistic =
                     await this.roomService.getAnswerStatistics(
@@ -300,7 +300,6 @@ export class RoundService implements IRoundService {
                 Logger.info(context, "roundExpired.completed", {
                     roomCode: code,
                     roundId: round.round_id,
-                    elapsedSeconds
                 });
 
             } catch (error: unknown) {

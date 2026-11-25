@@ -70,7 +70,7 @@ export class RoomService implements IRoomService {
         });
     }
     // Encontra a sala
-    async findRoom(code: string, id?: number): Promise<Rooms> {
+    async findRoom(code?: string, id?: number): Promise<Rooms> {
         return measure("RoomService.findRoom", async () => {
             try {
                 Logger.info("RoomService", "findRoom.started", {

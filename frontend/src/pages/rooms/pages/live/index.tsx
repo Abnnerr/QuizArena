@@ -460,7 +460,7 @@ export default function RoomLivePage() {
                                 <Button
                                     variant="primary"
                                     onClick={handleEndRound}
-                                    disabled={timeLeft <= 0 || finished}
+                                    disabled={timeLeft <= 0 || finished || totalAnswers < totalPlayers}
                                 >
                                     <span className="hidden sm:inline">
                                         Encerrar
@@ -665,26 +665,24 @@ export default function RoomLivePage() {
                                             : colors.card;
 
                                 return (
-                                    <button
+                                    <Button
                                         key={alternative.id}
                                         type="button"
                                         disabled={
                                             hidden ||
                                             selectedAnswer !== null ||
+                                            isHost ||
                                             timeLeft <= 0 ||
                                             finished
                                         }
+                                        variant="secondary"
+                                        borderColor={borderColor}
+                                        color={backgroundColor}
                                         onClick={() => handleAnswer(alternative.id)}
                                         className={`relative min-h-24 p-4 sm:p-5 flex items-center gap-4 text-left transition-all duration-200 ${hidden
                                             ? "opacity-35 scale-[0.98] cursor-not-allowed"
                                             : "hover:-translate-y-0.5"
                                             } disabled:cursor-not-allowed`}
-                                        style={{
-                                            backgroundColor,
-                                            border: `2px solid ${borderColor}`,
-                                            borderBottom: `5px solid ${borderColor}`,
-                                            borderRadius: "18px",
-                                        }}
                                     >
                                         <span
                                             className="w-10 h-10 rounded-xl flex items-center justify-center font-black shrink-0"
@@ -733,7 +731,7 @@ export default function RoomLivePage() {
                                                 {stats.count} voto(s)
                                             </span>
                                         )}
-                                    </button>
+                                    </Button>
                                 );
                             })}
                         </section>

@@ -6,7 +6,7 @@ import { socket } from "../config/socket.js";
 import { Server } from "socket.io";
 import { configureSocketService } from "../shared/services/socket.service.js";
 
-const URL = process.env["NODE_MODE"] !== 'dev' ? process.env["URL_FRONT_PROD"] : process.env["URL_FRONT_DEV"]
+const URL = process.env["NODE_MODE"] !== 'dev' ? process.env["URL_FRONT_PROD"] : 'http://localhost:5173'
 
 const PORT = process.env["PORT"];
 

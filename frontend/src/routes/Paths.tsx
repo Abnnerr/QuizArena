@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router";
+import {  Route, Routes } from "react-router";
 import HomePage from "../pages/home";
 import LoginPage from "../pages/auth/pages/Login";
 import RegisterPage from "../pages/auth/pages/register";
@@ -35,7 +35,6 @@ export const preloadRoomLivePage = () => {
 
 const Paths = () => {
     return (
-        <BrowserRouter>
             <Routes>
                 <Route element={<PageLayout />}>
                     <Route path="/auth" element={<AuthLayout />} >
@@ -74,7 +73,6 @@ const Paths = () => {
                     <Route path="*" element={<NotFoundPage />} />
                 </Route>
             </Routes>
-        </BrowserRouter>
     );
 }
 

@@ -91,27 +91,14 @@ const useRoomLive = () => {
     const getPlayerId = () => {
         if (player?.player_id) return player.player_id;
 
-        const storedPlayer = sessionStorage.getItem("player");
-
-        if (!storedPlayer) return undefined;
-
         try {
-            return JSON.parse(storedPlayer).player_id as string;
+            return JSON.parse(sessionStorage.getItem("player") ?? "{}").player_id;
         } catch {
             return undefined;
         }
     };
 
-    // Emite o encerramento da rodada somente uma vez.
     const emitRoundExpired = useCallback(() => {
-        console.log("[ROUND] Tentando emitir:", {
-            isHost,
-            roomCode,
-            round,
-            connected: socket.connected,
-            alreadyExpired: expiredRoundRef.current,
-        });
-
         if (
             !isHost ||
             !roomCode ||
@@ -121,42 +108,23 @@ const useRoomLive = () => {
             return;
         }
 
-        const payload: ExpiredPayload = {
-            roomCode,
-            roundId: round,
-        };
+        const payload: ExpiredPayload = { roomCode, roundId: round };
 
         expiredRoundRef.current = round;
 
         if (!socket.connected) {
-
-
             pendingExpiredRef.current = payload;
             socket.connect();
-
             return;
         }
 
         socket.emit("round:time_expired", payload);
     }, [isHost, roomCode, round]);
 
-    // Encerramento manual pelo host.
     const handleEndRound = () => {
-        console.log("[ROUND] Clique em encerrar:", {
-            isHost,
-            timeLeft,
-            round,
-            correctAlternative,
-        });
+        if (!isHost || round === null || correctAlternative !== null) return;
 
-        if (
-            !isHost ||
-            round === null ||
-            correctAlternative !== null
-        ) {
-            return;
-        }
-        emitRoundExpired()
+        emitRoundExpired();
         setTimeLeft(0);
     };
 
@@ -185,18 +153,15 @@ const useRoomLive = () => {
         setQuestion({
             id: questionData.question_id ?? questionData.id,
             text: questionData.question_text ?? questionData.text,
-            alternatives: questionData.alternatives.map(
-                (alternative: any) => ({
-                    id: alternative.alternative_id ?? alternative.id,
-                    text: alternative.alternative_text ?? alternative.text,
-                })
-            ),
+            alternatives: questionData.alternatives.map((alternative: any) => ({
+                id: alternative.alternative_id ?? alternative.id,
+                text: alternative.alternative_text ?? alternative.text,
+            })),
         });
 
         setSkip(data.skip ?? false);
         setRound(newRound);
 
-        // Libera a emissão quando uma nova rodada é carregada.
         if (expiredRoundRef.current !== newRound) {
             pendingExpiredRef.current = null;
         }
@@ -213,23 +178,15 @@ const useRoomLive = () => {
                 ? Math.floor((serverNow - start) / 1000)
                 : 0;
 
-        const remaining = Math.max(0, duration - elapsed);
-
         setQuestionTime(duration);
-        setTimeLeft(remaining);
+        setTimeLeft(Math.max(0, duration - elapsed));
 
         const playerAnswer = data.answers?.[0];
 
-        if (playerAnswer) {
-            setSelectedAnswer(
-                playerAnswer.alternative_id ??
-                playerAnswer.alternativeId
-            );
-            setAnswered(true);
-        } else {
-            setSelectedAnswer(null);
-            setAnswered(false);
-        }
+        setSelectedAnswer(
+            playerAnswer?.alternative_id ?? playerAnswer?.alternativeId ?? null
+        );
+        setAnswered(Boolean(playerAnswer));
 
         setAlternativeStatistics([]);
         setCorrectAlternative(null);
@@ -251,31 +208,24 @@ const useRoomLive = () => {
             ]);
 
             const data = response.data;
-            const dataPlayers = responsePlayers.data;
 
-            if (data.type !== "Success") {
+            if (data.type !== "Success" || !data.data) {
                 setQuestion(null);
-                setError(data.message ?? "Não foi possível carregar a pergunta.");
+                setError(
+                    data.message ?? "Não há pergunta disponível nesta posição."
+                );
                 return;
             }
 
             const roundData = data.data;
 
-            if (!roundData) {
-                setQuestion(null);
-                setError("Não há pergunta disponível nesta posição.");
-                return;
-            }
-
             setPowerUp(roundData.powers ?? []);
             setTotalQuestion(roundData.count_questions ?? 0);
             setPosition(roundData.position ?? 0);
 
-            const plays = dataPlayers.data
+            const plays = responsePlayers.data.data
                 .map((item: any) => item.players)
-                .filter(
-                    (item: any) => item.player_id !== player?.player_id
-                );
+                .filter((item: any) => item.player_id !== player?.player_id);
 
             setPlayers(plays);
 
@@ -288,7 +238,6 @@ const useRoomLive = () => {
         }
     };
 
-    // Eventos do Socket.IO.
     useEffect(() => {
         if (!roomCode) {
             setError("Código da sala não encontrado.");
@@ -297,23 +246,15 @@ const useRoomLive = () => {
         }
 
         const roomJoin = () => {
-            console.log("[SOCKET] Conectado. Entrando na sala:", roomCode);
-
             socket.emit("room:join", roomCode);
 
-            const pending = pendingExpiredRef.current;
-
-            if (pending) {
-                console.log("[SOCKET] Emitindo evento pendente:", pending);
-
-                socket.emit("round:time_expired", pending);
+            if (pendingExpiredRef.current) {
+                socket.emit("round:time_expired", pendingExpiredRef.current);
                 pendingExpiredRef.current = null;
             }
         };
 
-        const findRound = () => {
-            void buscarRound();
-        };
+        const findRound = () => void buscarRound();
 
         const roomFinished = () => {
             navigate("/");
@@ -335,24 +276,16 @@ const useRoomLive = () => {
             setPlayerNameUsed(data.userName);
         };
 
-        // Resultado da rodada recebido do backend.
         const expired = (data: any) => {
-            console.log("[ROUND] Resultado recebido:", data);
-
             setTimeLeft(0);
 
-            const alternatives: AlternativeStatistics[] =
-                data?.alternative ?? [];
+            const alternatives: AlternativeStatistics[] = data?.alternative ?? [];
 
-            if (!alternatives.length) {
-                console.error("Estatísticas não encontradas:", data);
-                return;
-            }
+            if (!alternatives.length) return;
 
             setAlternativeStatistics(alternatives);
 
             const correct = alternatives.find(item => item.isCorrect);
-
             setCorrectAlternative(correct?.alternativeId ?? null);
         };
 
@@ -395,75 +328,33 @@ const useRoomLive = () => {
         };
     }, [roomCode, player?.player_id]);
 
-    // Cronômetro.
     useEffect(() => {
-        if (!question || loading || timeLeft <= 0) {
-            return;
-        }
-
-        console.log("[TIMER] Iniciado:", timeLeft);
+        if (!question || loading || timeLeft <= 0) return;
 
         const timer = window.setInterval(() => {
             setTimeLeft(previous => {
-                const next = Math.max(0, previous - 1);
+                if (previous <= 1) {
+                    window.clearInterval(timer);
+                    return 0;
+                }
 
-                console.log("[TIMER] Contagem:", previous, "=>", next);
-
-                return next;
+                return previous - 1;
             });
         }, 1000);
 
-        return () => {
-            window.clearInterval(timer);
-        };
-    }, [question?.id, loading]);
+        return () => window.clearInterval(timer);
+    }, [question?.id, loading, timeLeft <= 0]);
 
-    // Emite o evento quando o tempo chega a zero.
     useEffect(() => {
-        console.log("[ROUND] Verificando encerramento:", {
-            timeLeft,
-            isHost,
-            round,
-            loading,
-            question: Boolean(question),
-            alreadyExpired: expiredRoundRef.current,
-        });
-
-        if (
-            !question ||
-            loading ||
-            !isHost ||
-            timeLeft > 0 ||
-            round === null
-        ) {
+        if (!question || loading || !isHost || timeLeft > 0 || round === null) {
             return;
         }
-
-        if (expiredRoundRef.current === round) {
-            console.log("[ROUND] Rodada já encerrada:", round);
-            return;
-        }
-
-        console.log("[ROUND] TEMPO ENCERRADO. Emitindo evento.");
 
         emitRoundExpired();
-    }, [
-        timeLeft,
-        isHost,
-        round,
-        loading,
-        question,
-        emitRoundExpired,
-    ]);
+    }, [timeLeft, isHost, round, loading, question, emitRoundExpired]);
 
     const handleAnswer = async (answerId: number) => {
-        if (
-            !question ||
-            answered ||
-            skip ||
-            timeLeft <= 0 ||
-            round === null
-        ) {
+        if (!question || answered || skip || timeLeft <= 0 || round === null) {
             return;
         }
 
@@ -536,47 +427,39 @@ const useRoomLive = () => {
         }
     };
 
-
     const handleGoToRanking = () => {
         if (!roomCode || timeLeft > 0 || round === null || !isHost) return;
-
 
         if (position >= totalQuestion) {
             navigate(`/${roomCode}/${round}/podio`);
             return;
         }
+
         navigate(`/${roomCode}/${round}/ranking`);
     };
-    const onConfirmPowerUp = async (
+
+    const onConfirmPowerUp = (
         powerupId: number,
         playerId?: string
-    ): Promise<boolean> => {
-        return handleUsePowerUp(powerupId, playerId);
-    };
-
-    const progress = (timeLeft / questionTime) * 100;
-    const isCriticalTime = timeLeft <= 5;
+    ): Promise<boolean> => handleUsePowerUp(powerupId, playerId);
 
     return {
-        progress,
-        isCriticalTime,
+        progress: (timeLeft / questionTime) * 100,
+        isCriticalTime: timeLeft <= 5,
         handleAnswer,
         handleKeyDown,
         handleEndRound,
         onConfirmPowerUp,
         setSelectedPowerUp,
         selectedPowerUp,
-
         timeLeft,
         loading,
         error,
         question,
         selectedAnswer,
         answered,
-
         totalPlayers,
         totalAnswers,
-
         powerUp,
         hiddenAlternativeIds,
         usingPowerUp,
@@ -587,8 +470,7 @@ const useRoomLive = () => {
         alternativeStatistics,
         playerNameUsed,
         round,
-
-        handleGoToRanking
+        handleGoToRanking,
     };
 };
 

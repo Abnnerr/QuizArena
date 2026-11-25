@@ -146,6 +146,8 @@ export class QuestionService implements IQuestionService {
     }
     async deleteQuestionRoom(roomId: number, questionId: number, userId: string): Promise<void> {
         try {
+          
+            
             const room = await this.roomService.findRoom(undefined, roomId)
 
             if (room.host_user_id !== userId) {

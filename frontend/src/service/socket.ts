@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-const URL = import.meta.env.NODE_MODE !== 'dev' ? import.meta.env.VITE_BACKEND_PROD : import.meta.env.VITE_BACKEND_DEV
+const URL = import.meta.env.NODE_MODE !== 'dev' ? import.meta.env.VITE_BACKEND_PROD : "http://localhost:9000"
 
 export const socket = io(
     URL,

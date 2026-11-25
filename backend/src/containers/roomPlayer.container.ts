@@ -43,6 +43,11 @@ const roomService = new RoomService(
 
 // Resolver dependências circulares
 questionService.setRoomService(roomService);
+console.log(
+    "CONTAINER:",
+    questionService,
+    questionService === questionService
+);
 playerService.setRoomService(roomService);
 roomService.setPlayerService(playerService);
 
@@ -56,6 +61,7 @@ export {
     playerController,
     roomController,
     repoRound,
+    questionService
 };
 
 export default {

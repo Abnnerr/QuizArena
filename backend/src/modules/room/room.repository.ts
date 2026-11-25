@@ -30,13 +30,9 @@ export class RoomRepository implements IRoomRepository {
         }
     }
 
-    async findByRoom(
-        name?: string,
-        roomCode?: string,
-        id?: number
-    ): Promise<RoomWithPlayers | null> {
+    async findByRoom(name?: string,roomCode?: string,id?: number): Promise<RoomWithPlayers | null> {
         try {
-            console.log(name);
+
 
             const where: Prisma.RoomsWhereInput = name
                 ? { room_name: name }

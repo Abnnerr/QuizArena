@@ -1,3 +1,4 @@
+import { BrowserRouter } from "react-router"
 import AuthProvider from "./contexts/AuthContext"
 
 import PlayerProvider from "./contexts/PlayerContext"
@@ -10,18 +11,20 @@ import Toast from "./shared/ui/Toast"
 function App() {
   return (
     <>
-      <ToastProvider>
-        <ThemeProvider>
-          <PlayerProvider>
-            <AuthProvider>
-              <RoomProvider>
-                <Paths />
-                <Toast position="bottom-right"/>
-              </RoomProvider>
-            </AuthProvider>
-          </PlayerProvider>
-        </ThemeProvider>
-      </ToastProvider>
+      <BrowserRouter>
+        <ToastProvider>
+          <ThemeProvider>
+            <PlayerProvider>
+              <AuthProvider>
+                <RoomProvider>
+                  <Paths />
+                  <Toast position="bottom-right" />
+                </RoomProvider>
+              </AuthProvider>
+            </PlayerProvider>
+          </ThemeProvider>
+        </ToastProvider>
+      </BrowserRouter>
     </>
   )
 }

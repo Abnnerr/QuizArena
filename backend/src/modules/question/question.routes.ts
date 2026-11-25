@@ -49,7 +49,7 @@ router.delete(
     RateLimit.limit(200, 3),
     AuthMiddleware.validate,
     PolicyMiddleware.ensureRolePermission("QUESTION_DELETE", 'admin', 'host'),
-    questionController.deleteQuestion
+    questionController.deleteQuestionRoom
 )
 
 router.delete(

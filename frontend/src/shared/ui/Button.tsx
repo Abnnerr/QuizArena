@@ -100,7 +100,7 @@ const Button: React.FC<ButtonProps> = ({
             disabled={disabled || isLoading}
             style={{
                 ...variants[variant],
-                ...(color ? { color } : {}),
+                ...(color ? { backgroundColor: color } : {}),
                 ...(borderColor ? { borderColor } : {}),
             }}
             className={`
